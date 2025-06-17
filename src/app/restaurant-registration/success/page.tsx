@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
@@ -112,7 +112,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 }
 };
 
-export default function RestaurantRegistrationSuccess() {
+function RestaurantRegistrationSuccessInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -175,5 +175,13 @@ export default function RestaurantRegistrationSuccess() {
         </SuccessContainer>
       </Container>
     </>
+  );
+}
+
+export default function RestaurantRegistrationSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RestaurantRegistrationSuccessInner />
+    </Suspense>
   );
 } 
