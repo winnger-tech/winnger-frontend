@@ -1,0 +1,41 @@
+{
+  "name": "winnger",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.27.6",
+    "@googlemaps/js-api-loader": "^1.16.8",
+    "@headlessui/react": "^2.2.4",
+    "@heroicons/react": "^2.2.0",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.1",
+    "@tanstack/react-query": "^5.79.2",
+    "@types/google.maps": "^3.58.1",
+    "axios": "^1.9.0",
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.511.0",
+    "next": "15.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
+    "react-intersection-observer": "^9.16.0",
+    "stripe": "^18.2.1",
+    "styled-components": "^6.1.18"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-styled-components": "^2.1.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

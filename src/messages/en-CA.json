@@ -1,0 +1,136 @@
+{
+  "navigation": {
+    "about": "About",
+    "howItWorks": "How It Works",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "driverRegister": "Driver Register",
+    "restaurantRegister": "Restaurant Register"
+  },
+  "footer": {
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "emailPlaceholder": "Email",
+    "subscribe": "Subscribe to news",
+    "copyright": "© 2025 Winnger. All Rights Reserved.",
+    "privacyPolicy": "Privacy Policy"
+  },
+  "home": {
+    "hero": {
+      "title1": "Join Us in",
+      "title2": "Revolutionizing Local Deliveries!",
+      "description": "Be part of our growing network. Whether you're a driver or a restaurant, we're excited to have you onboard.",
+      "driverRegister": "Register as Driver",
+      "restaurantRegister": "Register as Restaurant"
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "description": "We're on a mission to simplify local deliveries. Our platform connects passionate drivers and thriving restaurants to create a seamless delivery experience for everyone.",
+    "mission": "Our Mission",
+    "missionText": "Whether you're looking to earn more or grow your business, we're here to support you at every mile.",
+    "vision": "Our Vision",
+    "visionText": "To become the most trusted platform for local deliveries, supporting communities and businesses alike.",
+    "driver": {
+      "earn": "Earn on Your Terms – Flexible work hours and fast payouts.",
+      "setup": "One-Time Setup – Just a small fee and you're ready to go.",
+      "support": "Partner Support – We've got your back every step of the way."
+    },
+    "restaurant": {
+      "expand": "Expand Your Reach – Deliver to more customers in your area.",
+      "onboarding": "Quick Onboarding – Easy form and document upload.",
+      "grow": "Grow with Us – Benefit from our marketing & logistics network."
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "description": "Get started in just 3 simple steps. Whether you're a driver or a restaurant, joining our platform is quick, secure, and hassle-free.",
+    "step1": {
+      "title": "Step 1: Fill Out a Simple Form",
+      "description": "Provide your details and necessary documents"
+    },
+    "step2": {
+      "title": "Step 2: Pay the One-Time Setup Fee",
+      "description": "Secure payment gateway ensures your registration is verified"
+    },
+    "step3": {
+      "title": "Step 3: Get Approved by Admin",
+      "description": "Once approved, you'll receive an onboarding confirmation"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Join hundreds of drivers and restaurants pre-registering today."
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "question1": "Who can register on this platform?",
+    "answer1": "Our platform is designed for both delivery drivers looking to earn flexibly and restaurants aiming to expand their delivery reach.",
+    "question2": "What documents do I need to upload while registering?",
+    "answer2": "Drivers typically need to provide a valid ID, driving license, and vehicle details. Restaurants may need a business license and menu information.",
+    "question3": "Is there any registration fee?",
+    "answer3": "Yes, there's a one-time setup fee to help us verify your details and onboard you securely. No hidden charges after that!",
+    "question4": "How long does the approval process take?",
+    "answer4": "Once your form and payment are submitted, our admin team will review and approve your registration within 24–48 hours.",
+    "question5": "I own multiple restaurants. Can I register them all?",
+    "answer5": "Absolutely! You can register each outlet individually or contact our support team for bulk onboarding options.",
+    "question6": "What kind of support do you provide after onboarding?",
+    "answer6": "We offer partner support, including marketing help, logistics integration, and ongoing assistance via phone and email."
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Have Questions? Get in Touch! We're here to help. Fill out the form below and we'll get back to you shortly.",
+    "name": "Name",
+    "namePlaceholder": "Name",
+    "email": "Email*",
+    "emailPlaceholder": "Email",
+    "message": "Message*",
+    "messagePlaceholder": "Message",
+    "sendMessage": "Send Message"
+  },
+  "registration": {
+    "driver": {
+      "title": "Driver Partner Registration",
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "aadhar": "Upload Aadhar Card",
+      "license": "Upload Driving License",
+      "submit": "Proceed to Pay $50",
+      "errors": {
+        "fullName": "Full Name is required",
+        "email": "Email is required",
+        "phone": "Phone is required",
+        "address": "Address is required",
+        "aadhar": "Aadhar Card is required",
+        "license": "Driving License is required"
+      }
+    },
+    "restaurant": {
+      "title": "Restaurant Partner Registration",
+      "ownerName": "Owner Name",
+      "email": "Email",
+      "phone": "Phone",
+      "restaurantName": "Restaurant Name",
+      "address": "Address",
+      "fssai": "Upload FSSAI Certificate",
+      "gst": "Upload GST Certificate",
+      "pan": "Upload PAN Card",
+      "businessLicense": "Upload Business License",
+      "submit": "Proceed to Pay $50",
+      "errors": {
+        "ownerName": "Owner Name is required",
+        "email": "Email is required",
+        "phone": "Phone is required",
+        "restaurantName": "Restaurant Name is required",
+        "address": "Address is required",
+        "fssai": "FSSAI certificate is required",
+        "gst": "GST certificate is required",
+        "pan": "PAN card is required",
+        "businessLicense": "Business License is required"
+      }
+    }
+  }
+} 

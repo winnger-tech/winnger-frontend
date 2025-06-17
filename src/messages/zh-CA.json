@@ -1,0 +1,142 @@
+{
+  "navigation": {
+    "about": "关于我们",
+    "howItWorks": "运作方式",
+    "faq": "常见问题",
+    "contact": "联系我们",
+    "driverRegister": "司机注册",
+    "restaurantRegister": "餐厅注册"
+  },
+  "footer": {
+    "email": "电子邮件",
+    "phone": "电话",
+    "address": "地址",
+    "emailPlaceholder": "电子邮件",
+    "subscribe": "订阅新闻",
+    "copyright": "© 2025 Winnger. 保留所有权利。",
+    "privacyPolicy": "隐私政策"
+  },
+  "home": {
+    "hero": {
+      "title1": "加入我们",
+      "title2": "革新本地配送！",
+      "description": "成为我们不断发展的网络的一部分。无论您是司机还是餐厅，我们都很高兴您的加入。",
+      "driverRegister": "注册成为司机",
+      "restaurantRegister": "注册成为餐厅"
+    }
+  },
+  "about": {
+    "title": "关于我们",
+    "description": "我们的使命是简化本地配送。我们的平台连接热情的司机和蓬勃发展的餐厅，为每个人创造无缝的配送体验。",
+    "mission": "我们的使命",
+    "missionText": "无论您是想赚更多钱还是发展业务，我们都会在每一步为您提供支持。",
+    "vision": "我们的愿景",
+    "visionText": "成为最受信任的本地配送平台，支持社区和企业发展。",
+    "driver": {
+      "earn": "按您的条件赚钱 – 灵活的工作时间和快速付款。",
+      "setup": "一次性设置 – 只需小额费用，您就可以开始。",
+      "support": "合作伙伴支持 – 我们会在每一步为您提供支持。"
+    },
+    "restaurant": {
+      "expand": "扩大您的覆盖范围 – 为更多客户提供配送服务。",
+      "onboarding": "快速入职 – 简单的表单和文档上传。",
+      "grow": "与我们共同成长 – 受益于我们的营销和物流网络。"
+    }
+  },
+  "howItWorks": {
+    "title": "如何运作",
+    "description": "只需3个简单步骤即可开始。无论您是司机还是餐厅，加入我们的平台都是快速、安全和无忧的。",
+    "step1": {
+      "title": "步骤1：填写简单表格",
+      "description": "提供您的详细信息和必要文件"
+    },
+    "step2": {
+      "title": "步骤2：支付一次性设置费",
+      "description": "安全支付网关确保您的注册得到验证"
+    },
+    "step3": {
+      "title": "步骤3：获得管理员批准",
+      "description": "一旦获得批准，您将收到入职确认"
+    },
+    "cta": {
+      "title": "准备好开始了吗？",
+      "description": "加入今天预注册的数百名司机和餐厅。"
+    },
+    "forDrivers": {
+      "title": "司机指南"
+    },
+    "forRestaurants": {
+      "title": "餐厅指南"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "question1": "谁可以在这个平台上注册？",
+    "answer1": "我们的平台专为希望灵活赚钱的配送司机和希望扩大配送范围的餐厅设计。",
+    "question2": "注册时需要上传哪些文件？",
+    "answer2": "司机通常需要提供有效的身份证、驾驶执照和车辆详情。餐厅可能需要营业执照和菜单信息。",
+    "question3": "是否有注册费？",
+    "answer3": "是的，有一笔一次性设置费，帮助我们验证您的详细信息并安全地为您提供入职服务。之后没有隐藏费用！",
+    "question4": "审批过程需要多长时间？",
+    "answer4": "一旦您提交了表格和付款，我们的管理团队将在24至48小时内审核并批准您的注册。",
+    "question5": "我拥有多家餐厅。我可以全部注册吗？",
+    "answer5": "当然可以！您可以单独注册每个分店，或联系我们的支持团队获取批量入职选项。",
+    "question6": "入职后您提供什么样的支持？",
+    "answer6": "我们提供合作伙伴支持，包括营销帮助、物流集成以及通过电话和电子邮件的持续协助。"
+  },
+  "contact": {
+    "title": "联系我们",
+    "description": "有问题吗？请联系我们！我们随时为您提供帮助。填写下面的表格，我们会尽快回复您。",
+    "name": "姓名",
+    "namePlaceholder": "姓名",
+    "email": "电子邮件*",
+    "emailPlaceholder": "电子邮件",
+    "message": "留言*",
+    "messagePlaceholder": "留言",
+    "sendMessage": "发送留言"
+  },
+  "registration": {
+    "driver": {
+      "title": "司机合作伙伴注册",
+      "fullName": "全名",
+      "email": "电子邮件",
+      "phone": "电话",
+      "address": "地址",
+      "aadhar": "上传Aadhar卡",
+      "license": "上传驾驶执照",
+      "submit": "继续支付$50",
+      "errors": {
+        "fullName": "全名为必填项",
+        "email": "电子邮件为必填项",
+        "phone": "电话为必填项",
+        "address": "地址为必填项",
+        "aadhar": "Aadhar卡为必填项",
+        "license": "驾驶执照为必填项"
+      }
+    },
+    "restaurant": {
+      "title": "餐厅合作伙伴注册",
+      "ownerName": "所有者姓名",
+      "email": "电子邮件",
+      "phone": "电话",
+      "restaurantName": "餐厅名称",
+      "address": "地址",
+      "fssai": "上传FSSAI证书",
+      "gst": "上传GST证书",
+      "pan": "上传PAN卡",
+      "businessLicense": "上传营业执照",
+      "submit": "继续支付$50",
+      "errors": {
+        "ownerName": "所有者姓名为必填项",
+        "email": "电子邮件为必填项",
+        "phone": "电话为必填项",
+        "restaurantName": "餐厅名称为必填项",
+        "address": "地址为必填项",
+        "fssai": "FSSAI证书为必填项",
+        "gst": "GST证书为必填项",
+        "pan": "PAN卡为必填项",
+        "businessLicense": "营业执照为必填项"
+      }
+    }
+  }
+} 

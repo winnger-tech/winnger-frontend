@@ -1,0 +1,143 @@
+{
+  "navigation": {
+    "about": "À propos",
+    "howItWorks": "Comment ça marche",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "driverRegister": "Inscription Conducteur",
+    "restaurantRegister": "Inscription Restaurant"
+  },
+  "footer": {
+    "email": "Courriel",
+    "phone": "Téléphone",
+    "address": "Adresse",
+    "emailPlaceholder": "Courriel",
+    "subscribe": "S'abonner aux nouvelles",
+    "copyright": "© 2025 Winnger. Tous droits réservés.",
+    "privacyPolicy": "Politique de confidentialité"
+  },
+  "home": {
+    "hero": {
+      "title1": "Rejoignez-nous pour",
+      "title2": "Révolutionner les Livraisons Locales !",
+      "description": "Faites partie de notre réseau en pleine croissance. Que vous soyez conducteur ou restaurant, nous sommes ravis de vous accueillir.",
+      "driverRegister": "S'inscrire comme Conducteur",
+      "restaurantRegister": "S'inscrire comme Restaurant"
+    }
+  },
+  "about": {
+    "title": "À Propos de Nous",
+    "description": "Nous avons pour mission de simplifier les livraisons locales. Notre plateforme connecte des chauffeurs passionnés et des restaurants dynamiques pour créer une expérience de livraison fluide pour tous.",
+    "mission": "Notre Mission",
+    "missionText": "Que vous cherchiez à gagner plus ou à développer votre entreprise, nous sommes là pour vous soutenir à chaque étape.",
+    "vision": "Notre Vision",
+    "visionText": "Devenir la plateforme la plus fiable pour les livraisons locales, soutenant les communautés et les entreprises.",
+    "driver": {
+      "earn": "Gagnez à Votre Rythme – Horaires flexibles et paiements rapides.",
+      "setup": "Configuration Unique – Un petit frais et vous êtes prêt à partir.",
+      "support": "Support Partenaire – Nous sommes là pour vous à chaque étape."
+    },
+    "restaurant": {
+      "expand": "Élargissez Votre Portée – Livrez à plus de clients dans votre région.",
+      "onboarding": "Intégration Rapide – Formulaire et téléchargement de documents faciles.",
+      "grow": "Grandissez avec Nous – Bénéficiez de notre réseau marketing et logistique."
+    }
+  },
+  "howItWorks": {
+    "title": "Comment Ça Marche",
+    "description": "Commencez en 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
+    "step1": {
+      "title": "Étape 1 : Remplissez un Formulaire Simple",
+      "description": "Fournissez vos détails et documents nécessaires"
+    },
+    "step2": {
+      "title": "Étape 2 : Payez les Frais de Configuration Uniques",
+      "description": "La passerelle de paiement sécurisée garantit que votre inscription est vérifiée"
+    },
+    "step3": {
+      "title": "Étape 3 : Obtenez l'Approbation de l'Administrateur",
+      "description": "Une fois approuvé, vous recevrez une confirmation d'intégration"
+    },
+    "cta": {
+      "title": "Prêt à Commencer ?",
+      "description": "Rejoignez des centaines de chauffeurs et de restaurants qui pré-inscrivent aujourd'hui."
+    },
+    "forDrivers": {
+      "title": "Pour les Conducteurs",
+      "step1": "Inscrivez-vous comme conducteur",
+      "step2": "Complétez la vérification",
+      "step3": "Commencez à accepter les livraisons",
+      "step4": "Gagnez des tarifs compétitifs"
+    },
+    "forRestaurants": {
+      "title": "Pour les Restaurants",
+      "step1": "Inscrivez votre restaurant",
+      "step2": "Configurez votre menu",
+      "step3": "Connectez-vous avec les conducteurs",
+      "step4": "Commencez à livrer"
+    }
+  },
+  "faq": {
+    "title": "Questions Fréquemment Posées",
+    "question1": "Qui peut s'inscrire sur cette plateforme ?",
+    "answer1": "Notre plateforme est conçue pour les chauffeurs de livraison souhaitant gagner de manière flexible et les restaurants visant à élargir leur portée de livraison.",
+    "question2": "Quels documents dois-je télécharger lors de l'inscription ?",
+    "answer2": "Les chauffeurs doivent généralement fournir une pièce d'identité valide, un permis de conduire et les détails du véhicule. Les restaurants peuvent avoir besoin d'une licence commerciale et d'informations sur le menu.",
+    "question3": "Y a-t-il des frais d'inscription ?",
+    "answer3": "Oui, il y a des frais de configuration uniques pour nous aider à vérifier vos détails et à vous intégrer en toute sécurité. Pas de frais cachés après cela !",
+    "question4": "Combien de temps prend le processus d'approbation ?",
+    "answer4": "Une fois votre formulaire et votre paiement soumis, notre équipe administrative examinera et approuvera votre inscription dans les 24 à 48 heures.",
+    "question5": "Je possède plusieurs restaurants. Puis-je tous les inscrire ?",
+    "answer5": "Absolument ! Vous pouvez inscrire chaque établissement individuellement ou contacter notre équipe de support pour des options d'intégration en masse.",
+    "question6": "Quel type de soutien fournissez-vous après l'intégration ?",
+    "answer6": "Nous offrons un soutien aux partenaires, y compris une aide marketing, une intégration logistique et une assistance continue par téléphone et par e-mail."
+  },
+  "contact": {
+    "title": "Contactez-Nous",
+    "description": "Vous avez des questions ? Contactez-nous ! Nous sommes là pour vous aider. Remplissez le formulaire ci-dessous et nous vous répondrons bientôt.",
+    "name": "Nom",
+    "namePlaceholder": "Nom",
+    "email": "Email*",
+    "emailPlaceholder": "Email",
+    "message": "Message*",
+    "messagePlaceholder": "Message",
+    "sendMessage": "Envoyer le Message"
+  },
+  "registration": {
+    "driver": {
+      "title": "Inscription Conducteur",
+      "form": {
+        "name": "Nom Complet",
+        "email": "Courriel",
+        "phone": "Numéro de Téléphone",
+        "license": "Numéro de Permis de Conduire",
+        "vehicle": "Informations sur le Véhicule",
+        "submit": "S'inscrire comme Conducteur"
+      }
+    },
+    "restaurant": {
+      "title": "Inscription Partenaire Restaurant",
+      "ownerName": "Nom du Propriétaire",
+      "email": "Courriel",
+      "phone": "Téléphone",
+      "restaurantName": "Nom du Restaurant",
+      "address": "Adresse",
+      "fssai": "Télécharger le Certificat FSSAI",
+      "gst": "Télécharger le Certificat GST",
+      "pan": "Télécharger la Carte PAN",
+      "businessLicense": "Télécharger la Licence d'Entreprise",
+      "submit": "Procéder au Paiement de 50$",
+      "errors": {
+        "ownerName": "Le nom du propriétaire est requis",
+        "email": "Le courriel est requis",
+        "phone": "Le téléphone est requis",
+        "restaurantName": "Le nom du restaurant est requis",
+        "address": "L'adresse est requise",
+        "fssai": "Le certificat FSSAI est requis",
+        "gst": "Le certificat GST est requis",
+        "pan": "La carte PAN est requise",
+        "businessLicense": "La licence d'entreprise est requise"
+      }
+    }
+  }
+} 
