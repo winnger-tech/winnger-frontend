@@ -219,7 +219,7 @@ export const PrimaryButton = styled(motion.button)`
   }
 `;
 
-const ButtonLink = styled.a`
+const ButtonLink = styled.span`
   display: inline-block;
   text-decoration: none;
   width: 100%;

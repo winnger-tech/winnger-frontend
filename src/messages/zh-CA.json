@@ -1,7 +1,7 @@
 {
   "navigation": {
     "about": "关于我们",
-    "howItWorks": "运作方式",
+    "howItWorks": "工作原理",
     "faq": "常见问题",
     "contact": "联系我们",
     "driverRegister": "司机注册",
@@ -95,48 +95,242 @@
     "messagePlaceholder": "留言",
     "sendMessage": "发送留言"
   },
-  "registration": {
-    "driver": {
-      "title": "司机合作伙伴注册",
-      "fullName": "全名",
-      "email": "电子邮件",
-      "phone": "电话",
-      "address": "地址",
-      "aadhar": "上传Aadhar卡",
-      "license": "上传驾驶执照",
-      "submit": "继续支付$50",
-      "errors": {
-        "fullName": "全名为必填项",
-        "email": "电子邮件为必填项",
-        "phone": "电话为必填项",
-        "address": "地址为必填项",
-        "aadhar": "Aadhar卡为必填项",
-        "license": "驾驶执照为必填项"
-      }
+  "driverRegistration": {
+    "title": "司机合作伙伴注册",
+    "sections": {
+      "personalInfo": "个人信息",
+      "addressInfo": "地址信息",
+      "vehicleInfo": "车辆信息",
+      "vehicleDocuments": "车辆文件",
+      "documentsLicenses": "证件和执照",
+      "driversLicense": "驾驶执照",
+      "backgroundWorkEligibility": "背景调查和工作资格",
+      "bankingConsent": "银行信息和同意书"
     },
+    "labels": {
+      "firstName": "名字",
+      "middleName": "中间名",
+      "lastName": "姓氏",
+      "dateOfBirth": "出生日期",
+      "email": "电子邮件",
+      "password": "密码",
+      "cellNumber": "手机号码",
+      "streetNameNumber": "街道名称和门牌号",
+      "appUniteNumber": "公寓/单元号",
+      "city": "城市",
+      "province": "省份",
+      "postalCode": "邮政编码",
+      "profilePhoto": "个人照片",
+      "vehicleType": "车辆类型",
+      "vehicleMake": "车辆品牌",
+      "vehicleModel": "车辆型号",
+      "yearOfManufacture": "制造年份",
+      "vehicleColor": "车辆颜色",
+      "vehicleLicensePlate": "车牌号",
+      "vehicleRegistration": "车辆登记证",
+      "vehicleInsurance": "车辆保险",
+      "driversLicenseFront": "驾驶执照（正面）",
+      "driversLicenseBack": "驾驶执照（背面）",
+      "driversLicenseClass": "驾驶执照等级",
+      "drivingAbstractDate": "驾驶记录日期",
+      "drivingAbstract": "驾驶记录",
+      "criminalBackgroundCheck": "犯罪背景调查",
+      "workEligibility": "工作资格文件",
+      "workEligibilityType": "工作资格类型",
+      "sinNumber": "社会保险号",
+      "sinCard": "社会保险卡",
+      "transitNumber": "转账号码",
+      "institutionNumber": "机构号码",
+      "accountNumber": "账户号码"
+    },
+    "placeholders": {
+      "firstName": "输入您的名字",
+      "middleName": "输入您的中间名（可选）",
+      "lastName": "输入您的姓氏",
+      "email": "输入您的电子邮件",
+      "password": "输入安全密码",
+      "cellNumber": "+1-XXX-XXX-XXXX",
+      "streetNameNumber": "输入街道地址",
+      "appUniteNumber": "输入公寓号码（可选）",
+      "city": "输入城市名称",
+      "postalCode": "A1A 1A1",
+      "vehicleMake": "例如：丰田、本田",
+      "vehicleModel": "例如：凯美瑞、思域",
+      "yearOfManufacture": "YYYY",
+      "vehicleColor": "输入车辆颜色",
+      "vehicleLicensePlate": "输入车牌号",
+      "driversLicenseClassOntario": "输入 G 或 G2",
+      "driversLicenseClassOther": "输入 5 级",
+      "sinNumber": "输入9位社会保险号",
+      "transitNumber": "输入3位转账号码",
+      "institutionNumber": "输入5位机构号码",
+      "accountNumber": "输入7-12位账户号码"
+    },
+    "common": {
+      "clickToUpload": "点击上传",
+      "uploadImage": "上传图片",
+      "digits": "位数字"
+    },
+    "buttons": {
+      "back": "返回",
+      "nextStep": "下一步",
+      "proceedToPayment": "进行支付"
+    },
+    "paymentInfo": {
+      "title": "注册费用",
+      "amount": "25.00 加元",
+      "description": "一次性注册费用，用于背景调查和账户设置"
+    },
+    "consent": {
+      "termsAndConditions": "我同意条款和条件",
+      "backgroundScreening": "我同意进行背景调查",
+      "privacyPolicy": "我同意隐私政策",
+      "electronicCommunication": "我同意接收电子通讯"
+    },
+    "errors": {
+      "firstNameRequired": "请输入名字",
+      "lastNameRequired": "请输入姓氏",
+      "emailRequired": "请输入电子邮件",
+      "invalidEmail": "电子邮件格式无效",
+      "passwordRequired": "请输入密码",
+      "passwordLength": "密码至少需要6个字符",
+      "cellNumberRequired": "请输入手机号码",
+      "invalidCellNumber": "手机号码格式无效",
+      "dateOfBirthRequired": "请输入出生日期",
+      "ageRestriction": "您必须年满18岁",
+      "streetAddressRequired": "请输入街道地址",
+      "cityRequired": "请输入城市",
+      "provinceRequired": "请选择省份",
+      "postalCodeRequired": "请输入邮政编码",
+      "invalidPostalCode": "邮政编码格式无效",
+      "profilePhotoRequired": "请上传个人照片",
+      "vehicleTypeRequired": "请选择车辆类型",
+      "vehicleMakeRequired": "请输入车辆品牌",
+      "vehicleModelRequired": "请输入车辆型号",
+      "yearRequired": "请输入年份",
+      "yearTooOld": "车辆太旧。必须是1990年或之后的车辆。",
+      "yearTooNew": "年份无效。不能是未来年份。",
+      "vehicleAgeRestriction": "送餐服务的车辆不能超过25年。",
+      "vehicleColorRequired": "请输入车辆颜色",
+      "licensePlateRequired": "请输入车牌号",
+      "invalidLicensePlate": "车牌号格式无效",
+      "vehicleRegistrationRequired": "请上传车辆登记证",
+      "vehicleInsuranceRequired": "请上传车辆保险",
+      "driversLicenseFrontRequired": "请上传驾驶执照正面",
+      "driversLicenseBackRequired": "请上传驾驶执照背面",
+      "licenseClassRequired": "请输入驾驶执照等级",
+      "ontarioLicenseClass": "安大略省必须是G或G2级",
+      "otherProvinceLicenseClass": "必须是5级驾照",
+      "drivingAbstractDateRequired": "请输入驾驶记录日期",
+      "drivingAbstractDateRecency": "驾驶记录必须在3个月内",
+      "drivingAbstractRequired": "请上传驾驶记录",
+      "criminalBackgroundCheckRequired": "请上传犯罪背景调查",
+      "workEligibilityRequired": "请上传工作资格文件",
+      "workEligibilityTypeRequired": "请选择工作资格类型",
+      "sinNumberRequired": "请输入社会保险号",
+      "invalidSinNumber": "社会保险号格式无效",
+      "transitNumberRequired": "请输入转账号码",
+      "invalidTransitNumber": "转账号码格式无效",
+      "institutionNumberRequired": "请输入机构号码",
+      "invalidInstitutionNumber": "机构号码格式无效",
+      "accountNumberRequired": "请输入账户号码",
+      "invalidAccountNumber": "账户号码格式无效",
+      "consentRequired": "您必须同意所有条款",
+      "submissionFailed": "注册提交失败。请重试。"
+    }
+  },
+  "registration": {
     "restaurant": {
       "title": "餐厅合作伙伴注册",
-      "ownerName": "所有者姓名",
-      "email": "电子邮件",
-      "phone": "电话",
-      "restaurantName": "餐厅名称",
-      "address": "地址",
-      "fssai": "上传FSSAI证书",
-      "gst": "上传GST证书",
-      "pan": "上传PAN卡",
-      "businessLicense": "上传营业执照",
-      "submit": "继续支付$50",
+      "steps": {
+        "ownerInfo": "所有者和企业信息",
+        "documents": "文件和验证",
+        "menu": "菜单设置",
+        "payment": "支付信息"
+      },
+      "ownerInfo": {
+        "ownerName": "所有者姓名",
+        "email": "所有者电子邮件",
+        "phone": "所有者电话",
+        "identificationType": "身份证明类型"
+      },
+      "businessInfo": {
+        "title": "企业详情",
+        "restaurantName": "餐厅名称",
+        "businessAddress": "企业地址",
+        "city": "城市",
+        "province": "省份",
+        "postalCode": "邮政编码"
+      },
+      "bankingInfo": {
+        "title": "银行信息",
+        "transitNumber": "转账号码",
+        "institutionNumber": "机构号码",
+        "accountNumber": "账户号码"
+      },
+      "taxInfo": {
+        "title": "税务信息",
+        "gstNumber": "GST号码",
+        "hstNumber": "HST号码",
+        "pstNumber": "PST号码",
+        "qstNumber": "QST号码"
+      },
+      "documents": {
+        "title": "所需文件",
+        "businessDocument": "企业文件",
+        "fssai": "FSSAI证书",
+        "gst": "GST证书",
+        "pan": "PAN卡",
+        "businessLicense": "营业执照",
+        "voidCheque": "作废支票"
+      },
+      "menu": {
+        "title": "菜单设置",
+        "itemName": "项目名称",
+        "price": "价格",
+        "description": "描述"
+      },
+      "hours": {
+        "title": "营业时间",
+        "openTime": "开始时间",
+        "closeTime": "结束时间",
+        "closed": "休息"
+      },
+      "payment": {
+        "title": "支付",
+        "description": "支付一次性设置费用完成注册",
+        "button": "提交并支付"
+      },
       "errors": {
-        "ownerName": "所有者姓名为必填项",
-        "email": "电子邮件为必填项",
-        "phone": "电话为必填项",
-        "restaurantName": "餐厅名称为必填项",
-        "address": "地址为必填项",
-        "fssai": "FSSAI证书为必填项",
-        "gst": "GST证书为必填项",
-        "pan": "PAN卡为必填项",
-        "businessLicense": "营业执照为必填项"
+        "required": "此字段为必填项",
+        "invalidEmail": "无效的电子邮件格式",
+        "invalidPhone": "无效的电话号码格式",
+        "invalidPostal": "无效的邮政编码格式"
+      },
+      "placeholders": {
+        "ownerName": "输入所有者全名",
+        "email": "输入所有者电子邮件",
+        "phone": "输入所有者电话号码",
+        "restaurantName": "输入餐厅名称",
+        "businessAddress": "输入企业地址",
+        "city": "输入城市名称",
+        "postalCode": "输入邮政编码（例如：A1A 1A1）"
+      },
+      "identificationTypes": {
+        "licence": "营业执照",
+        "passport": "护照",
+        "driverLicence": "驾驶执照",
+        "healthCard": "健康卡"
+      },
+      "buttons": {
+        "nextStep": "下一步",
+        "back": "返回",
+        "submit": "提交"
       }
+    },
+    "driver": {
+      "title": "司机合作伙伴注册",
+      "description": "请填写以下表格以开始您的注册流程。"
     }
   }
 } 
