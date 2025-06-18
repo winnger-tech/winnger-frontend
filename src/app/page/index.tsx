@@ -60,24 +60,26 @@ export default function Hero() {
 
         <HeroRight>
           <MotionHeroImage
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            viewport={{ once: true }}
-          >
-            <Image
-              src="/HeroImg.png"
-              alt="Hero Illustration"
-              width={500}
-              height={300}
-              style={{
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.05)",
-                objectFit: "cover",
-                width: "100%",
-                height: "auto",
-              }}
-            />
-          </MotionHeroImage>
+  initial={{ opacity: 0, scale: 0.95 }}
+  whileInView={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.9, ease: "easeOut" }}
+  viewport={{ once: true }}
+>
+  <video
+    src="/HeroVid.mov"
+    autoPlay
+    muted
+    loop
+    playsInline
+    style={{
+      width: "100%",
+      height: "auto",
+      borderRadius: "inherit",
+      objectFit: "cover",
+      boxShadow: "0 20px 40px rgba(0, 0, 0, 0.05)",
+    }}
+  />
+</MotionHeroImage>
         </HeroRight>
       </ContentWrapper>
     </HeroWrapper>
