@@ -4,7 +4,7 @@
     "howItWorks": "Comment ça marche",
     "faq": "FAQ",
     "contact": "Contact",
-    "driverRegister": "Inscription Conducteur",
+    "driverRegister": "Inscription Chauffeur",
     "restaurantRegister": "Inscription Restaurant"
   },
   "footer": {
@@ -103,41 +103,242 @@
     "messagePlaceholder": "Message",
     "sendMessage": "Envoyer le Message"
   },
+  "driverRegistration": {
+    "title": "Inscription Partenaire Chauffeur",
+    "sections": {
+      "personalInfo": "Informations Personnelles",
+      "addressInfo": "Informations d'Adresse",
+      "vehicleInfo": "Informations du Véhicule",
+      "vehicleDocuments": "Documents du Véhicule",
+      "documentsLicenses": "Documents & Permis",
+      "driversLicense": "Permis de Conduire",
+      "backgroundWorkEligibility": "Vérification & Admissibilité au Travail",
+      "bankingConsent": "Informations Bancaires & Consentement"
+    },
+    "labels": {
+      "firstName": "Prénom",
+      "middleName": "Deuxième Prénom",
+      "lastName": "Nom de Famille",
+      "dateOfBirth": "Date de Naissance",
+      "email": "Adresse Courriel",
+      "password": "Mot de Passe",
+      "cellNumber": "Numéro de Téléphone",
+      "streetNameNumber": "Nom de Rue & Numéro",
+      "appUniteNumber": "App/Unité",
+      "city": "Ville",
+      "province": "Province",
+      "postalCode": "Code Postal",
+      "profilePhoto": "Photo de Profil",
+      "vehicleType": "Type de Véhicule",
+      "vehicleMake": "Marque du Véhicule",
+      "vehicleModel": "Modèle du Véhicule",
+      "yearOfManufacture": "Année de Fabrication",
+      "vehicleColor": "Couleur du Véhicule",
+      "vehicleLicensePlate": "Plaque d'Immatriculation",
+      "vehicleRegistration": "Immatriculation du Véhicule",
+      "vehicleInsurance": "Assurance du Véhicule",
+      "driversLicenseFront": "Permis de Conduire (Recto)",
+      "driversLicenseBack": "Permis de Conduire (Verso)",
+      "driversLicenseClass": "Classe du Permis",
+      "drivingAbstractDate": "Date du Dossier de Conduite",
+      "drivingAbstract": "Dossier de Conduite",
+      "criminalBackgroundCheck": "Vérification du Casier Judiciaire",
+      "workEligibility": "Document d'Admissibilité au Travail",
+      "workEligibilityType": "Type d'Admissibilité au Travail",
+      "sinNumber": "Numéro d'Assurance Sociale",
+      "sinCard": "Carte d'Assurance Sociale",
+      "transitNumber": "Numéro de Transit",
+      "institutionNumber": "Numéro d'Institution",
+      "accountNumber": "Numéro de Compte"
+    },
+    "placeholders": {
+      "firstName": "Entrez votre prénom",
+      "middleName": "Entrez votre deuxième prénom (optionnel)",
+      "lastName": "Entrez votre nom de famille",
+      "email": "Entrez votre adresse courriel",
+      "password": "Entrez un mot de passe sécurisé",
+      "cellNumber": "+1-XXX-XXX-XXXX",
+      "streetNameNumber": "Entrez l'adresse",
+      "appUniteNumber": "Entrez le numéro d'appartement (optionnel)",
+      "city": "Entrez le nom de la ville",
+      "postalCode": "A1A 1A1",
+      "vehicleMake": "ex., Toyota, Honda",
+      "vehicleModel": "ex., Camry, Civic",
+      "yearOfManufacture": "AAAA",
+      "vehicleColor": "Entrez la couleur du véhicule",
+      "vehicleLicensePlate": "Entrez le numéro de plaque",
+      "driversLicenseClassOntario": "Entrez G ou G2",
+      "driversLicenseClassOther": "Entrez Classe 5",
+      "sinNumber": "Entrez le NAS à 9 chiffres",
+      "transitNumber": "Entrez le numéro à 3 chiffres",
+      "institutionNumber": "Entrez le numéro à 5 chiffres",
+      "accountNumber": "Entrez le numéro de 7-12 chiffres"
+    },
+    "common": {
+      "clickToUpload": "Cliquez pour télécharger",
+      "uploadImage": "Télécharger l'image",
+      "digits": "chiffres"
+    },
+    "buttons": {
+      "back": "Retour",
+      "nextStep": "Suivant",
+      "proceedToPayment": "Procéder au Paiement"
+    },
+    "paymentInfo": {
+      "title": "Frais d'Inscription",
+      "amount": "25,00 $ CAD",
+      "description": "Frais d'inscription unique pour la vérification des antécédents et la configuration du compte"
+    },
+    "consent": {
+      "termsAndConditions": "J'accepte les conditions générales",
+      "backgroundScreening": "Je consens à la vérification des antécédents",
+      "privacyPolicy": "J'accepte la politique de confidentialité",
+      "electronicCommunication": "J'accepte de recevoir des communications électroniques"
+    },
+    "errors": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom de famille est requis",
+      "emailRequired": "L'adresse courriel est requise",
+      "invalidEmail": "Format d'adresse courriel invalide",
+      "passwordRequired": "Le mot de passe est requis",
+      "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
+      "cellNumberRequired": "Le numéro de téléphone est requis",
+      "invalidCellNumber": "Format de numéro de téléphone invalide",
+      "dateOfBirthRequired": "La date de naissance est requise",
+      "ageRestriction": "Vous devez avoir au moins 18 ans",
+      "streetAddressRequired": "L'adresse est requise",
+      "cityRequired": "La ville est requise",
+      "provinceRequired": "La province est requise",
+      "postalCodeRequired": "Le code postal est requis",
+      "invalidPostalCode": "Format de code postal invalide",
+      "profilePhotoRequired": "La photo de profil est requise",
+      "vehicleTypeRequired": "Le type de véhicule est requis",
+      "vehicleMakeRequired": "La marque du véhicule est requise",
+      "vehicleModelRequired": "Le modèle du véhicule est requis",
+      "yearRequired": "L'année est requise",
+      "yearTooOld": "Le véhicule est trop ancien. Doit être de 1990 ou plus récent.",
+      "yearTooNew": "Année invalide. Ne peut pas être une année future.",
+      "vehicleAgeRestriction": "Le véhicule ne doit pas avoir plus de 25 ans pour le service de livraison.",
+      "vehicleColorRequired": "La couleur du véhicule est requise",
+      "licensePlateRequired": "La plaque d'immatriculation est requise",
+      "invalidLicensePlate": "Format de plaque d'immatriculation invalide",
+      "vehicleRegistrationRequired": "L'immatriculation du véhicule est requise",
+      "vehicleInsuranceRequired": "L'assurance du véhicule est requise",
+      "driversLicenseFrontRequired": "La photo recto du permis est requise",
+      "driversLicenseBackRequired": "La photo verso du permis est requise",
+      "licenseClassRequired": "La classe du permis est requise",
+      "ontarioLicenseClass": "Pour l'Ontario, le permis doit être G ou G2",
+      "otherProvinceLicenseClass": "Le permis doit être de Classe 5",
+      "drivingAbstractDateRequired": "La date du dossier de conduite est requise",
+      "drivingAbstractDateRecency": "Le dossier de conduite doit avoir moins de 3 mois",
+      "drivingAbstractRequired": "Le dossier de conduite est requis",
+      "criminalBackgroundCheckRequired": "La vérification du casier judiciaire est requise",
+      "workEligibilityRequired": "Le document d'admissibilité au travail est requis",
+      "workEligibilityTypeRequired": "Le type d'admissibilité au travail est requis",
+      "sinNumberRequired": "Le numéro d'assurance sociale est requis",
+      "invalidSinNumber": "Format de NAS invalide",
+      "transitNumberRequired": "Le numéro de transit est requis",
+      "invalidTransitNumber": "Format de numéro de transit invalide",
+      "institutionNumberRequired": "Le numéro d'institution est requis",
+      "invalidInstitutionNumber": "Format de numéro d'institution invalide",
+      "accountNumberRequired": "Le numéro de compte est requis",
+      "invalidAccountNumber": "Format de numéro de compte invalide",
+      "consentRequired": "Vous devez accepter toutes les conditions",
+      "submissionFailed": "L'envoi de l'inscription a échoué. Veuillez réessayer."
+    }
+  },
   "registration": {
-    "driver": {
-      "title": "Inscription Conducteur",
-      "form": {
-        "name": "Nom Complet",
-        "email": "Courriel",
-        "phone": "Numéro de Téléphone",
-        "license": "Numéro de Permis de Conduire",
-        "vehicle": "Informations sur le Véhicule",
-        "submit": "S'inscrire comme Conducteur"
+    "restaurant": {
+      "title": "Inscription Restaurant Partenaire",
+      "steps": {
+        "ownerInfo": "Informations du Propriétaire et de l'Entreprise",
+        "documents": "Documents et Vérification",
+        "menu": "Configuration du Menu",
+        "payment": "Informations de Paiement"
+      },
+      "ownerInfo": {
+        "ownerName": "Nom du Propriétaire",
+        "email": "Courriel du Propriétaire",
+        "phone": "Téléphone du Propriétaire",
+        "identificationType": "Type d'Identification"
+      },
+      "businessInfo": {
+        "title": "Détails de l'Entreprise",
+        "restaurantName": "Nom du Restaurant",
+        "businessAddress": "Adresse de l'Entreprise",
+        "city": "Ville",
+        "province": "Province",
+        "postalCode": "Code Postal"
+      },
+      "bankingInfo": {
+        "title": "Informations Bancaires",
+        "transitNumber": "Numéro de Transit",
+        "institutionNumber": "Numéro d'Institution",
+        "accountNumber": "Numéro de Compte"
+      },
+      "taxInfo": {
+        "title": "Informations Fiscales",
+        "gstNumber": "Numéro de TPS",
+        "hstNumber": "Numéro de TVH",
+        "pstNumber": "Numéro de TVP",
+        "qstNumber": "Numéro de TVQ"
+      },
+      "documents": {
+        "title": "Documents Requis",
+        "businessDocument": "Document d'Entreprise",
+        "fssai": "Certificat FSSAI",
+        "gst": "Certificat TPS",
+        "pan": "Carte PAN",
+        "businessLicense": "Licence d'Entreprise",
+        "voidCheque": "Chèque Annulé"
+      },
+      "menu": {
+        "title": "Configuration du Menu",
+        "itemName": "Nom de l'Article",
+        "price": "Prix",
+        "description": "Description"
+      },
+      "hours": {
+        "title": "Heures d'Ouverture",
+        "openTime": "Heure d'Ouverture",
+        "closeTime": "Heure de Fermeture",
+        "closed": "Fermé"
+      },
+      "payment": {
+        "title": "Paiement",
+        "description": "Complétez votre inscription avec des frais de configuration uniques",
+        "button": "Soumettre et Payer"
+      },
+      "errors": {
+        "required": "Ce champ est obligatoire",
+        "invalidEmail": "Format de courriel invalide",
+        "invalidPhone": "Format de téléphone invalide",
+        "invalidPostal": "Format de code postal invalide"
+      },
+      "placeholders": {
+        "ownerName": "Entrez le nom complet du propriétaire",
+        "email": "Entrez l'adresse courriel du propriétaire",
+        "phone": "Entrez le numéro de téléphone du propriétaire",
+        "restaurantName": "Entrez le nom du restaurant",
+        "businessAddress": "Entrez l'adresse de l'entreprise",
+        "city": "Entrez le nom de la ville",
+        "postalCode": "Entrez le code postal (ex: A1A 1A1)"
+      },
+      "identificationTypes": {
+        "licence": "Permis d'exploitation",
+        "passport": "Passeport",
+        "driverLicence": "Permis de conduire",
+        "healthCard": "Carte santé"
+      },
+      "buttons": {
+        "nextStep": "Suivant",
+        "back": "Retour",
+        "submit": "Soumettre"
       }
     },
-    "restaurant": {
-      "title": "Inscription Partenaire Restaurant",
-      "ownerName": "Nom du Propriétaire",
-      "email": "Courriel",
-      "phone": "Téléphone",
-      "restaurantName": "Nom du Restaurant",
-      "address": "Adresse",
-      "fssai": "Télécharger le Certificat FSSAI",
-      "gst": "Télécharger le Certificat GST",
-      "pan": "Télécharger la Carte PAN",
-      "businessLicense": "Télécharger la Licence d'Entreprise",
-      "submit": "Procéder au Paiement de 50$",
-      "errors": {
-        "ownerName": "Le nom du propriétaire est requis",
-        "email": "Le courriel est requis",
-        "phone": "Le téléphone est requis",
-        "restaurantName": "Le nom du restaurant est requis",
-        "address": "L'adresse est requise",
-        "fssai": "Le certificat FSSAI est requis",
-        "gst": "Le certificat GST est requis",
-        "pan": "La carte PAN est requise",
-        "businessLicense": "La licence d'entreprise est requise"
-      }
+    "driver": {
+      "title": "Inscription Partenaire Chauffeur",
+      "description": "Remplissez le formulaire ci-dessous pour commencer votre inscription."
     }
   }
 } 

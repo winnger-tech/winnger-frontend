@@ -13,6 +13,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { useTranslation } from '../../utils/i18n';
 
 // Ensure the Stripe key is loaded from environment variables
 const stripePromise = loadStripe(
@@ -182,6 +183,7 @@ function PaymentForm({
 
 // Main Registration Component - RENAMED FOR CLARITY
 export default function RestaurantRegistrationPage() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
@@ -467,7 +469,7 @@ export default function RestaurantRegistrationPage() {
     <>
       <Navbar />
       <FormContainer as={motion.section} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-        <h2>Restaurant Partner Registration</h2>
+        <h2>{t('registration.restaurant.title')}</h2>
         <ProgressBar>
           {[1, 2, 3, 4].map((num) => (
             <ProgressStep key={num} $active={step >= num}>
@@ -479,57 +481,57 @@ export default function RestaurantRegistrationPage() {
         <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
           {step === 1 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>Owner & Business Information</SectionTitle>
+              <SectionTitle>{t('registration.restaurant.steps.ownerInfo')}</SectionTitle>
               <FormGroup>
-                <label htmlFor="ownerName">Owner Name *</label>
-                <input id="ownerName" name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="John Doe" />
-                {errors.ownerName && <ErrorText>{errors.ownerName}</ErrorText>}
+                <label htmlFor="ownerName">{t('registration.restaurant.ownerInfo.ownerName')} *</label>
+                <input id="ownerName" name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.ownerName')} />
+                {errors.ownerName && <ErrorText>{t('registration.restaurant.errors.ownerNameRequired')}</ErrorText>}
               </FormGroup>
               <FormRow>
                 <FormGroup>
-                    <label htmlFor="email">Owner Email *</label>
-                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="owner@example.com" />
-                    {errors.email && <ErrorText>{errors.email}</ErrorText>}
+                    <label htmlFor="email">{t('registration.restaurant.ownerInfo.email')} *</label>
+                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.email')} />
+                    {errors.email && <ErrorText>{t('registration.restaurant.errors.emailRequired')}</ErrorText>}
                 </FormGroup>
                 <FormGroup>
-                    <label htmlFor="phone">Owner Phone *</label>
-                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="(123) 456-7890" />
-                    {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
+                    <label htmlFor="phone">{t('registration.restaurant.ownerInfo.phone')} *</label>
+                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.phone')} />
+                    {errors.phone && <ErrorText>{t('registration.restaurant.errors.phoneRequired')}</ErrorText>}
                 </FormGroup>
               </FormRow>
                <FormGroup>
-                <label htmlFor="identificationType">Identification Type *</label>
+                <label htmlFor="identificationType">{t('registration.restaurant.ownerInfo.identificationType')} *</label>
                 <select id="identificationType" name="identificationType" value={formData.identificationType} onChange={handleChange}>
-                    {IDENTIFICATION_TYPES.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
+                    {IDENTIFICATION_TYPES.map(type => <option key={type.value} value={type.value}>{t(`registration.restaurant.identificationTypes.${type.value}`)}</option>)}
                 </select>
                </FormGroup>
-              <SectionTitle style={{marginTop: '3rem'}}>Business Details</SectionTitle>
+              <SectionTitle style={{marginTop: '3rem'}}>{t('registration.restaurant.businessInfo.title')}</SectionTitle>
                <FormGroup>
-                <label htmlFor="restaurantName">Restaurant Name *</label>
-                <input id="restaurantName" name="restaurantName" value={formData.restaurantName} onChange={handleChange} placeholder="The Delicious Place" />
-                {errors.restaurantName && <ErrorText>{errors.restaurantName}</ErrorText>}
+                <label htmlFor="restaurantName">{t('registration.restaurant.businessInfo.restaurantName')} *</label>
+                <input id="restaurantName" name="restaurantName" value={formData.restaurantName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantName')} />
+                {errors.restaurantName && <ErrorText>{t('registration.restaurant.errors.restaurantNameRequired')}</ErrorText>}
               </FormGroup>
                <FormGroup>
-                <label htmlFor="businessAddress">Business Address *</label>
-                <input id="businessAddress" name="businessAddress" value={formData.businessAddress} onChange={handleChange} placeholder="123 Main St" />
-                {errors.businessAddress && <ErrorText>{errors.businessAddress}</ErrorText>}
+                <label htmlFor="businessAddress">{t('registration.restaurant.businessInfo.businessAddress')} *</label>
+                <input id="businessAddress" name="businessAddress" value={formData.businessAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.businessAddress')} />
+                {errors.businessAddress && <ErrorText>{t('registration.restaurant.errors.businessAddressRequired')}</ErrorText>}
               </FormGroup>
               <FormRow>
                  <FormGroup>
-                    <label htmlFor="city">City *</label>
-                    <input id="city" name="city" value={formData.city} onChange={handleChange} placeholder="Toronto" />
-                    {errors.city && <ErrorText>{errors.city}</ErrorText>}
+                    <label htmlFor="city">{t('registration.restaurant.businessInfo.city')} *</label>
+                    <input id="city" name="city" value={formData.city} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.city')} />
+                    {errors.city && <ErrorText>{t('registration.restaurant.errors.cityRequired')}</ErrorText>}
                 </FormGroup>
                  <FormGroup>
-                    <label htmlFor="province">Province *</label>
+                    <label htmlFor="province">{t('registration.restaurant.businessInfo.province')} *</label>
                      <select id="province" name="province" value={formData.province} onChange={handleChange}>
                         {PROVINCES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                      </select>
                 </FormGroup>
                  <FormGroup>
-                    <label htmlFor="postalCode">Postal Code *</label>
-                    <input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder="A1B 2C3" />
-                    {errors.postalCode && <ErrorText>{errors.postalCode}</ErrorText>}
+                    <label htmlFor="postalCode">{t('registration.restaurant.businessInfo.postalCode')} *</label>
+                    <input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.postalCode')} />
+                    {errors.postalCode && <ErrorText>{t('registration.restaurant.errors.postalCodeRequired')}</ErrorText>}
                 </FormGroup>
               </FormRow>
             </motion.div>
@@ -537,59 +539,58 @@ export default function RestaurantRegistrationPage() {
 
           {step === 2 && (
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <SectionTitle>Banking & Tax Information</SectionTitle>
-                <SubSectionTitle>Banking Information</SubSectionTitle>
+                <SectionTitle>{t('registration.restaurant.bankingInfo.title')}</SectionTitle>
                 <FormRow>
                     <FormGroup>
-                        <label htmlFor="transitNumber">Transit Number (5 digits) *</label>
+                        <label htmlFor="transitNumber">{t('registration.restaurant.bankingInfo.transitNumber')} (5 {t('registration.restaurant.common.digits')}) *</label>
                         <input id="transitNumber" name="transitNumber" value={formData.transitNumber} onChange={handleChange} maxLength={5} />
-                        {errors.transitNumber && <ErrorText>{errors.transitNumber}</ErrorText>}
+                        {errors.transitNumber && <ErrorText>{t('registration.restaurant.errors.transitNumberRequired')}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
-                        <label htmlFor="institutionNumber">Institution Number (3 digits) *</label>
+                        <label htmlFor="institutionNumber">{t('registration.restaurant.bankingInfo.institutionNumber')} (3 {t('registration.restaurant.common.digits')}) *</label>
                         <input id="institutionNumber" name="institutionNumber" value={formData.institutionNumber} onChange={handleChange} maxLength={3}/>
-                        {errors.institutionNumber && <ErrorText>{errors.institutionNumber}</ErrorText>}
+                        {errors.institutionNumber && <ErrorText>{t('registration.restaurant.errors.institutionNumberRequired')}</ErrorText>}
                     </FormGroup>
                 </FormRow>
                 <FormGroup>
-                    <label htmlFor="accountNumber">Account Number (7-12 digits) *</label>
+                    <label htmlFor="accountNumber">{t('registration.restaurant.bankingInfo.accountNumber')} (7-12 {t('registration.restaurant.common.digits')}) *</label>
                     <input id="accountNumber" name="accountNumber" value={formData.accountNumber} onChange={handleChange} maxLength={12}/>
-                    {errors.accountNumber && <ErrorText>{errors.accountNumber}</ErrorText>}
+                    {errors.accountNumber && <ErrorText>{t('registration.restaurant.errors.accountNumberRequired')}</ErrorText>}
                 </FormGroup>
 
-                <SubSectionTitle>Tax Information</SubSectionTitle>
+                <SubSectionTitle>{t('registration.restaurant.taxInfo.title')}</SubSectionTitle>
                 <TaxInfo>
-                    <p>Required tax numbers for <strong>{PROVINCES.find(p => p.value === formData.province)?.label}</strong>:</p>
+                    <p>{t('registration.restaurant.taxInfo.requiredFor')} <strong>{PROVINCES.find(p => p.value === formData.province)?.label}</strong>:</p>
                     <ul>
                         {getRequiredTaxFields(formData.province).map(tax => <li key={tax}>{tax}</li>)}
                     </ul>
                 </TaxInfo>
                 {getRequiredTaxFields(formData.province).includes("GST") &&
                     <FormGroup>
-                        <label htmlFor="gstNumber">GST Number *</label>
+                        <label htmlFor="gstNumber">{t('registration.restaurant.taxInfo.gstNumber')} *</label>
                         <input id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange}/>
-                        {errors.gstNumber && <ErrorText>{errors.gstNumber}</ErrorText>}
+                        {errors.gstNumber && <ErrorText>{t('registration.restaurant.errors.gstNumberRequired')}</ErrorText>}
                     </FormGroup>
                 }
                  {getRequiredTaxFields(formData.province).includes("PST") &&
                     <FormGroup>
-                        <label htmlFor="pstNumber">PST Number *</label>
+                        <label htmlFor="pstNumber">{t('registration.restaurant.taxInfo.pstNumber')} *</label>
                         <input id="pstNumber" name="pstNumber" value={formData.pstNumber} onChange={handleChange}/>
-                        {errors.pstNumber && <ErrorText>{errors.pstNumber}</ErrorText>}
+                        {errors.pstNumber && <ErrorText>{t('registration.restaurant.errors.pstNumberRequired')}</ErrorText>}
                     </FormGroup>
                 }
                  {getRequiredTaxFields(formData.province).includes("HST") &&
                     <FormGroup>
-                        <label htmlFor="hstNumber">HST Number *</label>
+                        <label htmlFor="hstNumber">{t('registration.restaurant.taxInfo.hstNumber')} *</label>
                         <input id="hstNumber" name="hstNumber" value={formData.hstNumber} onChange={handleChange}/>
-                        {errors.hstNumber && <ErrorText>{errors.hstNumber}</ErrorText>}
+                        {errors.hstNumber && <ErrorText>{t('registration.restaurant.errors.hstNumberRequired')}</ErrorText>}
                     </FormGroup>
                 }
                  {getRequiredTaxFields(formData.province).includes("QST") &&
                     <FormGroup>
-                        <label htmlFor="qstNumber">QST Number *</label>
+                        <label htmlFor="qstNumber">{t('registration.restaurant.taxInfo.qstNumber')} *</label>
                         <input id="qstNumber" name="qstNumber" value={formData.qstNumber} onChange={handleChange}/>
-                        {errors.qstNumber && <ErrorText>{errors.qstNumber}</ErrorText>}
+                        {errors.qstNumber && <ErrorText>{t('registration.restaurant.errors.qstNumberRequired')}</ErrorText>}
                     </FormGroup>
                 }
             </motion.div>
@@ -597,141 +598,134 @@ export default function RestaurantRegistrationPage() {
 
           {step === 3 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>Required Documents</SectionTitle>
+              <SectionTitle>{t('registration.restaurant.documents.title')}</SectionTitle>
               <FormRow>
-                  <UploadGroup>
-                      <label htmlFor="fssai">FSSAI Certificate *</label>
-                      <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.fssai?.name || 'Click to upload'}</span>
-                        <input id="fssai" name="fssai" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.fssai && <ErrorText>{errors.fssai}</ErrorText>}
-                  </UploadGroup>
-                  <UploadGroup>
-                      <label htmlFor="gst">GST Certificate *</label>
-                       <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.gst?.name || 'Click to upload'}</span>
-                        <input id="gst" name="gst" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.gst && <ErrorText>{errors.gst}</ErrorText>}
-                  </UploadGroup>
-                   <UploadGroup>
-                      <label htmlFor="pan">PAN Card *</label>
-                       <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.pan?.name || 'Click to upload'}</span>
-                        <input id="pan" name="pan" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.pan && <ErrorText>{errors.pan}</ErrorText>}
-                  </UploadGroup>
-                   <UploadGroup>
-                      <label htmlFor="businessLicense">Business License *</label>
-                       <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.businessLicense?.name || 'Click to upload'}</span>
-                        <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.businessLicense && <ErrorText>{errors.businessLicense}</ErrorText>}
-                  </UploadGroup>
-                   <UploadGroup>
-                      <label htmlFor="voidCheque">Void Cheque *</label>
-                       <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.voidCheque?.name || 'Click to upload'}</span>
-                        <input id="voidCheque" name="voidCheque" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.voidCheque && <ErrorText>{errors.voidCheque}</ErrorText>}
-                  </UploadGroup>
-                   <UploadGroup>
-                      <label htmlFor="businessDocument">Bank Statement / Card *</label>
-                       <UploadWrapper>
-                        <UploadCloud/>
-                        <span>{formData.businessDocument?.name || 'Click to upload'}</span>
-                        <input id="businessDocument" name="businessDocument" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                      </UploadWrapper>
-                      {errors.businessDocument && <ErrorText>{errors.businessDocument}</ErrorText>}
-                  </UploadGroup>
+                <UploadGroup>
+                  <label htmlFor="businessLicense">{t('registration.restaurant.documents.businessLicense')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.businessLicense?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.businessLicense && <ErrorText>{t('registration.restaurant.errors.businessLicenseRequired')}</ErrorText>}
+                </UploadGroup>
+                <UploadGroup>
+                  <label htmlFor="voidCheque">{t('registration.restaurant.documents.voidCheque')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.voidCheque?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="voidCheque" name="voidCheque" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.voidCheque && <ErrorText>{t('registration.restaurant.errors.voidChequeRequired')}</ErrorText>}
+                </UploadGroup>
               </FormRow>
             </motion.div>
           )}
 
           {step === 4 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>Menu Details & Hours of Operation</SectionTitle>
-              <SubSectionTitle>Menu Items</SubSectionTitle>
+              <SectionTitle>{t('registration.restaurant.menu.title')}</SectionTitle>
               {formData.menuItems.map((item, index) => (
                 <MenuItemCard key={index}>
-                  <MenuItemHeader>
-                    <h4>Item {index + 1}</h4>
-                    {formData.menuItems.length > 1 && (
-                      <RemoveButton type="button" onClick={() => removeMenuItem(index)}>
-                        <Trash2 size={18} />
-                      </RemoveButton>
-                    )}
-                  </MenuItemHeader>
                   <FormGroup>
-                    <label htmlFor={`menuItem${index}Name`}>Item Name *</label>
-                    <input id={`menuItem${index}Name`} value={item.name} onChange={(e) => handleMenuItemChange(index, 'name', e.target.value)} placeholder="e.g., Classic Burger" />
-                    {errors[`menuItem${index}Name`] && <ErrorText>{errors[`menuItem${index}Name`]}</ErrorText>}
+                    <label htmlFor={`menuItem${index}Name`}>{t('registration.restaurant.menu.itemName')} *</label>
+                    <input
+                      id={`menuItem${index}Name`}
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleMenuItemChange(index, 'name', e.target.value)}
+                      placeholder={t('registration.restaurant.placeholders.menuItemName')}
+                    />
+                    {errors[`menuItem${index}Name`] && <ErrorText>{t('registration.restaurant.errors.menuItemNameRequired')}</ErrorText>}
                   </FormGroup>
                   <FormRow>
                     <FormGroup>
-                       <label htmlFor={`menuItem${index}Price`}>Price ($) *</label>
-                       <input id={`menuItem${index}Price`} type="text" value={item.price} onChange={(e) => handleMenuItemChange(index, 'price', e.target.value)} placeholder="e.g., 15.99" />
-                       {errors[`menuItem${index}Price`] && <ErrorText>{errors[`menuItem${index}Price`]}</ErrorText>}
+                      <label htmlFor={`menuItem${index}Price`}>{t('registration.restaurant.menu.price')} ($) *</label>
+                      <input
+                        id={`menuItem${index}Price`}
+                        type="text"
+                        value={item.price}
+                        onChange={(e) => handleMenuItemChange(index, 'price', e.target.value)}
+                        placeholder={t('registration.restaurant.placeholders.menuItemPrice')}
+                      />
+                      {errors[`menuItem${index}Price`] && <ErrorText>{t('registration.restaurant.errors.menuItemPriceRequired')}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
-                       <label htmlFor={`menuItem${index}Image`}>Item Image *</label>
-                       <UploadWrapper small>
-                         <UploadCloud size={20} />
-                         <span>{item.image?.name || 'Upload Image'}</span>
-                         <input type="file" id={`menuItem${index}Image`} accept="image/png, image/jpeg" onChange={(e) => e.target.files && handleMenuItemChange(index, 'image', e.target.files[0])} />
-                       </UploadWrapper>
-                       {errors[`menuItem${index}Image`] && <ErrorText>{errors[`menuItem${index}Image`]}</ErrorText>}
+                      <label htmlFor={`menuItem${index}Image`}>{t('registration.restaurant.menu.itemImage')} *</label>
+                      <UploadWrapper small>
+                        <UploadCloud size={20} />
+                        <span>{item.image?.name || t('registration.restaurant.common.uploadImage')}</span>
+                        <input
+                          type="file"
+                          id={`menuItem${index}Image`}
+                          accept="image/png, image/jpeg"
+                          onChange={(e) => e.target.files && handleMenuItemChange(index, 'image', e.target.files[0])}
+                        />
+                      </UploadWrapper>
+                      {errors[`menuItem${index}Image`] && <ErrorText>{t('registration.restaurant.errors.menuItemImageRequired')}</ErrorText>}
                     </FormGroup>
                   </FormRow>
                   <FormGroup>
-                    <label htmlFor={`menuItem${index}Desc`}>Description</label>
-                    <textarea id={`menuItem${index}Desc`} value={item.description} onChange={(e) => handleMenuItemChange(index, 'description', e.target.value)} placeholder="e.g., A juicy beef patty..." />
+                    <label htmlFor={`menuItem${index}Desc`}>{t('registration.restaurant.menu.description')}</label>
+                    <textarea
+                      id={`menuItem${index}Desc`}
+                      value={item.description}
+                      onChange={(e) => handleMenuItemChange(index, 'description', e.target.value)}
+                      placeholder={t('registration.restaurant.placeholders.menuItemDescription')}
+                    />
                   </FormGroup>
                 </MenuItemCard>
               ))}
 
               <AddButton type="button" onClick={addMenuItem}>
-                <Plus size={20} /> Add Another Item
+                <Plus size={20} /> {t('registration.restaurant.menu.addItem')}
               </AddButton>
 
-              <SubSectionTitle>Hours of Operation</SubSectionTitle>
+              <SubSectionTitle>{t('registration.restaurant.hours.title')}</SubSectionTitle>
               {formData.operatingHours.map((hour, index) => (
-                 <OperatingHoursRow key={index}>
-                    <DayLabel>{hour.day}</DayLabel>
-                    <FormGroup>
-                        <input type="time" value={hour.openTime} onChange={(e) => handleHoursChange(index, 'openTime', e.target.value)} disabled={hour.isClosed} />
-                    </FormGroup>
-                    <span>to</span>
-                    <FormGroup>
-                         <input type="time" value={hour.closeTime} onChange={(e) => handleHoursChange(index, 'closeTime', e.target.value)} disabled={hour.isClosed} />
-                    </FormGroup>
-                    <CheckboxWrapper>
-                        <input type="checkbox" id={`closed-${index}`} checked={hour.isClosed} onChange={(e) => handleHoursChange(index, 'isClosed', e.target.checked)} />
-                        <label htmlFor={`closed-${index}`}>Closed</label>
-                    </CheckboxWrapper>
-                 </OperatingHoursRow>
+                <OperatingHoursRow key={index}>
+                  <DayLabel>{t(`registration.restaurant.hours.days.${hour.day.toLowerCase()}`)}</DayLabel>
+                  <FormGroup>
+                    <input
+                      type="time"
+                      value={hour.openTime}
+                      onChange={(e) => handleHoursChange(index, 'openTime', e.target.value)}
+                      disabled={hour.isClosed}
+                    />
+                  </FormGroup>
+                  <span>{t('registration.restaurant.hours.to')}</span>
+                  <FormGroup>
+                    <input
+                      type="time"
+                      value={hour.closeTime}
+                      onChange={(e) => handleHoursChange(index, 'closeTime', e.target.value)}
+                      disabled={hour.isClosed}
+                    />
+                  </FormGroup>
+                  <CheckboxWrapper>
+                    <input
+                      type="checkbox"
+                      id={`closed-${index}`}
+                      checked={hour.isClosed}
+                      onChange={(e) => handleHoursChange(index, 'isClosed', e.target.checked)}
+                    />
+                    <label htmlFor={`closed-${index}`}>{t('registration.restaurant.hours.closed')}</label>
+                  </CheckboxWrapper>
+                </OperatingHoursRow>
               ))}
             </motion.div>
           )}
 
           <ButtonContainer>
             {step > 1 ? (
-                <ActionButton type="button" onClick={handleBack} secondary>Back</ActionButton>
+              <ActionButton type="button" onClick={handleBack} secondary>
+                {t('registration.restaurant.buttons.back')}
+              </ActionButton>
             ) : ( <div></div>) }
             <ActionButton type="submit">
-                {step === 4 ? "Proceed to Payment" : "Next Step"}
+              {step === 4 ? t('registration.restaurant.buttons.proceedToPayment') : t('registration.restaurant.buttons.nextStep')}
             </ActionButton>
           </ButtonContainer>
-
         </form>
       </FormContainer>
     </>

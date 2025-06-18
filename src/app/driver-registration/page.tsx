@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-
 import styled from 'styled-components';
 import Navbar from '../component/Navbar';
 import DriverRegistration from '@/components/driver/DriverRegistration';
+import { useTranslation } from '../../utils/i18n';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
 export default function DriverRegistrationPage() {
+  const { t } = useTranslation();
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [driverData, setDriverData] = useState(null);
 
@@ -54,9 +55,9 @@ export default function DriverRegistrationPage() {
       <Navbar />
       <PageContainer>
         <ContentWrapper>
-          <PageTitle>Driver Registration</PageTitle>
+          <PageTitle>{t('registration.driver.title')}</PageTitle>
           <PageDescription>
-            Join our network of professional drivers and start earning on your own schedule.
+            {t('registration.driver.description')}
             {!registrationComplete && " Fill out the form below to begin your registration process."}
           </PageDescription>
           
@@ -67,13 +68,13 @@ export default function DriverRegistrationPage() {
           ) : (
             <PaymentSection>
               <SuccessMessage>
-                Registration form completed successfully!
+                {t('registration.driver.payment.success')}
               </SuccessMessage>
               <PaymentDescription>
-                Complete your registration with a one-time registration fee of $25.
+                {t('registration.driver.payment.description')}
               </PaymentDescription>
               <Button onClick={handleCheckout}>
-                Proceed to Payment ($25)
+                {t('registration.driver.payment.button')}
               </Button>
             </PaymentSection>
           )}

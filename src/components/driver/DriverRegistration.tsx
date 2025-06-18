@@ -3,6 +3,7 @@
 import React, { useState, CSSProperties } from 'react';
 import { UploadCloud, Plus, Trash2 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
+import { useTranslation } from '@/utils/i18n';
 
 // Type definitions
 interface FormInputProps {
@@ -31,6 +32,13 @@ interface FormFileUploadProps {
   error?: string;
   required?: boolean;
   fileName?: string;
+}
+
+interface FormCheckboxProps {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  error?: string;
 }
 
 interface GoogleMapsPickerProps {
@@ -144,63 +152,72 @@ const workEligibilityOptions = [
 ];
 
 // Form Input Component
-const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, type = 'text', placeholder, maxLength, required = false }) => (
-  <div style={formGroupStyle}>
-    <label style={labelStyle}>{label}</label>
-    <input
-      type={type}
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      maxLength={maxLength}
-      style={{
-        ...inputStyle,
-        borderColor: error ? '#e74c3c' : '#bdc3c7'
-      }}
-    />
-    {error && <p style={errorTextStyle}>{error}</p>}
-  </div>
-);
+const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, type = 'text', placeholder, maxLength, required = false }) => {
+  const { t } = useTranslation();
+  return (
+    <div style={formGroupStyle}>
+      <label style={labelStyle}>{label}{required && ' *'}</label>
+      <input
+        type={type}
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        style={{
+          ...inputStyle,
+          borderColor: error ? '#e74c3c' : '#bdc3c7'
+        }}
+      />
+      {error && <p style={errorTextStyle}>{error}</p>}
+    </div>
+  );
+};
 
 // Form Select Component
-const FormSelect: React.FC<FormSelectProps> = ({ label, value, options, onChange, error, required = false }) => (
-  <div style={formGroupStyle}>
-    <label style={labelStyle}>{label}</label>
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      style={{
-        ...inputStyle,
-        borderColor: error ? '#e74c3c' : '#bdc3c7'
-      }}
-    >
-      {options.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-    {error && <p style={errorTextStyle}>{error}</p>}
-  </div>
-);
+const FormSelect: React.FC<FormSelectProps> = ({ label, value, options, onChange, error, required = false }) => {
+  const { t } = useTranslation();
+  return (
+    <div style={formGroupStyle}>
+      <label style={labelStyle}>{label}{required && ' *'}</label>
+      <select
+        value={value || ''}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          ...inputStyle,
+          borderColor: error ? '#e74c3c' : '#bdc3c7'
+        }}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && <p style={errorTextStyle}>{error}</p>}
+    </div>
+  );
+};
 
 // Form File Upload Component
-const FormFileUpload: React.FC<FormFileUploadProps> = ({ label, onChange, error, required = false, fileName }) => (
-  <div style={formGroupStyle}>
-    <label style={labelStyle}>{label}</label>
-    <div style={uploadWrapperStyle}>
-      <UploadCloud size={20} />
-      <span style={uploadTextStyle}>{fileName || 'Click to upload'}</span>
-      <input
-        type="file"
-        onChange={(e) => e.target.files && onChange(e.target.files[0])}
-        accept="application/pdf,image/*"
-        style={fileInputStyle}
-      />
+const FormFileUpload: React.FC<FormFileUploadProps> = ({ label, onChange, error, required = false, fileName }) => {
+  const { t } = useTranslation();
+  return (
+    <div style={formGroupStyle}>
+      <label style={labelStyle}>{label}{required && ' *'}</label>
+      <div style={uploadWrapperStyle}>
+        <UploadCloud size={20} />
+        <span style={uploadTextStyle}>{fileName || t('driverRegistration.common.clickToUpload')}</span>
+        <input
+          type="file"
+          onChange={(e) => e.target.files && onChange(e.target.files[0])}
+          accept="application/pdf,image/*"
+          style={fileInputStyle}
+        />
+      </div>
+      {error && <p style={errorTextStyle}>{error}</p>}
     </div>
-    {error && <p style={errorTextStyle}>{error}</p>}
-  </div>
-);
+  );
+};
 
 // Google Maps Picker Placeholder
 const GoogleMapsPicker: React.FC<GoogleMapsPickerProps> = ({ label, onAddressSelect, error, required }) => (
@@ -364,9 +381,25 @@ const convertProvinceNameToCode = (name: string): string => {
   return map[name] || name;
 };
 
+// Form Checkbox Component
+const FormCheckbox: React.FC<FormCheckboxProps> = ({ label, checked, onChange, error }) => (
+  <div style={formGroupStyle}>
+    <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ marginRight: '10px' }}
+      />
+      <span>{label}</span>
+    </label>
+    {error && <p style={errorTextStyle}>{error}</p>}
+  </div>
+);
 
 // Main Driver Registration Component
 const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -486,17 +519,17 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
 
     switch (step) {
       case 1: // Personal Information
-        if (!formData.firstName?.trim()) newErrors.firstName = 'First name is required';
-        if (!formData.lastName?.trim()) newErrors.lastName = 'Last name is required';
-        if (!formData.email?.trim()) newErrors.email = 'Email is required';
+        if (!formData.firstName?.trim()) newErrors.firstName = t('driverRegistration.errors.firstNameRequired');
+        if (!formData.lastName?.trim()) newErrors.lastName = t('driverRegistration.errors.lastNameRequired');
+        if (!formData.email?.trim()) newErrors.email = t('driverRegistration.errors.emailRequired');
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-          newErrors.email = 'Invalid email format';
-        if (!formData.password?.trim()) newErrors.password = 'Password is required';
-        else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
-        if (!formData.cellNumber?.trim()) newErrors.cellNumber = 'Cell number is required';
+          newErrors.email = t('driverRegistration.errors.invalidEmail');
+        if (!formData.password?.trim()) newErrors.password = t('driverRegistration.errors.passwordRequired');
+        else if (formData.password.length < 6) newErrors.password = t('driverRegistration.errors.passwordLength');
+        if (!formData.cellNumber?.trim()) newErrors.cellNumber = t('driverRegistration.errors.cellNumberRequired');
         else if (!/^\+1-\d{3}-\d{3}-\d{4}$/.test(formData.cellNumber)) 
-          newErrors.cellNumber = 'Cell number must be in format +1-XXX-XXX-XXXX';
-        if (!formData.dateOfBirth?.trim()) newErrors.dateOfBirth = 'Date of birth is required';
+          newErrors.cellNumber = t('driverRegistration.errors.invalidCellNumber');
+        if (!formData.dateOfBirth?.trim()) newErrors.dateOfBirth = t('driverRegistration.errors.dateOfBirthRequired');
         else {
           const today = new Date();
           const birthDate = new Date(formData.dateOfBirth);
@@ -505,89 +538,91 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
           if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
             age--;
           }
-          if (age < 18) newErrors.dateOfBirth = 'Must be at least 18 years old';
+          if (age < 18) newErrors.dateOfBirth = t('driverRegistration.errors.ageRestriction');
         }
-        if (!formData.streetNameNumber?.trim()) newErrors.streetNameNumber = 'Street address is required';
-        if (!formData.city?.trim()) newErrors.city = 'City is required';
-        if (!formData.province?.trim()) newErrors.province = 'Province is required';
-        if (!formData.postalCode?.trim()) newErrors.postalCode = 'Postal code is required';
+        if (!formData.streetNameNumber?.trim()) newErrors.streetNameNumber = t('driverRegistration.errors.streetAddressRequired');
+        if (!formData.city?.trim()) newErrors.city = t('driverRegistration.errors.cityRequired');
+        if (!formData.province?.trim()) newErrors.province = t('driverRegistration.errors.provinceRequired');
+        if (!formData.postalCode?.trim()) newErrors.postalCode = t('driverRegistration.errors.postalCodeRequired');
         else if (!/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(formData.postalCode))
-          newErrors.postalCode = 'Postal code must be in format A1A 1A1';
-        if (!formData.files.profilePhoto) newErrors.profilePhoto = 'Profile photo is required';
+          newErrors.postalCode = t('driverRegistration.errors.invalidPostalCode');
+        if (!formData.files.profilePhoto) newErrors.profilePhoto = t('driverRegistration.errors.profilePhotoRequired');
         break;
 
       case 2: // Vehicle Information
-        if (!formData.vehicleType?.trim()) newErrors.vehicleType = 'Vehicle type is required';
-        if (!formData.vehicleMake?.trim()) newErrors.vehicleMake = 'Vehicle make is required';
-        if (!formData.vehicleModel?.trim()) newErrors.vehicleModel = 'Vehicle model is required';
-        if (!formData.yearOfManufacture?.trim()) newErrors.yearOfManufacture = 'Year is required';
+        if (!formData.vehicleType?.trim()) newErrors.vehicleType = t('driverRegistration.errors.vehicleTypeRequired');
+        if (!formData.vehicleMake?.trim()) newErrors.vehicleMake = t('driverRegistration.errors.vehicleMakeRequired');
+        if (!formData.vehicleModel?.trim()) newErrors.vehicleModel = t('driverRegistration.errors.vehicleModelRequired');
+        if (!formData.yearOfManufacture?.trim()) newErrors.yearOfManufacture = t('driverRegistration.errors.yearRequired');
         else {
           const year = parseInt(formData.yearOfManufacture);
           const currentYear = new Date().getFullYear();
-          if (year < 1990 || year > currentYear) {
-            newErrors.yearOfManufacture = `Year must be between 1990 and ${currentYear}`;
+          if (year < 1990) {
+            newErrors.yearOfManufacture = t('driverRegistration.errors.yearTooOld');
+          } else if (year > currentYear) {
+            newErrors.yearOfManufacture = t('driverRegistration.errors.yearTooNew');
           }
           // Check 25 year rule for meals delivery
           const vehicleAge = currentYear - year;
           if (vehicleAge > 25) {
-            newErrors.yearOfManufacture = 'Vehicle must not be older than 25 years for delivery';
+            newErrors.yearOfManufacture = t('driverRegistration.errors.vehicleAgeRestriction');
           }
         }
-        if (!formData.vehicleColor?.trim()) newErrors.vehicleColor = 'Vehicle color is required';
-        if (!formData.vehicleLicensePlate?.trim()) newErrors.vehicleLicensePlate = 'License plate is required';
+        if (!formData.vehicleColor?.trim()) newErrors.vehicleColor = t('driverRegistration.errors.vehicleColorRequired');
+        if (!formData.vehicleLicensePlate?.trim()) newErrors.vehicleLicensePlate = t('driverRegistration.errors.licensePlateRequired');
         else if (!/^[A-Z0-9\s-]+$/i.test(formData.vehicleLicensePlate))
-          newErrors.vehicleLicensePlate = 'Invalid license plate format';
-        if (!formData.files.vehicleRegistration) newErrors.vehicleRegistration = 'Vehicle registration is required';
-        if (!formData.files.vehicleInsurance) newErrors.vehicleInsurance = 'Vehicle insurance is required';
+          newErrors.vehicleLicensePlate = t('driverRegistration.errors.invalidLicensePlate');
+        if (!formData.files.vehicleRegistration) newErrors.vehicleRegistration = t('driverRegistration.errors.vehicleRegistrationRequired');
+        if (!formData.files.vehicleInsurance) newErrors.vehicleInsurance = t('driverRegistration.errors.vehicleInsuranceRequired');
         break;
 
       case 3: // Documents & Licenses
         // Validate driver's license class based on province
         if (!formData.driversLicenseClass?.trim()) {
-          newErrors.driversLicenseClass = 'License class is required';
+          newErrors.driversLicenseClass = t('driverRegistration.errors.licenseClassRequired');
         } else if (formData.province === 'ON') {
           // For Ontario, license must be 'G' or 'G2'
           if (!['G', 'G2'].includes(formData.driversLicenseClass.toUpperCase())) {
-            newErrors.driversLicenseClass = 'Ontario drivers must have Class G or G2 license';
+            newErrors.driversLicenseClass = t('driverRegistration.errors.ontarioLicenseClass');
           }
         } else {
           // For all other provinces, license must be '5'
           if (formData.driversLicenseClass !== '5') {
-            newErrors.driversLicenseClass = 'Drivers in this province must have a Class 5 license';
+            newErrors.driversLicenseClass = t('driverRegistration.errors.otherProvinceLicenseClass');
           }
         }
        
-        if (!formData.drivingAbstractDate?.trim()) newErrors.drivingAbstractDate = 'Driving abstract date is required';
+        if (!formData.drivingAbstractDate?.trim()) newErrors.drivingAbstractDate = t('driverRegistration.errors.drivingAbstractDateRequired');
         else {
           const threeMonthsAgo = new Date();
           threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
           if (new Date(formData.drivingAbstractDate) < threeMonthsAgo) {
-            newErrors.drivingAbstractDate = 'Driving abstract must be from the last 3 months';
+            newErrors.drivingAbstractDate = t('driverRegistration.errors.drivingAbstractDateRecency');
           }
         }
-        if (!formData.workEligibilityType?.trim()) newErrors.workEligibilityType = 'Work eligibility type is required';
-        if (!formData.sinNumber?.trim()) newErrors.sinNumber = 'SIN number is required';
+        if (!formData.workEligibilityType?.trim()) newErrors.workEligibilityType = t('driverRegistration.errors.workEligibilityTypeRequired');
+        if (!formData.sinNumber?.trim()) newErrors.sinNumber = t('driverRegistration.errors.sinNumberRequired');
         else if (!/^\d{9}$/.test(formData.sinNumber))
-          newErrors.sinNumber = 'SIN number must be exactly 9 digits';
-        if (!formData.files.driversLicenseFront) newErrors.driversLicenseFront = 'Driver license front is required';
-        if (!formData.files.driversLicenseBack) newErrors.driversLicenseBack = 'Driver license back is required';
-        if (!formData.files.drivingAbstract) newErrors.drivingAbstract = 'Driving abstract is required';
-        if (!formData.files.criminalBackgroundCheck) newErrors.criminalBackgroundCheck = 'Background check is required';
-        if (!formData.files.workEligibility) newErrors.workEligibility = 'Work eligibility document is required';
+          newErrors.sinNumber = t('driverRegistration.errors.invalidSinNumber');
+        if (!formData.files.driversLicenseFront) newErrors.driversLicenseFront = t('driverRegistration.errors.driversLicenseFrontRequired');
+        if (!formData.files.driversLicenseBack) newErrors.driversLicenseBack = t('driverRegistration.errors.driversLicenseBackRequired');
+        if (!formData.files.drivingAbstract) newErrors.drivingAbstract = t('driverRegistration.errors.drivingAbstractRequired');
+        if (!formData.files.criminalBackgroundCheck) newErrors.criminalBackgroundCheck = t('driverRegistration.errors.criminalBackgroundCheckRequired');
+        if (!formData.files.workEligibility) newErrors.workEligibility = t('driverRegistration.errors.workEligibilityRequired');
         break;
 
       case 4: // Banking & Consent
-        if (!formData.bankingInfo.transitNumber?.trim()) newErrors.transitNumber = 'Transit number is required';
-        else if (!/^\d{3}$/.test(formData.bankingInfo.transitNumber)) newErrors.transitNumber = 'Transit number must be exactly 3 digits';
+        if (!formData.bankingInfo.transitNumber?.trim()) newErrors.transitNumber = t('driverRegistration.errors.transitNumberRequired');
+        else if (!/^\d{3}$/.test(formData.bankingInfo.transitNumber)) newErrors.transitNumber = t('driverRegistration.errors.invalidTransitNumber');
         
-        if (!formData.bankingInfo.institutionNumber?.trim()) newErrors.institutionNumber = 'Institution number is required';
-        else if (!/^\d{5}$/.test(formData.bankingInfo.institutionNumber)) newErrors.institutionNumber = 'Institution number must be exactly 5 digits';
+        if (!formData.bankingInfo.institutionNumber?.trim()) newErrors.institutionNumber = t('driverRegistration.errors.institutionNumberRequired');
+        else if (!/^\d{5}$/.test(formData.bankingInfo.institutionNumber)) newErrors.institutionNumber = t('driverRegistration.errors.invalidInstitutionNumber');
         
-        if (!formData.bankingInfo.accountNumber?.trim()) newErrors.accountNumber = 'Account number is required';
-        else if (!/^\d{7,12}$/.test(formData.bankingInfo.accountNumber)) newErrors.accountNumber = 'Account number must be 7-12 digits';
+        if (!formData.bankingInfo.accountNumber?.trim()) newErrors.accountNumber = t('driverRegistration.errors.accountNumberRequired');
+        else if (!/^\d{7,12}$/.test(formData.bankingInfo.accountNumber)) newErrors.accountNumber = t('driverRegistration.errors.invalidAccountNumber');
         
         const allConsentsAgreed = Object.values(formData.consentAndDeclarations).every(val => val === true);
-        if (!allConsentsAgreed) newErrors.consents = 'You must agree to all terms and conditions';
+        if (!allConsentsAgreed) newErrors.consents = t('driverRegistration.errors.consentRequired');
         break;
     }
 
@@ -665,7 +700,7 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
       }
     } catch (error) {
       console.error('Submission error:', error);
-      setErrors({ submit: 'Failed to submit registration. Please check if the backend server is running.' });
+      setErrors({ submit: t('driverRegistration.errors.submissionFailed') });
     }
   };
 
@@ -680,6 +715,20 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
 
   const handlePaymentError = (error: { message: string }) => {
     setErrors({ payment: error.message });
+  };
+
+  const validateYearOfManufacture = (year: string) => {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 15;
+    const yearNum = parseInt(year);
+    
+    if (yearNum < minYear) {
+      return t('driverRegistration.errors.yearRange.tooOld');
+    }
+    if (yearNum > currentYear) {
+      return t('driverRegistration.errors.yearRange.tooNew');
+    }
+    return '';
   };
 
   if (showPayment) {
@@ -699,68 +748,53 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
 
   return (
     <div style={formContainerStyle}>
-      {/*<h2 style={mainTitleStyle}>Driver Registration</h2>*/}
+      <h2 style={mainTitleStyle}>{t('driverRegistration.title')}</h2>
       
-      {/* Progress Bar */}
-     <div style={progressBarStyle as React.CSSProperties}>
-  <div
-    style={{
-      position: 'absolute' as 'absolute',
-      top: '50%',
-      left: 0,
-      right: 0,
-      height: '2px',
-      backgroundColor: '#e0dccc',
-      transform: 'translateY(-50%)',
-      zIndex: 1,
-    }}
-  ></div>
-  {[1, 2, 3, 4].map((num) => (
-    <div
-      key={num}
-      style={{
-        ...progressStepStyle,
-        backgroundColor: currentStep >= num ? '#d9a73e' : '#e0dccc',
-        color: currentStep >= num ? '#ffffff' : '#888',
-      } as React.CSSProperties}
-    >
-      {num}
-    </div>
-  ))}
-</div>
+<div style={progressBarStyle}>
+      {/* Background line */}
+      <div style={progressLineStyle}></div>
 
+      {/* Steps */}
+      {[1, 2, 3, 4].map((step) => (
+        <div key={step} style={progressStepStyle(currentStep >= step)}>
+          {step}
+        </div>
+      ))}
+    </div>
 
       <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
-        {/* Step 1: Personal Information */}
         {currentStep === 1 && (
           <div style={stepContentStyle}>
-            <h3 style={sectionTitleStyle}>Personal Information</h3>
+            <h3 style={sectionTitleStyle}>{t('driverRegistration.sections.personalInfo')}</h3>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="First Name *" 
+                label={t('driverRegistration.labels.firstName')}
                 value={formData.firstName} 
                 onChange={(val) => handleChange('firstName', val)}
                 error={errors.firstName}
+                placeholder={t('driverRegistration.placeholders.firstName')}
                 required
               />
               <FormInput 
-                label="Middle Name" 
+                label={t('driverRegistration.labels.middleName')}
                 value={formData.middleName} 
-                onChange={(val) => handleChange('middleName', val)} 
+                onChange={(val) => handleChange('middleName', val)}
+                placeholder={t('driverRegistration.placeholders.middleName')}
               />
             </div>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="Last Name *" 
+                label={t('driverRegistration.labels.lastName')}
                 value={formData.lastName} 
                 onChange={(val) => handleChange('lastName', val)}
                 error={errors.lastName}
+                placeholder={t('driverRegistration.placeholders.lastName')}
                 required
               />
               <FormInput 
-                label="Date of Birth *" 
+                label={t('driverRegistration.labels.dateOfBirth')}
                 type="date" 
                 value={formData.dateOfBirth} 
                 onChange={(val) => handleChange('dateOfBirth', val)}
@@ -771,68 +805,64 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
             
             <div style={formRowStyle}>
               <FormInput 
-                label="Email Address *" 
+                label={t('driverRegistration.labels.email')}
                 type="email" 
                 value={formData.email} 
                 onChange={(val) => handleChange('email', val)}
                 error={errors.email}
-                placeholder="driver@example.com"
+                placeholder={t('driverRegistration.placeholders.email')}
                 required
               />
               <FormInput 
-                label="Password *" 
+                label={t('driverRegistration.labels.password')}
                 type="password" 
                 value={formData.password} 
                 onChange={(val) => handleChange('password', val)}
                 error={errors.password}
+                placeholder={t('driverRegistration.placeholders.password')}
                 required
               />
             </div>
             
-              <FormInput 
-                label="Cell Number * (+1-XXX-XXX-XXXX)" 
-                value={formData.cellNumber} 
-                onChange={(val) => handleChange('cellNumber', val)}
-                error={errors.cellNumber}
-                placeholder="+1-XXX-XXX-XXXX"
-                required
-              />
-            
-            {/* Address Section */}
-            <h4 style={subSectionTitleStyle}>Address Information</h4>
-            
-            <GoogleMapsPicker 
-              label="Address *"
-              onAddressSelect={handleAddressSelect}
-              error={errors.address}
+            <FormInput 
+              label={t('driverRegistration.labels.cellNumber')}
+              value={formData.cellNumber} 
+              onChange={(val) => handleChange('cellNumber', val)}
+              error={errors.cellNumber}
+              placeholder={t('driverRegistration.placeholders.cellNumber')}
               required
             />
             
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.addressInfo')}</h4>
+            
             <div style={formRowStyle}>
               <FormInput 
-                label="Street Name & Number *" 
+                label={t('driverRegistration.labels.streetNameNumber')}
                 value={formData.streetNameNumber} 
                 onChange={(val) => handleChange('streetNameNumber', val)}
                 error={errors.streetNameNumber}
+                placeholder={t('driverRegistration.placeholders.streetNameNumber')}
                 required
               />
               <FormInput 
-                label="App/Unit Number" 
+                label={t('driverRegistration.labels.appUniteNumber')}
                 value={formData.appUniteNumber} 
-                onChange={(val) => handleChange('appUniteNumber', val)} 
+                onChange={(val) => handleChange('appUniteNumber', val)}
+                placeholder={t('driverRegistration.placeholders.appUniteNumber')}
               />
             </div>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="City *" 
+                label={t('driverRegistration.labels.city')}
                 value={formData.city} 
                 onChange={(val) => handleChange('city', val)}
                 error={errors.city}
+                placeholder={t('driverRegistration.placeholders.city')}
                 required
               />
               <FormSelect 
-                label="Province *" 
+                label={t('driverRegistration.labels.province')}
                 value={formData.province} 
                 options={provinceOptions} 
                 onChange={(val) => handleChange('province', val)}
@@ -840,17 +870,17 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
                 required
               />
               <FormInput 
-                label="Postal Code *" 
+                label={t('driverRegistration.labels.postalCode')}
                 value={formData.postalCode} 
                 onChange={(val) => handleChange('postalCode', val)}
                 error={errors.postalCode}
-                placeholder="A1B 2C3"
+                placeholder={t('driverRegistration.placeholders.postalCode')}
                 required
               />
             </div>
             
             <FormFileUpload 
-              label="Profile Photo *" 
+              label={t('driverRegistration.labels.profilePhoto')}
               onChange={(file) => handleFileChange('profilePhoto', file)}
               error={errors.profilePhoto}
               fileName={formData.files.profilePhoto?.name}
@@ -859,14 +889,13 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
           </div>
         )}
 
-        {/* Step 2: Vehicle Information */}
         {currentStep === 2 && (
           <div style={stepContentStyle}>
-            <h3 style={sectionTitleStyle}>Vehicle Information</h3>
+            <h3 style={sectionTitleStyle}>{t('driverRegistration.sections.vehicleInfo')}</h3>
             
             <div style={formRowStyle}>
               <FormSelect 
-                label="Vehicle Type *" 
+                label={t('driverRegistration.labels.vehicleType')}
                 value={formData.vehicleType} 
                 options={vehicleTypeOptions}
                 onChange={(val) => handleChange('vehicleType', val)}
@@ -874,105 +903,108 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
                 required
               />
               <FormInput 
-                label="Vehicle Make *" 
+                label={t('driverRegistration.labels.vehicleMake')}
                 value={formData.vehicleMake} 
                 onChange={(val) => handleChange('vehicleMake', val)}
                 error={errors.vehicleMake}
-                placeholder="e.g., Toyota"
+                placeholder={t('driverRegistration.placeholders.vehicleMake')}
                 required
               />
             </div>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="Vehicle Model *" 
+                label={t('driverRegistration.labels.vehicleModel')}
                 value={formData.vehicleModel} 
                 onChange={(val) => handleChange('vehicleModel', val)}
                 error={errors.vehicleModel}
-                placeholder="e.g., Camry"
+                placeholder={t('driverRegistration.placeholders.vehicleModel')}
                 required
               />
               <FormInput 
-                label="Year of Manufacture *" 
+                label={t('driverRegistration.labels.yearOfManufacture')}
                 type="number" 
                 value={formData.yearOfManufacture} 
                 onChange={(val) => handleChange('yearOfManufacture', val)}
                 error={errors.yearOfManufacture}
-                placeholder="e.g., 2020"
+                placeholder={t('driverRegistration.placeholders.yearOfManufacture')}
                 required
               />
             </div>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="Vehicle Color *" 
+                label={t('driverRegistration.labels.vehicleColor')}
                 value={formData.vehicleColor} 
                 onChange={(val) => handleChange('vehicleColor', val)}
                 error={errors.vehicleColor}
-                placeholder="e.g., Silver"
+                placeholder={t('driverRegistration.placeholders.vehicleColor')}
                 required
               />
               <FormInput 
-                label="Vehicle License Plate *" 
+                label={t('driverRegistration.labels.vehicleLicensePlate')}
                 value={formData.vehicleLicensePlate} 
                 onChange={(val) => handleChange('vehicleLicensePlate', val)}
                 error={errors.vehicleLicensePlate}
-                placeholder="e.g., ABC-123"
+                placeholder={t('driverRegistration.placeholders.vehicleLicensePlate')}
                 required
               />
             </div>
 
-            <h4 style={subSectionTitleStyle}>Vehicle Documents</h4>
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.vehicleDocuments')}</h4>
             
             <div style={formRowStyle}>
               <FormFileUpload 
-                label="Vehicle Registration *" 
+                label={t('driverRegistration.labels.vehicleRegistration')}
                 onChange={(file) => handleFileChange('vehicleRegistration', file)}
                 error={errors.vehicleRegistration}
+                fileName={formData.files.vehicleRegistration?.name}
                 required
               />
               <FormFileUpload 
-                label="Vehicle Insurance Certificate *" 
+                label={t('driverRegistration.labels.vehicleInsurance')}
                 onChange={(file) => handleFileChange('vehicleInsurance', file)}
                 error={errors.vehicleInsurance}
+                fileName={formData.files.vehicleInsurance?.name}
                 required
               />
             </div>
           </div>
         )}
 
-        {/* Step 3: Documents & Licenses */}
         {currentStep === 3 && (
           <div style={stepContentStyle}>
-            <h3 style={sectionTitleStyle}>Documents & Licenses</h3>
+            <h3 style={sectionTitleStyle}>{t('driverRegistration.sections.documentsLicenses')}</h3>
             
-            <h4 style={subSectionTitleStyle}>Driver's License</h4>
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.driversLicense')}</h4>
             <div style={formRowStyle}>
               <FormFileUpload 
-                label="Driver's License (Front) *" 
+                label={t('driverRegistration.labels.driversLicenseFront')}
                 onChange={(file) => handleFileChange('driversLicenseFront', file)}
                 error={errors.driversLicenseFront}
+                fileName={formData.files.driversLicenseFront?.name}
                 required
               />
               <FormFileUpload 
-                label="Driver's License (Back) *" 
+                label={t('driverRegistration.labels.driversLicenseBack')}
                 onChange={(file) => handleFileChange('driversLicenseBack', file)}
                 error={errors.driversLicenseBack}
+                fileName={formData.files.driversLicenseBack?.name}
                 required
               />
             </div>
             
             <div style={formRowStyle}>
               <FormInput 
-                label="Driver's License Class *" 
+                label={t('driverRegistration.labels.driversLicenseClass')}
                 value={formData.driversLicenseClass} 
                 onChange={(val) => handleChange('driversLicenseClass', val)}
                 error={errors.driversLicenseClass}
-                placeholder={formData.province === 'ON' ? 'G or G2' : '5'}
+                placeholder={formData.province === 'ON' ? t('driverRegistration.placeholders.driversLicenseClassOntario') : t('driverRegistration.placeholders.driversLicenseClassOther')}
                 required
               />
               <FormInput 
-                label="Driving Abstract Date *" 
+                label={t('driverRegistration.labels.drivingAbstractDate')}
                 type="date" 
                 value={formData.drivingAbstractDate} 
                 onChange={(val) => handleChange('drivingAbstractDate', val)}
@@ -982,29 +1014,32 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
             </div>
             
             <FormFileUpload 
-              label="Driving Abstract *" 
+              label={t('driverRegistration.labels.drivingAbstract')}
               onChange={(file) => handleFileChange('drivingAbstract', file)}
               error={errors.drivingAbstract}
+              fileName={formData.files.drivingAbstract?.name}
               required
             />
             
-            <h4 style={subSectionTitleStyle}>Background & Work Eligibility</h4>
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.backgroundWorkEligibility')}</h4>
             <FormFileUpload 
-              label="Criminal Background Check *" 
+              label={t('driverRegistration.labels.criminalBackgroundCheck')}
               onChange={(file) => handleFileChange('criminalBackgroundCheck', file)}
               error={errors.criminalBackgroundCheck}
+              fileName={formData.files.criminalBackgroundCheck?.name}
               required
             />
             
             <div style={formRowStyle}>
               <FormFileUpload 
-                label="Proof of Work Eligibility *" 
+                label={t('driverRegistration.labels.workEligibility')}
                 onChange={(file) => handleFileChange('workEligibility', file)}
                 error={errors.workEligibility}
+                fileName={formData.files.workEligibility?.name}
                 required
               />
               <FormSelect 
-                label="Work Eligibility Type *" 
+                label={t('driverRegistration.labels.workEligibilityType')}
                 value={formData.workEligibilityType} 
                 options={workEligibilityOptions}
                 onChange={(val) => handleChange('workEligibilityType', val)}
@@ -1015,98 +1050,90 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
             
             <div style={formRowStyle}>
               <FormInput 
-                label="SIN Number *" 
+                label={t('driverRegistration.labels.sinNumber')}
                 value={formData.sinNumber} 
                 onChange={(val) => handleChange('sinNumber', val)}
                 error={errors.sinNumber}
-                placeholder="9 digits"
+                placeholder={t('driverRegistration.placeholders.sinNumber')}
                 maxLength={9}
                 required
               />
               <FormFileUpload 
-                label="SIN Card (Optional)" 
+                label={t('driverRegistration.labels.sinCard')}
                 onChange={(file) => handleFileChange('sinCard', file)}
+                fileName={formData.files.sinCard?.name}
               />
             </div>
           </div>
         )}
 
-        {/* Step 4: Banking & Consent */}
         {currentStep === 4 && (
           <div style={stepContentStyle}>
-            <h3 style={sectionTitleStyle}>Banking Information & Consent</h3>
+            <h3 style={sectionTitleStyle}>{t('driverRegistration.sections.bankingConsent')}</h3>
             
-            <h4 style={subSectionTitleStyle}>Banking Information (To Get Paid)</h4>
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.bankingInfo')}</h4>
             <div style={formRowStyle}>
               <FormInput 
-                label="Transit Number * (3 digits)" 
+                label={t('driverRegistration.labels.transitNumber')}
                 value={formData.bankingInfo.transitNumber} 
                 onChange={(val) => handleBankingChange('transitNumber', val)}
                 error={errors.transitNumber}
                 maxLength={3}
-                placeholder="123"
+                placeholder={t('driverRegistration.placeholders.transitNumber')}
                 required
               />
               <FormInput 
-                label="Institution Number * (5 digits)" 
+                label={t('driverRegistration.labels.institutionNumber')}
                 value={formData.bankingInfo.institutionNumber} 
                 onChange={(val) => handleBankingChange('institutionNumber', val)}
                 error={errors.institutionNumber}
                 maxLength={5}
-                placeholder="12345"
+                placeholder={t('driverRegistration.placeholders.institutionNumber')}
                 required
               />
             </div>
             
             <FormInput 
-              label="Account Number * (7-12 digits)" 
+              label={t('driverRegistration.labels.accountNumber')}
               value={formData.bankingInfo.accountNumber} 
               onChange={(val) => handleBankingChange('accountNumber', val)}
               error={errors.accountNumber}
               maxLength={12}
-              placeholder="1234567890"
+              placeholder={t('driverRegistration.placeholders.accountNumber')}
               required
             />
             
             <div style={paymentInfoStyle}>
-              <p style={paymentInfoTextStyle}><strong>Payment Information:</strong> CAD $65 one-time Background Check Fee</p>
-              <p style={paymentInfoSubTextStyle}>Payment will be processed after form submission. Background check link will be provided after successful payment.</p>
+              <p style={paymentInfoTextStyle}><strong>{t('driverRegistration.paymentInfo.title')}:</strong> {t('driverRegistration.paymentInfo.amount')}</p>
+              <p style={paymentInfoSubTextStyle}>{t('driverRegistration.paymentInfo.description')}</p>
             </div>
             
-            <h4 style={subSectionTitleStyle}>Consent and Declarations</h4>
+            <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.consentDeclarations')}</h4>
             <div style={consentSectionStyle}>
               {[
-                { key: 'termsAndConditions', label: 'I agree to the Terms and Conditions *' },
-                { key: 'backgroundScreening', label: 'I agree to Background Screening and Use of Uploaded Documents *' },
-                { key: 'privacyPolicy', label: 'I agree to Privacy Policy (PIPEDA Compliant) *' },
-                { key: 'electronicCommunication', label: 'I consent to Electronic Communication *' }
+                { key: 'termsAndConditions', label: t('driverRegistration.consent.termsAndConditions') },
+                { key: 'backgroundScreening', label: t('driverRegistration.consent.backgroundScreening') },
+                { key: 'privacyPolicy', label: t('driverRegistration.consent.privacyPolicy') },
+                { key: 'electronicCommunication', label: t('driverRegistration.consent.electronicCommunication') }
               ].map(({ key, label }) => (
-                <label key={key} style={consentItemStyle}>
-                  <input
-                    type="checkbox"
-                    checked={formData.consentAndDeclarations[key as keyof DriverData['consentAndDeclarations']]}
-                    onChange={(e) => handleConsentChange(key as keyof DriverData['consentAndDeclarations'], e.target.checked)}
-                    style={checkboxStyle}
-                  />
-                  <span style={consentLabelStyle}>{label}</span>
-                </label>
+                <FormCheckbox
+                  key={key}
+                  label={label}
+                  checked={formData.consentAndDeclarations[key as keyof DriverData['consentAndDeclarations']]}
+                  onChange={(checked) => handleConsentChange(key as keyof DriverData['consentAndDeclarations'], checked)}
+                  error={errors.consents}
+                />
               ))}
-              
-              {errors.consents && (
-                <p style={errorTextStyle}>{errors.consents}</p>
-              )}
             </div>
           </div>
         )}
 
-        {/* Error display */}
         {errors.submit && (
           <div style={errorBannerStyle}>
             {errors.submit}
           </div>
         )}
 
-        {/* Button Container */}
         <div style={buttonContainerStyle}>
           {currentStep > 1 ? (
             <button 
@@ -1114,14 +1141,14 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
               onClick={handleBack} 
               style={{...actionButtonStyle, backgroundColor: '#7f8c8d'}}
             >
-              Back
+              {t('driverRegistration.buttons.back')}
             </button>
           ) : (
             <div></div>
           )}
           
           <button type="submit" style={actionButtonStyle}>
-            {currentStep === 4 ? "Proceed to Payment (CAD $65)" : "Next Step"}
+            {currentStep === 4 ? t('driverRegistration.buttons.proceedToPayment') : t('driverRegistration.buttons.nextStep')}
           </button>
         </div>
       </form>
@@ -1140,34 +1167,48 @@ const formContainerStyle = {
   color: '#2c2a1f',
 };
 
-const mainTitleStyle = {
+const mainTitleStyle: CSSProperties = {
   textAlign: 'center',
-  fontSize: '1.8rem',
-  fontWeight: '600',
-  marginBottom: '1.5rem',
-  color: '#3b3a2e',
+  fontSize: '24px',
+  fontWeight: 'bold',
+  marginBottom: '30px',
+  color: '#333333'
 };
 
-const progressBarStyle = {
+const progressBarStyle: CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: '2.5rem',
+  marginBottom: '40px',
   position: 'relative',
 };
 
-const progressStepStyle = {
+const progressLineStyle: CSSProperties = {
+  content: '""',
+  position: 'absolute',
+  top: '50%',
+  left: 0,
+  right: 0,
+  height: '2px',
+  backgroundColor: '#cfcab0',
+  transform: 'translateY(-50%)',
+  zIndex: 1,
+};
+
+const progressStepStyle = (active: boolean): CSSProperties => ({
   width: '36px',
   height: '36px',
   borderRadius: '50%',
+  backgroundColor: active ? '#d9a73e' : '#e0dccc',
+  color: active ? '#ffffff' : '#888',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontWeight: '600',
+  fontWeight: 600,
   transition: 'background-color 0.3s ease',
   position: 'relative',
   zIndex: 2,
-};
+});
 
 const sectionTitleStyle = {
   fontSize: '1.5rem',
@@ -1187,28 +1228,24 @@ const subSectionTitleStyle = {
 };
 
 const formGroupStyle: CSSProperties = {
-  marginBottom: '1.25rem',
-  display: 'flex',
-  flexDirection: 'column',
+  marginBottom: '20px',
+  width: '100%'
 };
 
-const labelStyle = {
-  marginBottom: '0.5rem',
-  fontWeight: '500',
-  fontSize: '0.95rem',
-  color: '#5c5945',
+const labelStyle: CSSProperties = {
+  display: 'block',
+  marginBottom: '8px',
+  fontWeight: 'bold',
+  color: '#333333'
 };
 
 const inputStyle: CSSProperties = {
   width: '100%',
-  padding: '0.75rem 1rem',
-  border: '1px solid #d2cdb6',
-  borderRadius: '6px',
-  fontSize: '1rem',
-  transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-  outline: 'none',
-  boxSizing: 'border-box',
-  backgroundColor: '#fdfcf7',
+  padding: '10px',
+  border: '1px solid #bdc3c7',
+  borderRadius: '4px',
+  fontSize: '14px',
+  transition: 'border-color 0.3s ease'
 };
 
 const formRowStyle = {
@@ -1218,41 +1255,35 @@ const formRowStyle = {
   marginBottom: '1rem',
 };
 
-const errorTextStyle = {
+const errorTextStyle: CSSProperties = {
   color: '#e74c3c',
-  fontSize: '0.85rem',
-  marginTop: '0.25rem',
+  fontSize: '12px',
+  marginTop: '4px'
 };
 
 const uploadWrapperStyle: CSSProperties = {
-  position: 'relative',
   display: 'flex',
   alignItems: 'center',
-  gap: '0.75rem',
-  padding: '1.5rem',
-  border: '2px dashed #c8c2a4',
-  borderRadius: '8px',
+  padding: '10px',
+  border: '1px dashed #bdc3c7',
+  borderRadius: '4px',
   cursor: 'pointer',
-  transition: 'border-color 0.3s ease',
-  backgroundColor: '#fdfcf7',
-  minHeight: '60px',
+  position: 'relative'
 };
 
-const uploadTextStyle = {
-  color: '#7f8c8d',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
+const uploadTextStyle: CSSProperties = {
+  marginLeft: '10px',
+  color: '#666666'
 };
 
 const fileInputStyle: CSSProperties = {
+  opacity: 0,
   position: 'absolute',
   top: 0,
   left: 0,
   width: '100%',
   height: '100%',
-  opacity: 0,
-  cursor: 'pointer',
+  cursor: 'pointer'
 };
 
 const paymentInfoStyle: CSSProperties = {
@@ -1424,63 +1455,4 @@ const pageDescriptionStyle = {
   lineHeight: '1.6',
 };
 
-
-
-
-// export default function DriverRegistrationPage() {
-//   const handleSubmit = (data) => {
-//     console.log('Form submitted:', data);
-//     // Add any additional handling here
-//   };
-
-//   return (
-//     <div style={pageContainerStyle}>
-//       <div style={contentWrapperStyle}>
-//         <h1 style={pageTitleStyle}>Driver Registration</h1>
-//         <p style={pageDescriptionStyle}>
-//           Join our network of professional drivers and start earning on your own schedule.
-//           Fill out the form below to begin your registration process.
-//         </p>
-//         <DriverRegistration onSubmit={handleSubmit} />
-//       </div>
-//     </div>
-//   );
-// }
-
-// Add page-level styles
-
-
-// const formContainerStyle = { maxWidth: '800px', margin: '2rem auto', padding: '2.5rem', backgroundColor: '#ffffff', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)', color: '#333' };
-// const progressBarStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', position: 'relative' };
-// const progressStepStyle = { width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', transition: 'background-color 0.3s ease', position: 'relative', zIndex: 2 };
-// const sectionTitleStyle = { fontSize: '1.5rem', fontWeight: '600', color: '#2980b9', marginBottom: '2rem', borderLeft: '4px solid #3498db', paddingLeft: '1rem' };
-// const subSectionTitleStyle = { fontSize: '1.2rem', fontWeight: '600', color: '#34495e', marginTop: '2rem', marginBottom: '1.5rem' };
-// const formGroupStyle = { marginBottom: '1.25rem', display: 'flex', flexDirection: 'column' };
-// const labelStyle = { marginBottom: '0.5rem', fontWeight: '500', fontSize: '0.95rem', color: '#555' };
-// const inputStyle = { width: '100%', padding: '0.75rem 1rem', border: '1px solid #bdc3c7', borderRadius: '6px', fontSize: '1rem', transition: 'border-color 0.2s ease, box-shadow 0.2s ease', outline: 'none', boxSizing: 'border-box' };
-// const formRowStyle = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '1rem' };
-// const errorTextStyle = { color: '#e74c3c', fontSize: '0.85rem', marginTop: '0.25rem' };
-// const uploadWrapperStyle = { position: 'relative', display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1.5rem', border: '2px dashed #bdc3c7', borderRadius: '8px', cursor: 'pointer', transition: 'border-color 0.3s ease', backgroundColor: '#f8f9fa', minHeight: '60px' };
-// const uploadTextStyle = { color: '#7f8c8d', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
-// const fileInputStyle = { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' };
-// const paymentInfoStyle = { padding: '1rem', backgroundColor: '#f8d7da', borderRadius: '6px', margin: '1.5rem 0', borderLeft: '4px solid #e74c3c' };
-// const paymentInfoTextStyle = { margin: '0.5rem 0', color: '#721c24', fontWeight: '600' };
-// const paymentInfoSubTextStyle = { margin: '0.5rem 0', color: '#1565c0' };
-// const consentSectionStyle = { backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e9ecef' };
-// const consentItemStyle = { display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '1rem', cursor: 'pointer' };
-// const checkboxStyle = { marginTop: '0.125rem', width: 'auto' };
-// const consentLabelStyle = { color: '#495057', lineHeight: '1.5' };
-// const errorBannerStyle = { backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', color: '#721c24', padding: '1rem', borderRadius: '6px', margin: '1.5rem 0' };
-// const buttonContainerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', borderTop: '1px solid #ecf0f1', paddingTop: '2rem' };
-// const actionButtonStyle = { padding: '0.8rem 2rem', border: 'none', borderRadius: '6px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.3s ease, transform 0.2s ease', backgroundColor: '#3498db', color: 'white', minWidth: '140px' };
-// const stepContentStyle = { minHeight: '400px', animation: 'fadeIn 0.3s ease-in-out' };
-// const paymentContainerStyle = { textAlign: 'center', padding: '2rem' };
-// const paymentDescStyle = { color: '#7f8c8d', marginBottom: '1rem' };
-// const paymentAmountStyle = { color: '#27ae60', fontSize: '1.3rem', margin: '1.5rem 0' };
-// const cardFormStyle = { backgroundColor: '#f8f9fa', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e9ecef', margin: '1.5rem 0', textAlign: 'left' };
-// const payButtonStyle = { width: '100%', marginTop: '1rem', padding: '1rem 2rem', border: 'none', borderRadius: '6px', fontSize: '1.1rem', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.3s ease', color: 'white' };
-// const errorMessageStyle = { color: '#e74c3c', fontSize: '0.9rem', textAlign: 'center', marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fadbd8', borderRadius: '6px' };
-
-
-//export default DriverRegistration;
 export default DriverRegistration;
