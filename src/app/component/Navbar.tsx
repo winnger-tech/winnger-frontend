@@ -27,7 +27,7 @@ const Navbar = () => {
       <NavContainer>
         <LogoWrapper>
           <Link href="/">
-            <Image src="/logo.png" alt="Logo" width={60} height={60} />
+            <Image src="/logo w.png" alt="Logo" width={70} height={70} />
           </Link>
         </LogoWrapper>
 

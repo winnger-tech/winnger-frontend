@@ -66,7 +66,7 @@ export default function Hero() {
             viewport={{ once: true }}
           >
             <Image
-              src="/HomeImg.png"
+              src="/HeroImg.png"
               alt="Hero Illustration"
               width={500}
               height={300}

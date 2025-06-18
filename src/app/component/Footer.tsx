@@ -20,7 +20,7 @@ export default function Footer() {
       <TopRow as={motion.div} variants={fadeUp}>
         <Logo>
           <Link href="/">
-            <img src="/logo.png" alt="Logo" />
+            <img src="/logo w.png" alt="Logo" />
           </Link>
         </Logo>
 
@@ -40,7 +40,7 @@ export default function Footer() {
 
       <InfoRow as={motion.div} variants={fadeUp}>
         <ContactDetails>
-          <p>{t('footer.email')}: info@winnger.com</p>
+          <p>{t('footer.email')}: info@winngur.com</p>
           <p>{t('footer.phone')}: 555-567-8901</p>
           <p>
             {t('footer.address')}: 1234 Main St<br />
