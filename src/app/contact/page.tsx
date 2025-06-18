@@ -21,34 +21,52 @@ const ContactSection = () => {
   }, [controls, inView]);
 
   return (
-    <Container id='contact'
+    <Container
+      id="contact"
       ref={ref}
       initial="hidden"
       animate={controls}
       variants={containerVariants}
     >
-      <InlineHeadingWrapper>
-        <Heading>{t('contact.title')}</Heading>
-        <SubHeading>
-          {t('contact.description')}
-        </SubHeading>
+      <InlineHeadingWrapper
+        as={motion.div}
+        variants={fadeUpStaggerContainer}
+      >
+        <motion.div variants={fadeUp}>
+          <Heading>{t('contact.title')}</Heading>
+        </motion.div>
+        <motion.div variants={fadeUp}>
+          <SubHeading>{t('contact.description')}</SubHeading>
+        </motion.div>
       </InlineHeadingWrapper>
-      <Decoration />
-      <ContactBox>
-        <Form>
-          <InputWrapper>
+
+      <Decoration as={motion.div} variants={floatEffect} animate="animate" />
+
+      <ContactBox as={motion.div} variants={fadeUp}>
+        <Form
+          as={motion.form}
+          variants={fadeUpStaggerContainer}
+          initial="hidden"
+          animate="visible"
+        >
+          <InputWrapper as={motion.div} variants={fadeUp}>
             <Label htmlFor="name">{t('contact.name')}</Label>
             <Input id="name" type="text" placeholder={t('contact.namePlaceholder')} />
           </InputWrapper>
-          <InputWrapper>
+
+          <InputWrapper as={motion.div} variants={fadeUp}>
             <Label htmlFor="email">{t('contact.email')}</Label>
             <Input id="email" type="email" placeholder={t('contact.emailPlaceholder')} required />
           </InputWrapper>
-          <InputWrapper>
+
+          <InputWrapper as={motion.div} variants={fadeUp}>
             <Label htmlFor="message">{t('contact.message')}</Label>
             <TextArea id="message" placeholder={t('contact.messagePlaceholder')} required />
           </InputWrapper>
-          <Button type="submit">{t('contact.sendMessage')}</Button>
+
+          <motion.div variants={fadeUp}>
+            <Button type="submit">{t('contact.sendMessage')}</Button>
+          </motion.div>
         </Form>
       </ContactBox>
     </Container>
@@ -57,7 +75,7 @@ const ContactSection = () => {
 
 export default ContactSection;
 
-// Animation variants for framer-motion
+// === Framer Motion Variants ===
 const containerVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: {
@@ -67,8 +85,32 @@ const containerVariants = {
   },
 };
 
-// Styled Components
+const fadeUpStaggerContainer = {
+  visible: {
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
+
+const floatEffect = {
+  animate: {
+    y: [0, -8, 0],
+    transition: {
+      duration: 6,
+      repeat: Infinity,
+      ease: 'easeInOut',
+    },
+  },
+};
+
+// === Styled Components ===
 const Container = styled(motion.section)`
   display: flex;
   flex-direction: column;
@@ -238,6 +280,4 @@ const Decoration = styled.div`
   background-size: contain;
   pointer-events: none;
   z-index: 1;
-
-
 `;

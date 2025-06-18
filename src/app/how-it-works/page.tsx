@@ -5,55 +5,78 @@ import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { useTranslation } from '../../utils/i18n';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: 'easeOut',
+    },
+  },
+};
+
 export default function HowItWorks() {
   const { t } = useTranslation();
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, { once: true, margin: '0px 0px -100px 0px' });
+  const isInView = useInView(sectionRef, {
+    once: true,
+    margin: '0px 0px -100px 0px',
+  });
 
   return (
-    <Section ref={sectionRef} id='how-it-works'>
-      <ContentWrapper>
-        <MotionDiv $isInView={isInView}>
-          {/* Heading Section */}
+    <Section ref={sectionRef} id="how-it-works">
+      <ContentWrapper
+        as={motion.div}
+        variants={containerVariants}
+        initial="hidden"
+        animate={isInView ? 'show' : 'hidden'}
+      >
+        {/* Heading Section */}
+        <InlineHeadingWrapper as={motion.div} variants={fadeUp}>
+          <Heading>{t('howItWorks.title')}</Heading>
+          <SubHeading>{t('howItWorks.description')}</SubHeading>
+        </InlineHeadingWrapper>
+
+        {/* Steps Section */}
+        <StepsBox as={motion.div} variants={containerVariants}>
+          {[1, 2, 3].map((step) => (
+            <Step as={motion.div} variants={fadeUp} key={step}>
+              <strong>{t(`howItWorks.step${step}.title`)}</strong>
+              <p>{t(`howItWorks.step${step}.description`)}</p>
+            </Step>
+          ))}
+        </StepsBox>
+
+        {/* CTA Section */}
+        <CTAContainer as={motion.div} variants={fadeUp}>
           <InlineHeadingWrapper>
-            <Heading>{t('howItWorks.title')}</Heading>
-            <SubHeading>
-              {t('howItWorks.description')}
-            </SubHeading>
+            <Heading>{t('howItWorks.cta.title')}</Heading>
+            <RightColumn>
+              <SubHeading>{t('howItWorks.cta.description')}</SubHeading>
+              <CTAButtons>
+                <Button href="/driver-registration">
+                  {t('home.hero.driverRegister')}
+                </Button>
+                <Button href="/restaurant-registration">
+                  {t('home.hero.restaurantRegister')}
+                </Button>
+              </CTAButtons>
+            </RightColumn>
           </InlineHeadingWrapper>
-
-          {/* Steps Section */}
-          <StepsBox>
-            <Step>
-              <strong>{t('howItWorks.step1.title')}</strong>
-              <p>{t('howItWorks.step1.description')}</p>
-            </Step>
-            <Step>
-              <strong>{t('howItWorks.step2.title')}</strong>
-              <p>{t('howItWorks.step2.description')}</p>
-            </Step>
-            <Step>
-              <strong>{t('howItWorks.step3.title')}</strong>
-              <p>{t('howItWorks.step3.description')}</p>
-            </Step>
-          </StepsBox>
-
-          {/* CTA Section */}
-          <CTAContainer>
-            <InlineHeadingWrapper>
-              <Heading>{t('howItWorks.cta.title')}</Heading>
-              <RightColumn>
-                <SubHeading>
-                  {t('howItWorks.cta.description')}
-                </SubHeading>
-                <CTAButtons>
-                  <Button href="/driver-registration">{t('home.hero.driverRegister')}</Button>
-                  <Button href="/restaurant-registration">{t('home.hero.restaurantRegister')}</Button>
-                </CTAButtons>
-              </RightColumn>
-            </InlineHeadingWrapper>
-          </CTAContainer>
-        </MotionDiv>
+        </CTAContainer>
       </ContentWrapper>
     </Section>
   );
@@ -62,7 +85,7 @@ export default function HowItWorks() {
 // Styled Components
 
 const Section = styled.section`
- padding: 40px 24px;
+padding: 80px 24px 0px 24px;
   margin: 0 80px;
 
   @media (max-width: 1024px) {

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import styled from 'styled-components';
@@ -9,14 +9,20 @@ import { useTranslation } from '../../utils/i18n';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
 export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <FooterContainer as={motion.footer} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+    <FooterContainer
+      as={motion.footer}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      variants={fadeUp}
+    >
       <TopRow as={motion.div} variants={fadeUp}>
         <Logo>
           <Link href="/">
@@ -63,7 +69,6 @@ export default function Footer() {
 }
 
 // Styled Components
-
 const FooterContainer = styled.footer`
   background-color: #D7C3A5;
   border-radius: 3rem 3rem 0 0;

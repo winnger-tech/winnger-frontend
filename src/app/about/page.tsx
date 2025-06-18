@@ -1,43 +1,63 @@
 'use client';
+
 import styled from 'styled-components';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslation } from '../../utils/i18n';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemFadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' },
+  },
+};
+
 export default function About() {
   const { t } = useTranslation();
   return (
     <Section id='about'>
-      <ContentWrapper>
+      <ContentWrapper
+        as={motion.div}
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+      >
         <InlineHeadingWrapper>
-          <Heading>{t('about.title')}</Heading>
-          <SubHeading>
-            {t('about.description')}
-            <br />
-            {t('about.missionText')}
-          </SubHeading>
+          <motion.div variants={itemFadeUp}>
+            <Heading>{t('about.title')}</Heading>
+          </motion.div>
+          <motion.div variants={itemFadeUp}>
+            <SubHeading>
+              {t('about.description')}
+              <br />
+              {t('about.missionText')}
+            </SubHeading>
+          </motion.div>
         </InlineHeadingWrapper>
 
         <CardWrapper>
-          <MotionCard
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
+          <MotionCard variants={itemFadeUp}>
             <CardText>
               <CardTitle>{t('howItWorks.forDrivers.title')}</CardTitle>
               <CardList>
-                <li>
-                  <strong>➜ {t('about.driver.earn')}</strong>
-                </li>
-                <li>
-                  <strong>➜ {t('about.driver.setup')}</strong>
-                </li>
-                <li>
-                  <strong>➜ {t('about.driver.support')}</strong>
-                </li>
+                <li><strong>➜ {t('about.driver.earn')}</strong></li>
+                <li><strong>➜ {t('about.driver.setup')}</strong></li>
+                <li><strong>➜ {t('about.driver.support')}</strong></li>
               </CardList>
               <Link href="/driver-registration" passHref>
                 <Button>{t('home.hero.driverRegister')}</Button>
@@ -54,24 +74,13 @@ export default function About() {
             </CardImage>
           </MotionCard>
 
-          <MotionCard
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
-          >
+          <MotionCard variants={itemFadeUp}>
             <CardText>
               <CardTitle>{t('howItWorks.forRestaurants.title')}</CardTitle>
               <CardList>
-                <li>
-                  <strong>➜ {t('about.restaurant.expand')}</strong>
-                </li>
-                <li>
-                  <strong>➜ {t('about.restaurant.onboarding')}</strong>
-                </li>
-                <li>
-                  <strong>➜ {t('about.restaurant.grow')}</strong>
-                </li>
+                <li><strong>➜ {t('about.restaurant.expand')}</strong></li>
+                <li><strong>➜ {t('about.restaurant.onboarding')}</strong></li>
+                <li><strong>➜ {t('about.restaurant.grow')}</strong></li>
               </CardList>
               <Link href="/restaurant-registration" passHref>
                 <Button>{t('home.hero.restaurantRegister')}</Button>
@@ -96,7 +105,7 @@ export default function About() {
 // Styled Components Below
 
 const Section = styled.section`
-padding: 40px 24px;
+  padding: 40px 24px;
   margin: 0 80px;
 
   @media (max-width: 1024px) {
@@ -158,11 +167,6 @@ const SubHeading = styled.p`
     max-width: 100%;
     text-align: left;
   }
-`;
-
-const Highlight = styled.span`
-  color: white;
-  font-weight: 600;
 `;
 
 const CardWrapper = styled.div`
@@ -231,7 +235,6 @@ const CardList = styled.ul`
     color: white;
   }
 `;
-
 
 const Button = styled.button`
   background-color: #f7b22c;

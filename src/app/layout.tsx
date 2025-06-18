@@ -26,6 +26,10 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: "winngur",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.png",
+  },
   description: "Pre Registration",
 };
 

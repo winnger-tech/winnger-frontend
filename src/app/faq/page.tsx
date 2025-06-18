@@ -1,9 +1,9 @@
-"use client"
+'use client';
 
 import styled from 'styled-components';
 import { Plus, Minus } from 'lucide-react';
 import React, { useState, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useTranslation } from '../../utils/i18n';
 
 const FaqSection = () => {
@@ -44,18 +44,26 @@ const FaqSection = () => {
   ];
 
   return (
-    <FaqContainer id='faqs'
+    <FaqContainer
+      id="faqs"
       as={motion.div}
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      initial="hidden"
+      animate={isInView ? 'show' : 'hidden'}
+      variants={faqContainerVariants}
     >
-      <Title>{t('faq.title')}</Title>
+      <Title as={motion.h2} variants={fadeUp}>{t('faq.title')}</Title>
+
       {faqs.map((faq, index) => {
         const isOpen = openIndex === index;
         return (
-          <AccordionItem key={index} active={isOpen} onClick={() => toggle(index)}>
+          <AccordionItem
+            as={motion.div}
+            key={index}
+            onClick={() => toggle(index)}
+            active={isOpen}
+            variants={fadeUp}
+          >
             <Question>
               {faq.question}
               {isOpen ? (
@@ -64,7 +72,19 @@ const FaqSection = () => {
                 <Plus color="white" strokeWidth={2.5} />
               )}
             </Question>
-            {isOpen && <Answer>{faq.answer}</Answer>}
+
+            <AnimatePresence>
+              {isOpen && (
+                <AnswerWrapper
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                >
+                  <Answer>{faq.answer}</Answer>
+                </AnswerWrapper>
+              )}
+            </AnimatePresence>
           </AccordionItem>
         );
       })}
@@ -74,9 +94,33 @@ const FaqSection = () => {
 
 export default FaqSection;
 
+// Animation Variants
+const faqContainerVariants = {
+  hidden: { opacity: 0, y: 50 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      ease: 'easeOut',
+      duration: 0.6,
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeOut' },
+  },
+};
+
 // Styled Components
 const FaqContainer = styled.div`
-  padding: 40px 24px;
+  padding: 0px 24px 40px 24px;
   margin: 0 80px;
 
   @media (max-width: 1024px) {
@@ -122,7 +166,7 @@ const AccordionItem = styled.div.withConfig({
   margin-bottom: 16px;
   cursor: pointer;
   border: 1px solid white;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 
   &:hover {
     background-color: #777565;
@@ -143,6 +187,10 @@ const Question = styled.div`
   @media (max-width: 480px) {
     font-size: 15px;
   }
+`;
+
+const AnswerWrapper = styled(motion.div)`
+  overflow: hidden;
 `;
 
 const Answer = styled.div`

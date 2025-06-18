@@ -1,9 +1,8 @@
 "use client";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
-import { useTranslation } from '../../utils/i18n';
+import { useTranslation } from "../../utils/i18n";
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -13,73 +12,94 @@ export default function Hero() {
       <ContentWrapper>
         <HeroLeft>
           <MotionTitle
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 60, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.8, 0.25, 1] }}
           >
-            {t('home.hero.title1')}
+            {t("home.hero.title1")}
           </MotionTitle>
 
           <MotionTitle
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+            initial={{ opacity: 0, y: 60, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.8, 0.25, 1], delay: 0.15 }}
           >
-            {t('home.hero.title2')}
+            {t("home.hero.title2")}
           </MotionTitle>
 
           <MotionDescription
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.3 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.8, 0.25, 1], delay: 0.3 }}
           >
-            {t('home.hero.description')}
+            {t("home.hero.description")}
           </MotionDescription>
 
           <ButtonGroup>
-            <Link href="/driver-registration" passHref>
-              <ButtonLink>
-                <PrimaryButton whileHover={{ scale: 1.05 }}>
-                  {t('home.hero.driverRegister')}
-                </PrimaryButton>
-              </ButtonLink>
-            </Link>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.45, duration: 0.6, ease: "easeOut" }}
+            >
+              <Link href="/driver-registration" passHref>
+                <ButtonLink>
+                  <PrimaryButton whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.95 }}>
+                    {t("home.hero.driverRegister")}
+                  </PrimaryButton>
+                </ButtonLink>
+              </Link>
+            </motion.div>
 
-            <Link href="/restaurant-registration" passHref>
-              <ButtonLink>
-                <PrimaryButton whileHover={{ scale: 1.05 }}>
-                  {t('home.hero.restaurantRegister')}
-                </PrimaryButton>
-              </ButtonLink>
-            </Link>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.55, duration: 0.6, ease: "easeOut" }}
+            >
+              <Link href="/restaurant-registration" passHref>
+                <ButtonLink>
+                  <PrimaryButton whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.95 }}>
+                    {t("home.hero.restaurantRegister")}
+                  </PrimaryButton>
+                </ButtonLink>
+              </Link>
+            </motion.div>
           </ButtonGroup>
         </HeroLeft>
 
         <HeroRight>
           <MotionHeroImage
-  initial={{ opacity: 0, scale: 0.95 }}
-  whileInView={{ opacity: 1, scale: 1 }}
-  transition={{ duration: 0.9, ease: "easeOut" }}
-  viewport={{ once: true }}
->
-  <video
-    src="/HeroVid.mov"
-    autoPlay
-    muted
-    loop
-    playsInline
-    style={{
-      width: "100%",
-      height: "auto",
-      borderRadius: "inherit",
-      objectFit: "cover",
-      boxShadow: "0 20px 40px rgba(0, 0, 0, 0.05)",
-    }}
-  />
-</MotionHeroImage>
+            initial={{ opacity: 0, scale: 0.96 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: [0.25, 0.8, 0.25, 1] }}
+            viewport={{ once: true }}
+          >
+            <motion.div
+              animate={{ y: [0, -5, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <VideoWrapper>
+                <video
+                  src="/HeroVid.mov"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "inherit",
+                    objectFit: "cover",
+                  }}
+                />
+                <Overlay />
+              </VideoWrapper>
+            </motion.div>
+          </MotionHeroImage>
         </HeroRight>
       </ContentWrapper>
     </HeroWrapper>
@@ -87,12 +107,10 @@ export default function Hero() {
 }
 
 // Styled Components
-
 export const HeroWrapper = styled.section`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 50px;
   padding: 6rem 8rem;
   gap: 4rem;
   flex-wrap: wrap;
@@ -113,7 +131,6 @@ export const HeroWrapper = styled.section`
     gap: 2rem;
   }
 `;
-
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -250,7 +267,7 @@ const MotionHeroImage = styled(motion.div)`
   border-radius: 25px;
   overflow: hidden;
 
-   @media (max-width: 768px) {
+  @media (max-width: 768px) {
     border-radius: 18px;
   }
 
@@ -259,6 +276,19 @@ const MotionHeroImage = styled(motion.div)`
   }
 `;
 
+const VideoWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.05));
+  border-radius: inherit;
+`;
+
 const MotionTitle = motion(Title);
 const MotionDescription = motion(Description);
-const MotionButtonGroup = motion(ButtonGroup);

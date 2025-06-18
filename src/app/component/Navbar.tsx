@@ -4,17 +4,13 @@ import styled, { keyframes } from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { useTranslation } from '../../utils/i18n';
+import { useTranslation } from "../../utils/i18n";
 import LanguageSelector from "./LanguageSelector";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Animations
 const fadeSlideDown = keyframes`
   0% { opacity: 0; transform: translateY(-20px); }
-  100% { opacity: 1; transform: translateY(0); }
-`;
-
-const dropdownReveal = keyframes`
-  0% { opacity: 0; transform: translateY(-15px); }
   100% { opacity: 1; transform: translateY(0); }
 `;
 
@@ -23,7 +19,7 @@ const Navbar = () => {
   const { t } = useTranslation();
 
   return (
-    <Nav>
+    <Nav as={motion.nav} initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
       <NavContainer>
         <LogoWrapper>
           <Link href="/">
@@ -42,25 +38,89 @@ const Navbar = () => {
           <span />
         </Hamburger>
 
-        <RightSection $menuOpen={menuOpen}>
+        <AnimatePresence>
+          {menuOpen && (
+            <MotionRightSection
+              key="menu"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <NavMenu>
+                <DesktopLangSelector>
+                  <LanguageSelector />
+                </DesktopLangSelector>
+
+                {[{ label: "about", href: "#about" },
+                  { label: "howItWorks", href: "#how-it-works" },
+                  { label: "faq", href: "#faqs" }]
+                  .map((item, index) => (
+                    <MotionNavItem
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMenuOpen(false)}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 * index }}
+                    >
+                      {t(`navigation.${item.label}`)}
+                    </MotionNavItem>
+                  ))}
+
+                <ButtonGroup>
+                  <MotionButton
+                    href="/driver-registration"
+                    onClick={() => setMenuOpen(false)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {t("navigation.driverRegister")}
+                  </MotionButton>
+
+                  <MotionButton
+                    href="/restaurant-registration"
+                    onClick={() => setMenuOpen(false)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {t("navigation.restaurantRegister")}
+                  </MotionButton>
+                </ButtonGroup>
+              </NavMenu>
+            </MotionRightSection>
+          )}
+        </AnimatePresence>
+
+        {/* Desktop Nav */}
+        <DesktopRightSection>
           <NavMenu>
-            {/* Language Selector for desktop */}
             <DesktopLangSelector>
               <LanguageSelector />
             </DesktopLangSelector>
-            <NavItem href="#about" onClick={() => setMenuOpen(false)}>{t('navigation.about')}</NavItem>
-            <NavItem href="#how-it-works" onClick={() => setMenuOpen(false)}>{t('navigation.howItWorks')}</NavItem>
-            <NavItem href="#faqs" onClick={() => setMenuOpen(false)}>{t('navigation.faq')}</NavItem>
+
+            <NavItem href="#about">{t("navigation.about")}</NavItem>
+            <NavItem href="#how-it-works">{t("navigation.howItWorks")}</NavItem>
+            <NavItem href="#faqs">{t("navigation.faq")}</NavItem>
+
             <ButtonGroup>
-              <YellowButton href="/driver-registration" onClick={() => setMenuOpen(false)}>
-                {t('navigation.driverRegister')}
-              </YellowButton>
-              <YellowButton href="/restaurant-registration" onClick={() => setMenuOpen(false)}>
-                {t('navigation.restaurantRegister')}
-              </YellowButton>
+              <MotionButton
+                href="/driver-registration"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                {t("navigation.driverRegister")}
+              </MotionButton>
+              <MotionButton
+                href="/restaurant-registration"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+              >
+                {t("navigation.restaurantRegister")}
+              </MotionButton>
             </ButtonGroup>
           </NavMenu>
-        </RightSection>
+        </DesktopRightSection>
       </NavContainer>
     </Nav>
   );
@@ -69,17 +129,15 @@ const Navbar = () => {
 export default Navbar;
 
 // Styled Components
-
 const Nav = styled.nav`
   width: 100%;
   padding: 1.3rem 50px;
-  background-color: #403E2D;
-  font-family: 'Space Grotesk', sans-serif;
+  background-color: #403e2d;
+  font-family: "Space Grotesk", sans-serif;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 999;
-  animation: ${fadeSlideDown} 0.6s ease forwards;
 
   @media (max-width: 768px) {
     padding: 1.3rem 20px;
@@ -92,19 +150,11 @@ const Nav = styled.nav`
 
 const NavContainer = styled.div`
   max-width: 1440px;
-  margin: 0 50px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-
-  @media (max-width: 768px) {
-    margin: 0 20px;
-  }
-
-  @media (max-width: 480px) {
-    margin: 0 12px;
-  }
 `;
 
 const LogoWrapper = styled.div`
@@ -147,25 +197,27 @@ const Hamburger = styled.div<{ $menuOpen: boolean }>`
   }
 `;
 
-const RightSection = styled.div<{ $menuOpen: boolean }>`
-  @media (max-width: 1024px) {
-    position: fixed;
-    top: 80px; /* Height of navbar + some margin */
-    left: 0;
-    width: 100%;
-    background: #706C51;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    border-radius: 0 0 20px 20px;
-    max-height: ${({ $menuOpen }) => ($menuOpen ? "500px" : "0")};
-    overflow: hidden;
-    transition: max-height 0.5s ease;
-    animation: ${({ $menuOpen }) => ($menuOpen ? dropdownReveal : 'none')} 0.35s ease forwards;
-    z-index: 998;
-  }
+const MotionRightSection = styled(motion.div)`
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  background: #706c51;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 20px 20px;
+  z-index: 998;
 
   @media (min-width: 1025px) {
-    display: flex !important;
+    display: none;
+  }
+`;
+
+const DesktopRightSection = styled.div`
+  display: flex;
+
+  @media (max-width: 1024px) {
+    display: none;
   }
 `;
 
@@ -198,6 +250,8 @@ const NavItem = styled(Link)`
   }
 `;
 
+const MotionNavItem = motion(NavItem);
+
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
@@ -227,6 +281,8 @@ const YellowButton = styled(Link)`
     padding: 16px 0;
   }
 `;
+
+const MotionButton = motion(YellowButton);
 
 const MobileLangSelector = styled.div`
   display: none;
