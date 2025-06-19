@@ -110,7 +110,6 @@ export default function About() {
   );
 }
 
-
 // Styled Components Below
 
 const Section = styled.section`

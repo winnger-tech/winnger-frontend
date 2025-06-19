@@ -330,6 +330,9 @@
       "identificationTypes": {
         "licence": "Permis d'exploitation",
         "passport": "Passeport",
+        "pr_card": "Carte RP",
+        "medical_card": "Carte médicale",
+        "provincial_id": "Carte d'identité provinciale",
         "driverLicence": "Permis de conduire",
         "healthCard": "Carte santé"
       },

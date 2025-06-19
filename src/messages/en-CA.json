@@ -5,8 +5,8 @@
     "howItWorks": "How It Works",
     "faq": "FAQ",
     "contact": "Contact",
-    "driverRegister": "Driver Register",
-    "restaurantRegister": "Restaurant Register"
+    "driverRegister": "Register as Driver",
+    "restaurantRegister": "Register as Restaurant"
   },
   "footer": {
     "email": "Email",
@@ -38,6 +38,7 @@
       "earn": "Earn on Your Terms – Flexible work hours and fast payouts.",
       "setup": "One-Time Setup – Just a small fee and you're ready to go.",
       "support": "Partner Support – We've got your back every step of the way."
+      
     },
     "restaurant": {
       "title": "How It Works for Restaurants",
@@ -244,6 +245,9 @@
       "identificationTypes": {
         "licence": "Business License",
         "passport": "Passport",
+        "pr_card": "PR Card",
+        "medical_card": "Medical Card",
+        "provincial_id": "Province ID",
         "driverLicence": "Driver's License",
         "healthCard": "Health Card"
       },

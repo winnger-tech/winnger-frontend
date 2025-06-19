@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-// This path is correct as long as Registry.tsx is in the same `app` folder.
 import StyledComponentsRegistry from "./Registry"; 
 import { QueryProvider } from "@/providers/QueryProvider";
 import LanguageSelector from "./component/LanguageSelector";
@@ -39,23 +38,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={spaceGrotesk.variable}>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${spaceGrotesk.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <LocaleProvider>
           <QueryProvider> 
-            <div className="min-h-screen">
-              <header className="bg-white shadow-sm">
+            <StyledComponentsRegistry>
+              <HeaderWrapper>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-end">
                   <LanguageSelector />
                 </div>
-              </header>
-              <main>
-                <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
-              </main>
-            </div>
+              </HeaderWrapper>
+
+              <main>{children}</main>
+            </StyledComponentsRegistry>
           </QueryProvider> 
         </LocaleProvider>
       </body>
     </html>
   );
 }
+
+// Tailwind utility with bg/positioning logic removed from HTML structure
+const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
+  <header className="bg-white shadow-sm sticky top-0 z-50">
+    {children}
+  </header>
+);

@@ -68,7 +68,7 @@ const ContactSection = () => {
 
     <RightSection as={motion.div} variants={fadeUp}>
       <Image
-        src="/AppImg.png"
+        src="/AppUI.png"
         alt="App UI"
         fill
         sizes="(max-width: 1024px) 100vw, 50vw"
@@ -185,7 +185,7 @@ const ContactBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 550px;
+  max-width: 700px;
   width: 100%;
 
   @media (max-width: 1024px) {
@@ -223,7 +223,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 550px;
+  max-width: 600px;
 
   @media (max-width: 480px) {
     max-width: 100%;

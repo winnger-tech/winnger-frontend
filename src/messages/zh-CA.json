@@ -322,6 +322,9 @@
       "identificationTypes": {
         "licence": "营业执照",
         "passport": "护照",
+        "pr_card": "永久居民卡",
+        "medical_card": "医疗卡",
+        "provincial_id": "省级身份证",
         "driverLicence": "驾驶执照",
         "healthCard": "健康卡"
       },

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Navbar from "./component/Navbar";
 import Home from "./page/index";
 import About from "./about/page";
+import WhyWinggurSection from './WinggurSection/page';
 import HowItWorks from "./how-it-works/page";
 import FaqSection from "./faq/page";
 import Contact from "./contact/page";
@@ -27,6 +28,7 @@ export default function HomeWrapper() {
       <Navbar/>
       <Home/>
       <About/>
+      <WhyWinggurSection/>
       <HowItWorks/>
       <FaqSection/>
       <Contact/>

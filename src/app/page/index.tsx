@@ -89,7 +89,7 @@ export const HeroWrapper = styled.section`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100vh;
+  min-height: 90vh;
   color: white;
 
   @media (max-width: 1024px) {
