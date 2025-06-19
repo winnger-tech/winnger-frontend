@@ -29,7 +29,7 @@ const itemFadeUp = {
 export default function About() {
   const { t } = useTranslation();
   return (
-    <Section id='about'>
+    <Section id="about">
       <ContentWrapper
         as={motion.div}
         variants={containerVariants}
@@ -63,7 +63,12 @@ export default function About() {
                 <Button>{t('home.hero.driverRegister')}</Button>
               </Link>
             </CardText>
-            <CardImage>
+            <CardImage
+              as={motion.div}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+            >
               <Image
                 src="/driver-about.png"
                 alt="Driver Illustration"
@@ -86,7 +91,12 @@ export default function About() {
                 <Button>{t('home.hero.restaurantRegister')}</Button>
               </Link>
             </CardText>
-            <CardImage>
+            <CardImage
+              as={motion.div}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+            >
               <Image
                 src="/restaurant-about.png"
                 alt="Restaurant Illustration"
@@ -101,6 +111,7 @@ export default function About() {
     </Section>
   );
 }
+
 
 // Styled Components Below
 

@@ -57,6 +57,7 @@ const Navbar = () => {
                 </DesktopLangSelector>
 
                 {[
+                  { label: "home", href: "#" },
                   { label: "about", href: "#about" },
                   { label: "howItWorks", href: "#how-it-works" },
                   { label: "faq", href: "#faqs" },
@@ -111,6 +112,7 @@ const Navbar = () => {
               <LanguageSelector />
             </DesktopLangSelector>
 
+            <NavItem href="#">{t("navigation.home")}</NavItem>
             <NavItem href="#about">{t("navigation.about")}</NavItem>
             <NavItem href="#how-it-works">{t("navigation.howItWorks")}</NavItem>
             <NavItem href="#faqs">{t("navigation.faq")}</NavItem>
