@@ -46,7 +46,7 @@ const ContactSection = () => {
         animate="visible"
       >
         <InputWrapper as={motion.div} variants={fadeUp}>
-          <Label htmlFor="name">{t('contact.name')}</Label>
+          <Label htmlFor="name">{t('contact.name')}*</Label>
           <Input id="name" type="text" placeholder={t('contact.namePlaceholder')} />
         </InputWrapper>
 
@@ -108,7 +108,6 @@ const fadeUp = {
 };
 
 // === Styled Components ===
-
 const Container = styled(motion.section)`
   display: flex;
   flex-direction: column;
@@ -118,7 +117,7 @@ const Container = styled(motion.section)`
   max-width: 1250px;
 
   @media (max-width: 1024px) {
-    margin: 0 40px;
+    margin: 0 80px;
   }
 
   @media (max-width: 768px) {
@@ -175,11 +174,13 @@ const ContentWrapper = styled.div`
 
   @media (max-width: 1024px) {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 `;
 
 const ContactBox = styled.div`
-  background-color: #6E6B52;
+  background-color: #6e6b52;
   padding: 48px;
   border-radius: 32px;
   display: flex;
@@ -190,6 +191,7 @@ const ContactBox = styled.div`
 
   @media (max-width: 1024px) {
     padding: 40px 28px;
+    margin: 0 auto;
   }
 
   @media (max-width: 480px) {
@@ -207,6 +209,7 @@ const RightSection = styled(motion.div)`
   @media (max-width: 1024px) {
     height: 300px;
     width: 100%;
+    margin: 0 auto;
   }
 
   @media (max-width: 768px) {
@@ -218,12 +221,12 @@ const RightSection = styled(motion.div)`
   }
 `;
 
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 600px;
+  max-width: 650px;
+  width: 100%;
 
   @media (max-width: 480px) {
     max-width: 100%;
@@ -238,11 +241,13 @@ const InputWrapper = styled.div`
 
 const Label = styled.label`
   color: white;
+  text-align: start;
+  padding-left: 4px;
   font-size: 14px;
 `;
 
 const Input = styled.input`
-  background-color: #403E2D;
+  background-color: #403e2d;
   border: 1px solid white;
   padding: 12px 16px;
   border-radius: 12px;
@@ -255,7 +260,7 @@ const Input = styled.input`
 `;
 
 const TextArea = styled.textarea`
-  background-color: #403E2D;
+  background-color: #403e2d;
   border: 1px solid white;
   padding: 12px 16px;
   border-radius: 12px;

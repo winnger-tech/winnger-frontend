@@ -38,9 +38,23 @@ export default function Footer() {
         </NavLinks>
 
         <SocialIcons>
-          <FaLinkedinIn />
-          <FaFacebookF />
-          <FaTwitter />
+          <a
+        href="https://www.linkedin.com/in/winngur-group-638598370"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="LinkedIn"
+      >
+        <FaLinkedinIn className="text-white hover:text-[#0A66C2] transition duration-300" size={20} />
+      </a>
+
+      <a
+        href="https://x.com/winngur"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Twitter"
+      >
+        <FaTwitter className="text-white hover:text-[#1DA1F2] transition duration-300" size={20} />
+      </a>
         </SocialIcons>
       </TopRow>
 

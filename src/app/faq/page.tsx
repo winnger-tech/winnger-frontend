@@ -126,11 +126,17 @@ const FaqWrapper = styled.div`
   max-width: 1250px;
   overflow: hidden;
 
+  @media (max-width: 1024px) {
+    margin: 0 40px;
+  }
+
   @media (max-width: 768px) {
+    margin: 0 24px;
     padding: 32px 16px;
   }
 
   @media (max-width: 480px) {
+    margin: 0 16px;
     padding: 24px 12px;
   }
 `;

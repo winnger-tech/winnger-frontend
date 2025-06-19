@@ -78,6 +78,7 @@ export default function Hero() {
 }
 
 // Styled Components
+
 export const HeroWrapper = styled.section`
   position: relative;
   padding: 6rem 8rem;
@@ -88,13 +89,10 @@ export const HeroWrapper = styled.section`
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed; /* This line makes the background non-scrollable */
-  min-height: 90vh;
+  min-height: 100vh;
   color: white;
-  overflow: hidden; /* Prevent overflow glitch */
 
   @media (max-width: 1024px) {
-    background-attachment: scroll; /* Fallback for mobile where fixed background may stutter */
     padding: 5rem 4rem;
   }
 
@@ -106,7 +104,6 @@ export const HeroWrapper = styled.section`
     padding: 3rem 1.25rem;
   }
 `;
-
 
 const Overlay = styled.div`
   position: absolute;
