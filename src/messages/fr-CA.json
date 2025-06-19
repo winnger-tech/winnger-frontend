@@ -33,11 +33,13 @@
     "vision": "Notre Vision",
     "visionText": "Devenir la plateforme la plus fiable pour les livraisons locales, soutenant les communautés et les entreprises.",
     "driver": {
+      "title": "Comment ça marche pour les chauffeurs",
       "earn": "Gagnez à Votre Rythme – Horaires flexibles et paiements rapides.",
       "setup": "Configuration Unique – Un petit frais et vous êtes prêt à partir.",
       "support": "Support Partenaire – Nous sommes là pour vous à chaque étape."
     },
     "restaurant": {
+      "title": "Comment ça marche pour les restaurants",
       "expand": "Élargissez Votre Portée – Livrez à plus de clients dans votre région.",
       "onboarding": "Intégration Rapide – Formulaire et téléchargement de documents faciles.",
       "grow": "Grandissez avec Nous – Bénéficiez de notre réseau marketing et logistique."

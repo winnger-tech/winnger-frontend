@@ -53,7 +53,7 @@ export default function About() {
         <CardWrapper>
           <MotionCard variants={itemFadeUp}>
             <CardText>
-              <CardTitle>{t('howItWorks.forDrivers.title')}</CardTitle>
+              <CardTitle>{t('about.driver.title')}</CardTitle>
               <CardList>
                 <li><strong>➜ {t('about.driver.earn')}</strong></li>
                 <li><strong>➜ {t('about.driver.setup')}</strong></li>
@@ -76,7 +76,7 @@ export default function About() {
 
           <MotionCard variants={itemFadeUp}>
             <CardText>
-              <CardTitle>{t('howItWorks.forRestaurants.title')}</CardTitle>
+              <CardTitle>{t('about.restaurant.title')}</CardTitle>
               <CardList>
                 <li><strong>➜ {t('about.restaurant.expand')}</strong></li>
                 <li><strong>➜ {t('about.restaurant.onboarding')}</strong></li>

@@ -33,11 +33,13 @@
     "vision": "Our Vision",
     "visionText": "To become the most trusted platform for local deliveries, supporting communities and businesses alike.",
     "driver": {
+      "title": "How It Works for Drivers",
       "earn": "Earn on Your Terms – Flexible work hours and fast payouts.",
       "setup": "One-Time Setup – Just a small fee and you're ready to go.",
       "support": "Partner Support – We've got your back every step of the way."
     },
     "restaurant": {
+      "title": "How It Works for Restaurants",
       "expand": "Expand Your Reach – Deliver to more customers in your area.",
       "onboarding": "Quick Onboarding – Easy form and document upload.",
       "grow": "Grow with Us – Benefit from our marketing & logistics network."

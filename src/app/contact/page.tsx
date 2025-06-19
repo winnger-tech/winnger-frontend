@@ -5,14 +5,12 @@ import { motion, useAnimation } from 'framer-motion';
 import { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useTranslation } from '../../utils/i18n';
+import Image from 'next/image';
 
 const ContactSection = () => {
   const { t } = useTranslation();
   const controls = useAnimation();
-  const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.15,
-  });
+  const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
 
   useEffect(() => {
     if (inView) {
@@ -21,55 +19,65 @@ const ContactSection = () => {
   }, [controls, inView]);
 
   return (
-    <Container
-      id="contact"
-      ref={ref}
-      initial="hidden"
-      animate={controls}
-      variants={containerVariants}
-    >
-      <InlineHeadingWrapper
-        as={motion.div}
+  // inside ContactSection component return:
+
+<Container
+  id="contact"
+  ref={ref}
+  initial="hidden"
+  animate={controls}
+  variants={containerVariants}
+>
+  <InlineHeadingWrapper as={motion.div} variants={fadeUpStaggerContainer}>
+    <motion.div variants={fadeUp}>
+      <Heading>{t('contact.title')}</Heading>
+    </motion.div>
+    <motion.div variants={fadeUp}>
+      <SubHeading>{t('contact.description')}</SubHeading>
+    </motion.div>
+  </InlineHeadingWrapper>
+
+  <ContentWrapper>
+    <ContactBox as={motion.div} variants={fadeUp}>
+      <Form
+        as={motion.form}
         variants={fadeUpStaggerContainer}
+        initial="hidden"
+        animate="visible"
       >
+        <InputWrapper as={motion.div} variants={fadeUp}>
+          <Label htmlFor="name">{t('contact.name')}</Label>
+          <Input id="name" type="text" placeholder={t('contact.namePlaceholder')} />
+        </InputWrapper>
+
+        <InputWrapper as={motion.div} variants={fadeUp}>
+          <Label htmlFor="email">{t('contact.email')}</Label>
+          <Input id="email" type="email" placeholder={t('contact.emailPlaceholder')} required />
+        </InputWrapper>
+
+        <InputWrapper as={motion.div} variants={fadeUp}>
+          <Label htmlFor="message">{t('contact.message')}</Label>
+          <TextArea id="message" placeholder={t('contact.messagePlaceholder')} required />
+        </InputWrapper>
+
         <motion.div variants={fadeUp}>
-          <Heading>{t('contact.title')}</Heading>
+          <Button type="submit">{t('contact.sendMessage')}</Button>
         </motion.div>
-        <motion.div variants={fadeUp}>
-          <SubHeading>{t('contact.description')}</SubHeading>
-        </motion.div>
-      </InlineHeadingWrapper>
+      </Form>
+    </ContactBox>
 
-      <Decoration as={motion.div} variants={floatEffect} animate="animate" />
-
-      <ContactBox as={motion.div} variants={fadeUp}>
-        <Form
-          as={motion.form}
-          variants={fadeUpStaggerContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <InputWrapper as={motion.div} variants={fadeUp}>
-            <Label htmlFor="name">{t('contact.name')}</Label>
-            <Input id="name" type="text" placeholder={t('contact.namePlaceholder')} />
-          </InputWrapper>
-
-          <InputWrapper as={motion.div} variants={fadeUp}>
-            <Label htmlFor="email">{t('contact.email')}</Label>
-            <Input id="email" type="email" placeholder={t('contact.emailPlaceholder')} required />
-          </InputWrapper>
-
-          <InputWrapper as={motion.div} variants={fadeUp}>
-            <Label htmlFor="message">{t('contact.message')}</Label>
-            <TextArea id="message" placeholder={t('contact.messagePlaceholder')} required />
-          </InputWrapper>
-
-          <motion.div variants={fadeUp}>
-            <Button type="submit">{t('contact.sendMessage')}</Button>
-          </motion.div>
-        </Form>
-      </ContactBox>
-    </Container>
+    <RightSection as={motion.div} variants={fadeUp}>
+      <Image
+        src="/AppImg.png"
+        alt="App UI"
+        fill
+        sizes="(max-width: 1024px) 100vw, 50vw"
+        style={{ objectFit: 'contain', borderRadius: '20px' }}
+        priority
+      />
+    </RightSection>
+  </ContentWrapper>
+</Container>
   );
 };
 
@@ -99,30 +107,18 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
-const floatEffect = {
-  animate: {
-    y: [0, -8, 0],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      ease: 'easeInOut',
-    },
-  },
-};
-
 // === Styled Components ===
+
 const Container = styled(motion.section)`
   display: flex;
   flex-direction: column;
   gap: 40px;
-  padding: 40px 24px;
-  margin: 0 80px;
-  position: relative;
-  overflow: visible;
+  padding: 40px 0px;
+  margin: 0 auto;
+  max-width: 1250px;
 
   @media (max-width: 1024px) {
     margin: 0 40px;
-    padding: 36px 20px;
   }
 
   @media (max-width: 768px) {
@@ -170,43 +166,64 @@ const SubHeading = styled.p`
   color: #e0e0e0;
   max-width: 800px;
   text-align: left;
+`;
 
-  @media (max-width: 768px) {
-    max-width: 100%;
-    text-align: left;
+const ContentWrapper = styled.div`
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
   }
 `;
 
 const ContactBox = styled.div`
   background-color: #6E6B52;
-  padding: 48px 32px 48px 80px;
+  padding: 48px;
   border-radius: 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  position: relative;
-  overflow: visible;
+  max-width: 550px;
+  width: 100%;
 
   @media (max-width: 1024px) {
-    padding-left: 64px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 40px 28px 40px 28px;
+    padding: 40px 28px;
   }
 
   @media (max-width: 480px) {
-    padding: 32px 24px 32px 24px;
-    border-radius: 22.5px;
+    padding: 32px 20px;
+    border-radius: 24px;
   }
 `;
+
+const RightSection = styled(motion.div)`
+  flex: 1;
+  min-height: 550px;
+  position: relative;
+  min-width: 300px;
+
+  @media (max-width: 1024px) {
+    height: 300px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    height: 260px;
+  }
+
+  @media (max-width: 480px) {
+    height: 220px;
+  }
+`;
+
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 24px;
   max-width: 550px;
-  z-index: 2;
 
   @media (max-width: 480px) {
     max-width: 100%;
@@ -260,24 +277,9 @@ const Button = styled.button`
   padding: 16px;
   cursor: pointer;
   width: 100%;
-  max-width: full;
   transition: background 0.3s ease;
 
   &:hover {
     background-color: #e6ac00;
   }
-`;
-
-const Decoration = styled.div`
-  position: absolute;
-  bottom: 50px;
-  right: -14vw;
-  width: 50vw;
-  height: 50vw;
-  max-width: 500px;
-  max-height: 500px;
-  background: url('/decor.svg') no-repeat center center;
-  background-size: contain;
-  pointer-events: none;
-  z-index: 1;
 `;
