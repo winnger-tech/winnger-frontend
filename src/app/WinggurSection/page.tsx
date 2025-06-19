@@ -4,41 +4,43 @@ import styled from 'styled-components';
 import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from '@/utils/i18n'; // adjust path if needed
 
 const WhyWinggurSection = () => {
-  const features = [
-    {
-      image: '/icons/flexibility.png',
-      title: 'Flexible work hours',
-    },
-    {
-      image: '/icons/instant-pay.png',
-      title: 'Instant earnings',
-    },
-    {
-      image: '/icons/community.png',
-      title: 'Community of drivers',
-    },
-    {
-      image: '/icons/support.png',
-      title: '24/7 driver support',
-    },
-    {
-      image: '/icons/tips.png',
-      title: 'Keep 100% of your tips',
-    },
-    {
-      image: '/icons/no-experience.png',
-      title: 'No prior experience needed',
-    },
-  ];
-
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '0px 0px -50px 0px' });
 
+  const features = [
+    {
+      image: '/icons/flexibility.png',
+      title: t('whyWinggur.features.flexibility'),
+    },
+    {
+      image: '/icons/instant-pay.png',
+      title: t('whyWinggur.features.instantPay'),
+    },
+    {
+      image: '/icons/community.png',
+      title: t('whyWinggur.features.community'),
+    },
+    {
+      image: '/icons/support.png',
+      title: t('whyWinggur.features.support'),
+    },
+    {
+      image: '/icons/tips.png',
+      title: t('whyWinggur.features.tips'),
+    },
+    {
+      image: '/icons/no-experience.png',
+      title: t('whyWinggur.features.noExperience'),
+    },
+  ];
+
   return (
     <SectionWrapper>
-      <Title>Why choose Winggur?</Title>
+      <Title>{t('whyWinggur.title')}</Title>
       <CardGrid
         ref={ref}
         as={motion.div}

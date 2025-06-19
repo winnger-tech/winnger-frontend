@@ -46,6 +46,17 @@
       "grow": "与我们共同成长 – 受益于我们的营销和物流网络。"
     }
   },
+   "whyWinggur": {
+   "title": "为什么选择 Winggur？",
+    "features": {
+      "flexibility": "灵活的工作时间",
+      "instantPay": "即时收入",
+      "community": "司机社区",
+      "support": "全天候司机支持",
+      "tips": "保留100%的小费",
+      "noExperience": "无需经验"
+    }
+  },
   "howItWorks": {
     "title": "如何运作",
     "description": "只需3个简单步骤即可开始。无论您是司机还是餐厅，加入我们的平台都是快速、安全和无忧的。",

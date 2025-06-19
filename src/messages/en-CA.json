@@ -47,6 +47,17 @@
       "grow": "Grow with Us – Benefit from our marketing & logistics network."
     }
   },
+  "whyWinggur": {
+    "title": "Why choose Winggur?",
+    "features": {
+      "flexibility": "Flexible work hours",
+      "instantPay": "Instant earnings",
+      "community": "Community of drivers",
+      "support": "24/7 driver support",
+      "tips": "Keep 100% of your tips",
+      "noExperience": "No prior experience needed"
+    }
+  },
   "howItWorks": {
     "title": "How It Works",
     "description": "Get started in just 3 simple steps. Whether you're a driver or a restaurant, joining our platform is quick, secure, and hassle-free.",

@@ -46,6 +46,17 @@
       "grow": "Grandissez avec Nous – Bénéficiez de notre réseau marketing et logistique."
     }
   },
+  "whyWinggur": {
+   "title": "Pourquoi choisir Winggur ?",
+    "features": {
+      "flexibility": "Horaires de travail flexibles",
+      "instantPay": "Gains instantanés",
+      "community": "Communauté de conducteurs",
+      "support": "Assistance 24/7 pour les conducteurs",
+      "tips": "Gardez 100 % de vos pourboires",
+      "noExperience": "Aucune expérience préalable requise"
+    }
+  },
   "howItWorks": {
     "title": "Comment Ça Marche",
     "description": "Commencez en 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
