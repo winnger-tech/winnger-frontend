@@ -304,12 +304,29 @@
         "description": "支付一次性设置费用完成注册",
         "button": "提交并支付"
       },
-      "errors": {
-        "required": "此字段为必填项",
-        "invalidEmail": "无效的电子邮件格式",
-        "invalidPhone": "无效的电话号码格式",
-        "invalidPostal": "无效的邮政编码格式"
-      },
+      "common": {
+      "digits": "数字",
+      "clickToUpload": "点击上传"
+    },
+    "errors": {
+      "ownerNameRequired": "必须填写所有者姓名",
+      "emailRequired": "必须填写所有者邮箱",
+      "phoneRequired": "必须填写电话",
+      "restaurantNameRequired": "必须填写餐厅名称",
+      "businessAddressRequired": "必须填写企业地址",
+      "cityRequired": "必须填写城市",
+      "postalCodeRequired": "必须填写邮政编码",
+      "transitNumberRequired": "必须填写转账号码",
+      "institutionNumberRequired": "必须填写机构编号",
+      "accountNumberRequired": "必须填写账户号码",
+      "hstNumberRequired": "必须填写HST编号",
+      "businessLicenseRequired": "必须上传营业执照",
+      "voidChequeRequired": "必须上传作废支票",
+      "required": "此字段为必填项",
+      "invalidEmail": "邮箱格式无效",
+      "invalidPhone": "电话格式无效",
+      "invalidPostal": "邮政编码格式无效"
+    },
       "placeholders": {
         "ownerName": "输入所有者全名",
         "email": "输入所有者电子邮件",
@@ -320,14 +337,14 @@
         "postalCode": "输入邮政编码（例如：A1A 1A1）"
       },
       "identificationTypes": {
-        "licence": "营业执照",
-        "passport": "护照",
-        "pr_card": "永久居民卡",
-        "medical_card": "医疗卡",
-        "provincial_id": "省级身份证",
-        "driverLicence": "驾驶执照",
-        "healthCard": "健康卡"
-      },
+      "licence": "营业执照",
+      "passport": "护照",
+      "pr_card": "永久居民卡",
+      "medical_card": "医疗卡",
+      "provincial_id": "省身份证",
+      "driverLicence": "驾照",
+      "healthCard": "健康卡"
+    },
       "buttons": {
         "nextStep": "下一步",
         "back": "返回",

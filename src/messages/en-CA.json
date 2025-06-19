@@ -199,7 +199,8 @@
         "gstNumber": "GST Number",
         "hstNumber": "HST Number",
         "pstNumber": "PST Number",
-        "qstNumber": "QST Number"
+        "qstNumber": "QST Number",
+        "requiredFor": "Required for "
       },
       "documents": {
         "title": "Required Documents",
@@ -227,7 +228,24 @@
         "description": "Complete your registration with a one-time setup fee",
         "button": "Submit & Pay"
       },
+      "common": {
+       "digits": "Digits",
+       "clickToUpload": "Click to upload"
+      },
       "errors": {
+        "ownerNameRequired": "Owner's name is required",
+        "emailRequired": "Owner's email is required",
+        "phoneRequired": "Phone number is required",
+        "restaurantNameRequired": "Restaurant name is required",
+        "businessAddressRequired": "Business address is required",
+        "cityRequired": "City is required",
+        "postalCodeRequired": "Postal code is required",
+        "transitNumberRequired": "Transit number is required",
+        "institutionNumberRequired": "Institution number is required",
+        "accountNumberRequired": "Account number is required",
+        "hstNumberRequired": "HST number is required",
+        "businessLicenseRequired": "Business license is required",
+        "voidChequeRequired": "Void cheque is required",
         "required": "This field is required",
         "invalidEmail": "Invalid email format",
         "invalidPhone": "Invalid phone format",

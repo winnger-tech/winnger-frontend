@@ -312,12 +312,29 @@
         "description": "Complétez votre inscription avec des frais de configuration uniques",
         "button": "Soumettre et Payer"
       },
-      "errors": {
-        "required": "Ce champ est obligatoire",
-        "invalidEmail": "Format de courriel invalide",
-        "invalidPhone": "Format de téléphone invalide",
-        "invalidPostal": "Format de code postal invalide"
-      },
+      "common": {
+      "digits": "Chiffres",
+      "clickToUpload": "Cliquez pour téléverser"
+    },
+    "errors": {
+      "ownerNameRequired": "Le nom du propriétaire est requis",
+      "emailRequired": "L'adresse e-mail du propriétaire est requise",
+      "phoneRequired": "Le numéro de téléphone est requis",
+      "restaurantNameRequired": "Le nom du restaurant est requis",
+      "businessAddressRequired": "L'adresse de l'entreprise est requise",
+      "cityRequired": "La ville est requise",
+      "postalCodeRequired": "Le code postal est requis",
+      "transitNumberRequired": "Le numéro de transit est requis",
+      "institutionNumberRequired": "Le numéro d'institution est requis",
+      "accountNumberRequired": "Le numéro de compte est requis",
+      "hstNumberRequired": "Le numéro de TVH est requis",
+      "businessLicenseRequired": "La licence commerciale est requise",
+      "voidChequeRequired": "Le chèque annulé est requis",
+      "required": "Ce champ est requis",
+      "invalidEmail": "Format d’e-mail invalide",
+      "invalidPhone": "Format de téléphone invalide",
+      "invalidPostal": "Format de code postal invalide"
+    },
       "placeholders": {
         "ownerName": "Entrez le nom complet du propriétaire",
         "email": "Entrez l'adresse courriel du propriétaire",
@@ -328,14 +345,14 @@
         "postalCode": "Entrez le code postal (ex: A1A 1A1)"
       },
       "identificationTypes": {
-        "licence": "Permis d'exploitation",
-        "passport": "Passeport",
-        "pr_card": "Carte RP",
-        "medical_card": "Carte médicale",
-        "provincial_id": "Carte d'identité provinciale",
-        "driverLicence": "Permis de conduire",
-        "healthCard": "Carte santé"
-      },
+      "licence": "Licence commerciale",
+      "passport": "Passeport",
+      "pr_card": "Carte RP",
+      "medical_card": "Carte médicale",
+      "provincial_id": "Carte provinciale",
+      "driverLicence": "Permis de conduire",
+      "healthCard": "Carte de santé"
+    },
       "buttons": {
         "nextStep": "Suivant",
         "back": "Retour",
