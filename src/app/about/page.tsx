@@ -11,18 +11,18 @@ const containerVariants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.2,
+      staggerChildren: 0.35,
+      delayChildren: 0.3,
     },
   },
 };
 
 const itemFadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: 'easeOut' },
+    transition: { duration: 1.1, ease: [0.25, 0.8, 0.25, 1] },
   },
 };
 
@@ -52,7 +52,7 @@ export default function About() {
 
         <CardWrapper>
           <MotionCard variants={itemFadeUp}>
-            <CardText>
+            <CardText as={motion.div} variants={itemFadeUp}>
               <CardTitle>{t('about.driver.title')}</CardTitle>
               <CardList>
                 <li><strong>➜ {t('about.driver.earn')}</strong></li>
@@ -63,11 +63,10 @@ export default function About() {
                 <Button>{t('home.hero.driverRegister')}</Button>
               </Link>
             </CardText>
+
             <CardImage
               as={motion.div}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+              variants={itemFadeUp}
             >
               <Image
                 src="/driver-about.png"
@@ -80,7 +79,7 @@ export default function About() {
           </MotionCard>
 
           <MotionCard variants={itemFadeUp}>
-            <CardText>
+            <CardText as={motion.div} variants={itemFadeUp}>
               <CardTitle>{t('about.restaurant.title')}</CardTitle>
               <CardList>
                 <li><strong>➜ {t('about.restaurant.expand')}</strong></li>
@@ -91,11 +90,10 @@ export default function About() {
                 <Button>{t('home.hero.restaurantRegister')}</Button>
               </Link>
             </CardText>
+
             <CardImage
               as={motion.div}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.3 }}
+              variants={itemFadeUp}
             >
               <Image
                 src="/restaurant-about.png"
