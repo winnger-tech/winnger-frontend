@@ -45,10 +45,8 @@ export default function RootLayout({
             <StyledComponentsRegistry>
               <HeaderWrapper>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-end">
-                  <LanguageSelector />
                 </div>
               </HeaderWrapper>
-
               <main>{children}</main>
             </StyledComponentsRegistry>
           </QueryProvider> 
@@ -60,7 +58,7 @@ export default function RootLayout({
 
 // Tailwind utility with bg/positioning logic removed from HTML structure
 const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
-  <header className="bg-white shadow-sm sticky top-0 z-50">
+  <header className="bg-[#403E2D] shadow-sm sticky top-0 z-50">
     {children}
   </header>
 );

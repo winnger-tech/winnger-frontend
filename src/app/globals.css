@@ -41,12 +41,13 @@ html::-webkit-scrollbar {
   display: none;                  /* Chrome, Safari, Opera */
 }
 
-/* Optional: Full Height Setup */
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+html, body {
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  margin: 0;
+  padding: 0;
 }
 
-/* Optional: Make anchor scrolling align with header if sticky used */
-/* scroll-margin-top: 80px; // uncomment if needed */
+body {
+  overflow-y: auto; /* Only allow vertical scroll */
+}
