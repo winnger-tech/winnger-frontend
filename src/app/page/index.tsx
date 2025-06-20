@@ -8,46 +8,31 @@ import { useEffect, useState } from "react";
 
 export default function Hero() {
   const { t } = useTranslation();
-  const taglines = t("home.hero.titles") as string[];
-
-  const [displayText, setDisplayText] = useState("");
-  const [currentLine, setCurrentLine] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [charIndex, setCharIndex] = useState(0);
+  const taglines = t("home.hero.titles") as string[]; // assuming it returns array
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    const currentTagline = taglines[currentLine % taglines.length];
-    const typingSpeed = isDeleting ? 40 : 75;
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % taglines.length);
+    }, 3500); // change tagline every 3.5 seconds
 
-    const timeout = setTimeout(() => {
-      if (isDeleting) {
-        setDisplayText(currentTagline.substring(0, charIndex - 1));
-        setCharIndex((prev) => prev - 1);
-      } else {
-        setDisplayText(currentTagline.substring(0, charIndex + 1));
-        setCharIndex((prev) => prev + 1);
-      }
-
-      if (!isDeleting && charIndex === currentTagline.length) {
-        setTimeout(() => setIsDeleting(true), 1500);
-      } else if (isDeleting && charIndex === 0) {
-        setIsDeleting(false);
-        setCurrentLine((prev) => (prev + 1) % taglines.length);
-      }
-    }, typingSpeed);
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, currentLine, taglines]);
+    return () => clearInterval(interval);
+  }, [taglines]);
 
   return (
     <HeroWrapper>
       <Overlay />
       <ContentWrapper>
         <HeroLeft>
-          <AnimatedTitle>
-            {displayText}
-            <Cursor>|</Cursor>
-          </AnimatedTitle>
+          <MotionTitle
+            key={current} // key helps animate on change
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+          >
+            {taglines[current]}
+          </MotionTitle>
 
           <MotionDescription
             initial={{ opacity: 0, y: 80 }}
@@ -95,7 +80,6 @@ export default function Hero() {
   );
 }
 
-
 // Styled Components
 
 export const HeroWrapper = styled.section`
@@ -104,7 +88,7 @@ export const HeroWrapper = styled.section`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url('/BGImg.png');
+  background-image: url('/BG.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -146,13 +130,11 @@ export const HeroLeft = styled.div`
   width: 100%;
 `;
 
-
-const AnimatedTitle = styled.h1`
+const Title = styled.h1`
   font-size: 3.5rem;
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 0.4rem;
-  white-space: pre-line;
 
   @media (max-width: 1024px) {
     font-size: 3rem;
@@ -264,14 +246,3 @@ const MotionDescription = motion(styled.p`
   }
 `);
 
-const Cursor = styled.span`
-  display: inline-block;
-  margin-left: 4px;
-  width: 1ch;
-  animation: blink 1s step-end infinite;
-  
-  @keyframes blink {
-    from, to { opacity: 0; }
-    50% { opacity: 1; }
-  }
-`;
