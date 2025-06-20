@@ -87,6 +87,7 @@ export const HeroWrapper = styled.section`
   padding: 6rem 8rem;
   display: flex;
   align-items: center;
+  
   justify-content: center;
   background-image: url('/BG.png');
   background-size: cover;
