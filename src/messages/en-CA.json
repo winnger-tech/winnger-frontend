@@ -17,10 +17,20 @@
     "copyright": "© 2025 Winngur. All Rights Reserved.",
     "privacyPolicy": "Privacy Policy"
   },
-  "home": {
+"home": {
     "hero": {
-      "title1": "Satisfy your hunger",
-      "title2": "with Winngur!",
+      "titles": [
+        "From ordering to doorstep, winngur makes every delivery a win.",
+        "Winngur - Move fast, Eat Fresh.",
+        "Winngur - Where every delivery is a win.",
+        "Winngur - Luxury is motion. flavour in every Mile.",
+        "Get Lit,Get Fed,Get Winngur.",
+        "Winngur - A Canadian delivery app for the Canadians. Now available all over Canada.",
+        "Winngur - Your Canadian App that Values your Canadian dollars.",
+        "Winngur - Your favourite meal is just a click away.",
+        "Delivering Delicious - That’s The Winngur Way.",
+        "Winngur - Winning at Delivery with every order."
+      ],
       "description": "Be part of our growing network. Whether you're a driver or a restaurant, we're excited to have you onboard.",
       "driverRegister": "Register as Driver",
       "restaurantRegister": "Register as Restaurant"

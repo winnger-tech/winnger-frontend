@@ -4,32 +4,50 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useTranslation } from "../../utils/i18n";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
   const { t } = useTranslation();
+  const taglines = t("home.hero.titles") as string[];
+
+  const [displayText, setDisplayText] = useState("");
+  const [currentLine, setCurrentLine] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [charIndex, setCharIndex] = useState(0);
+
+  useEffect(() => {
+    const currentTagline = taglines[currentLine % taglines.length];
+    const typingSpeed = isDeleting ? 40 : 75;
+
+    const timeout = setTimeout(() => {
+      if (isDeleting) {
+        setDisplayText(currentTagline.substring(0, charIndex - 1));
+        setCharIndex((prev) => prev - 1);
+      } else {
+        setDisplayText(currentTagline.substring(0, charIndex + 1));
+        setCharIndex((prev) => prev + 1);
+      }
+
+      if (!isDeleting && charIndex === currentTagline.length) {
+        setTimeout(() => setIsDeleting(true), 1500);
+      } else if (isDeleting && charIndex === 0) {
+        setIsDeleting(false);
+        setCurrentLine((prev) => (prev + 1) % taglines.length);
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [charIndex, isDeleting, currentLine, taglines]);
 
   return (
     <HeroWrapper>
       <Overlay />
       <ContentWrapper>
         <HeroLeft>
-          <MotionTitle
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 1.1, ease: [0.25, 0.8, 0.25, 1] }}
-          >
-            {t("home.hero.title1")}
-          </MotionTitle>
-
-          <MotionTitle
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 1.1, ease: [0.25, 0.8, 0.25, 1], delay: 0.2 }}
-          >
-            {t("home.hero.title2")}
-          </MotionTitle>
+          <AnimatedTitle>
+            {displayText}
+            <Cursor>|</Cursor>
+          </AnimatedTitle>
 
           <MotionDescription
             initial={{ opacity: 0, y: 80 }}
@@ -76,6 +94,7 @@ export default function Hero() {
     </HeroWrapper>
   );
 }
+
 
 // Styled Components
 
@@ -127,11 +146,13 @@ export const HeroLeft = styled.div`
   width: 100%;
 `;
 
-const Title = styled.h1`
+
+const AnimatedTitle = styled.h1`
   font-size: 3.5rem;
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 0.4rem;
+  white-space: pre-line;
 
   @media (max-width: 1024px) {
     font-size: 3rem;
@@ -205,5 +226,52 @@ const ButtonLink = styled.span`
   }
 `;
 
-const MotionTitle = motion(Title);
-const MotionDescription = motion(Description);
+
+// Reuse all existing styled-components
+const MotionTitle = motion(styled.h1`
+  font-size: 3.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+  white-space: pre-line;
+
+  @media (max-width: 1024px) {
+    font-size: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
+`);
+
+const MotionDescription = motion(styled.p`
+  font-size: 1.125rem;
+  color: #e0e0e0;
+  margin: 2rem 0 3rem 0;
+  max-width: 480px;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+`);
+
+const Cursor = styled.span`
+  display: inline-block;
+  margin-left: 4px;
+  width: 1ch;
+  animation: blink 1s step-end infinite;
+  
+  @keyframes blink {
+    from, to { opacity: 0; }
+    50% { opacity: 1; }
+  }
+`;

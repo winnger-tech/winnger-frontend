@@ -19,8 +19,18 @@
   },
   "home": {
     "hero": {
-      "title1": "Satisfaisez votre faim",
-      "title2": "avec Winngur !",
+      "titles": [
+        "De la commande à la porte, Winngur rend chaque livraison gagnante.",
+        "Winngur - Allez vite, mangez frais.",
+        "Winngur - Là où chaque livraison est une victoire.",
+        "Winngur - Le luxe est en mouvement. La saveur à chaque kilomètre.",
+        "Allumez-vous, nourrissez-vous, adoptez Winngur.",
+        "Winngur - Une application canadienne pour les Canadiens. Maintenant disponible dans tout le Canada.",
+        "Winngur - Votre application canadienne qui valorise vos dollars canadiens.",
+        "Winngur - Votre repas préféré à portée de clic.",
+        "Des plats délicieux livrés - à la manière Winngur.",
+        "Winngur - Gagnez à chaque commande."
+      ],
       "description": "Faites partie de notre réseau en pleine croissance. Que vous soyez conducteur ou restaurant, nous sommes ravis de vous accueillir.",
       "driverRegister": "S'inscrire comme Conducteur",
       "restaurantRegister": "S'inscrire comme Restaurant"

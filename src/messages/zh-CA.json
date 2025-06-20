@@ -19,8 +19,18 @@
   },
   "home": {
     "hero": {
-      "title1": "满足你的饥饿",
-      "title2": "尽在 Winngur！",
+      "titles": [
+        "从下单到送达，Winngur 让每次配送都成为胜利。",
+        "Winngur - 快速移动，新鲜享受。",
+        "Winngur - 每一次配送都是一次胜利。",
+        "Winngur - 奢华在于行动，美味随行。",
+        "点燃激情，享用美食，选择 Winngur。",
+        "Winngur - 为加拿大人打造的加拿大送餐应用，现在遍布全国。",
+        "Winngur - 重视您加元的加拿大本地应用。",
+        "Winngur - 您最爱的美食，一键即达。",
+        "美味配送 —— 这是 Winngur 的方式。",
+        "Winngur - 每一单都赢在送达上。"
+      ],
       "description": "成为我们不断发展的网络的一部分。无论您是司机还是餐厅，我们都很高兴您的加入。",
       "driverRegister": "注册成为司机",
       "restaurantRegister": "注册成为餐厅"
