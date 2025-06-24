@@ -384,5 +384,49 @@
       "title": "Inscription Partenaire Chauffeur",
       "description": "Remplissez le formulaire ci-dessous pour commencer votre inscription."
     }
+  },
+ "plans": {
+  "heading": "Formules d'abonnement pour les restaurants",
+  "subheading": "Choisissez une formule adaptée à votre activité et à vos objectifs de visibilité.",
+  "lite": {
+    "title": "Winngur Lite",
+    "price": "Commission de 10 % à 18 %",
+    "description": "Inscription de base, visibilité limitée, sans promotions",
+    "features": [
+      "Inscription de base sur l'application Winngur Meals",
+      "Commission de 18 % pour les livraisons, frais de 10 % pour les retraits",
+      "Visibilité sans amélioration de placement",
+      "Paiements hebdomadaires",
+      "Accès au tableau de bord marchand",
+      "Aucun soutien marketing ou publicitaire"
+    ]
+  },
+  "pro": {
+    "title": "Winngur Pro",
+    "price": "Commission de 10 % à 24 %",
+    "description": "Visibilité accrue, accès au marketing Winngur",
+    "features": [
+      "Classement plus élevé que Lite",
+      "Commission de 24 % pour les livraisons, frais de 10 % pour les retraits",
+      "Outils marketing : promotions in-app, offres BOGO",
+      "Mise en avant dans « Populaires près de chez vous »",
+      "Participation au programme de fidélité",
+      "Accès aux partenaires de livraison Winngur",
+      "Analyses et statistiques des commandes"
+    ]
+  },
+  "proPlus": {
+    "title": "Winngur Pro Plus",
+    "price": "Commission de 10 % à 27 %",
+    "description": "Placement prioritaire, outils de promotion complets",
+    "features": [
+      "Toujours placé en tête des listes",
+      "Commission de 27 % pour les livraisons, frais de 10 % pour les retraits",
+      "Outils marketing et promotionnels complets",
+      "Toutes les fonctionnalités du programme de fidélité",
+      "Accès prioritaire aux partenaires de livraison",
+      "Outils complets d’analyse et de performance"
+    ]
   }
+}
 } 

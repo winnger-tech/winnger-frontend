@@ -9,8 +9,8 @@ import { ChevronDown } from 'lucide-react';
 
 const languages = {
   'en-CA': { abbr: 'ENG', icon: '/icons/ca.png' },
-  'fr-CA': { abbr: 'FRE', icon: '/icons/fr.png' },
-  'zh-CA': { abbr: 'CHN', icon: '/icons/cn.png' },
+  'fr-CA': { abbr: 'FRE', icon: '/icons/ca.png' },
+  'zh-CA': { abbr: 'CHN', icon: '/icons/ca.png' },
 } as const;
 
 export default function LanguageSelector() {

@@ -440,5 +440,49 @@
       "consentRequired": "You must agree to all terms and conditions",
       "submissionFailed": "Registration submission failed. Please try again."
     }
+  },
+ "plans": {
+  "heading": "Subscription Plans for Restaurants",
+  "subheading": "Choose a plan that fits your business and visibility goals.",
+  "lite": {
+    "title": "Winngur Lite",
+    "price": "10% – 18% Commission",
+    "description": "Basic listing, limited visibility, no promotions",
+    "features": [
+      "Basic listing on the Winngur Meals app",
+      "18% delivery commission, 10% pickup fee",
+      "Visibility but no placement boost",
+      "Weekly payouts",
+      "Access to Merchant Dashboard",
+      "No marketing or ad support"
+    ]
+  },
+  "pro": {
+    "title": "Winngur Pro",
+    "price": "10% – 24% Commission",
+    "description": "Boosted visibility, access to Winngur marketing",
+    "features": [
+      "Higher search ranking than Lite",
+      "24% delivery commission, 10% pickup fee",
+      "Marketing tools: in-app promos, BOGO deals",
+      "Featured in 'Popular Near You'",
+      "Loyalty promo participation",
+      "Access to Winngur delivery partners",
+      "Order insights and analytics"
+    ]
+  },
+  "proPlus": {
+    "title": "Winngur Pro Plus",
+    "price": "10% – 27% Commission",
+    "description": "Top placement, full promo tools",
+    "features": [
+      "Always top listing placement",
+      "27% delivery commission, 10% pickup fee",
+      "Full marketing & promotion tools",
+      "All loyalty program features",
+      "Top access to delivery partners",
+      "Full analytics & performance tools"
+    ]
   }
-} 
+}
+}
