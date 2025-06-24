@@ -76,12 +76,12 @@
       "description": "Provide your details and necessary documents"
     },
     "step2": {
-      "title": "Step 2: Pay the One-Time Setup Fee",
-      "description": "Secure payment gateway ensures your registration is verified"
+      "title": "Step 2: One-Time Setup",
+      "description": "Ensures your registration is verified"
     },
     "step3": {
       "title": "Step 3: Get Approved by Admin",
-      "description": "Once approved, you'll receive an onboarding confirmation"
+      "description": "Once approved, you'll receive an onboarding confirmation within 24-48 hrs"
     },
     "cta": {
       "title": "Ready to Get Started?",

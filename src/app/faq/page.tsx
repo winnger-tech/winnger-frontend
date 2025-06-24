@@ -29,11 +29,11 @@ const FaqSection = () => {
       question: t('faq.question2'),
       answer: t('faq.answer2'),
     },
-    {
-      image: '/faq3.png',
-      question: t('faq.question3'),
-      answer: t('faq.answer3'),
-    },
+    // {
+    //   image: '/faq3.png',
+    //   question: t('faq.question3'),
+    //   answer: t('faq.answer3'),
+    // },
     {
       image: '/faq4.png',
       question: t('faq.question4'),
@@ -125,6 +125,10 @@ const FaqWrapper = styled.div`
   margin: 0 auto;
   max-width: 1250px;
   overflow: hidden;
+
+      @media (max-width: 1120px) {
+    margin: 0 80px; 
+  }
 
   @media (max-width: 1024px) {
     margin: 0 40px;

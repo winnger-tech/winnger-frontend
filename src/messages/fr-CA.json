@@ -71,17 +71,17 @@
     "title": "Comment Ça Marche",
     "description": "Commencez en 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
     "step1": {
-      "title": "Étape 1 : Remplissez un Formulaire Simple",
-      "description": "Fournissez vos détails et documents nécessaires"
-    },
-    "step2": {
-      "title": "Étape 2 : Payez les Frais de Configuration Uniques",
-      "description": "La passerelle de paiement sécurisée garantit que votre inscription est vérifiée"
-    },
-    "step3": {
-      "title": "Étape 3 : Obtenez l'Approbation de l'Administrateur",
-      "description": "Une fois approuvé, vous recevrez une confirmation d'intégration"
-    },
+  "title": "Étape 1 : Remplissez un formulaire simple",
+  "description": "Fournissez vos coordonnées et les documents nécessaires"
+},
+"step2": {
+  "title": "Étape 2 : Configuration unique",
+  "description": "Assure que votre enregistrement est vérifié"
+},
+"step3": {
+  "title": "Étape 3 : Approbation par l’administrateur",
+  "description": "Une fois approuvé, vous recevrez une confirmation d’intégration sous 24 à 48 heures"
+},
     "cta": {
       "title": "Prêt à Commencer ?",
       "description": "Rejoignez des centaines de chauffeurs et de restaurants qui pré-inscrivent aujourd'hui."

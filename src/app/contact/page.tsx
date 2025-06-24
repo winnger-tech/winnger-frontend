@@ -116,6 +116,10 @@ const Container = styled(motion.section)`
   margin: 0 auto;
   max-width: 1250px;
 
+      @media (max-width: 1120px) {
+    margin: 0 80px; 
+  }
+
   @media (max-width: 1024px) {
     margin: 0 80px;
   }
