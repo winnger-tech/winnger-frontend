@@ -8,7 +8,6 @@ import { useTranslation } from "../../utils/i18n";
 import LanguageSelector from "./LanguageSelector";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Animations
 const fadeSlideDown = keyframes`
   0% { opacity: 0; transform: translateY(-20px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -19,12 +18,7 @@ const Navbar = () => {
   const { t } = useTranslation();
 
   return (
-    <Nav
-      as={motion.nav}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
+    <Nav as={motion.nav} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
       <NavContainer>
         <LogoWrapper>
           <Link href="/">
@@ -32,15 +26,16 @@ const Navbar = () => {
           </Link>
         </LogoWrapper>
 
-        <MobileLangSelector>
-          <LanguageSelector />
-        </MobileLangSelector>
-
-        <Hamburger onClick={() => setMenuOpen(!menuOpen)} $menuOpen={menuOpen}>
-          <span />
-          <span />
-          <span />
-        </Hamburger>
+        <HamburgerLangWrapper>
+                    <MobileLangSelector>
+            <LanguageSelector />
+          </MobileLangSelector>
+          <Hamburger onClick={() => setMenuOpen(!menuOpen)} $menuOpen={menuOpen}>
+            <span />
+            <span />
+            <span />
+          </Hamburger>
+        </HamburgerLangWrapper>
 
         <AnimatePresence>
           {menuOpen && (
@@ -55,7 +50,6 @@ const Navbar = () => {
                 <DesktopLangSelector>
                   <LanguageSelector />
                 </DesktopLangSelector>
-
                 {[
                   { label: "home", href: "#" },
                   { label: "about", href: "#about" },
@@ -74,31 +68,10 @@ const Navbar = () => {
                   </motion.a>
                 ))}
 
-                <MotionButton
-                  href="/driver-registration"
-                  onClick={() => setMenuOpen(false)}
-                  whileHover={{
-                    scale: 1.08,
-                    y: -4,
-                    boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)",
-                    transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 },
-                  }}
-                  whileTap={{ scale: 0.96 }}
-                >
+                <MotionButton href="/driver-registration" onClick={() => setMenuOpen(false)} whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
                   {t("navigation.driverRegister")}
                 </MotionButton>
-
-                <MotionButton
-                  href="/restaurant-registration"
-                  onClick={() => setMenuOpen(false)}
-                  whileHover={{
-                    scale: 1.08,
-                    y: -4,
-                    boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)",
-                    transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 },
-                  }}
-                  whileTap={{ scale: 0.96 }}
-                >
+                <MotionButton href="/restaurant-registration" onClick={() => setMenuOpen(false)} whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
                   {t("navigation.restaurantRegister")}
                 </MotionButton>
               </NavMenu>
@@ -107,39 +80,19 @@ const Navbar = () => {
         </AnimatePresence>
 
         <DesktopRightSection>
+          <DesktopLangSelector>
+            <LanguageSelector />
+          </DesktopLangSelector>
           <NavMenu>
-            <DesktopLangSelector>
-              <LanguageSelector />
-            </DesktopLangSelector>
-
             <NavItem href="/">{t("navigation.home")}</NavItem>
             <NavItem href="#about">{t("navigation.about")}</NavItem>
             <NavItem href="#how-it-works">{t("navigation.howItWorks")}</NavItem>
             <NavItem href="#faqs">{t("navigation.faq")}</NavItem>
-
             <ButtonGroup>
-              <MotionButton
-                href="/driver-registration"
-                whileHover={{
-                  scale: 1.08,
-                  y: -4,
-                  boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)",
-                  transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 },
-                }}
-                whileTap={{ scale: 0.96 }}
-              >
+              <MotionButton href="/driver-registration" whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
                 {t("navigation.driverRegister")}
               </MotionButton>
-              <MotionButton
-                href="/restaurant-registration"
-                whileHover={{
-                  scale: 1.08,
-                  y: -4,
-                  boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)",
-                  transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 },
-                }}
-                whileTap={{ scale: 0.96 }}
-              >
+              <MotionButton href="/restaurant-registration" whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
                 {t("navigation.restaurantRegister")}
               </MotionButton>
             </ButtonGroup>
@@ -152,13 +105,12 @@ const Navbar = () => {
 
 export default Navbar;
 
-// Styled Components
 const Nav = styled.nav`
   width: 100%;
   padding: 1.3rem 50px;
-  background-color: rgba(64, 62, 45, 0.9); 
-  backdrop-filter: blur(12px); /* blur effect */
-  -webkit-backdrop-filter: blur(12px); 
+  background-color: rgba(64, 62, 45, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-family: "Space Grotesk", sans-serif;
   position: fixed;
   top: 0;
@@ -175,7 +127,6 @@ const Nav = styled.nav`
   }
 `;
 
-
 const NavContainer = styled.div`
   max-width: 1440px;
   margin: 0 auto;
@@ -189,6 +140,16 @@ const LogoWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+`;
+
+const HamburgerLangWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (min-width: 1025px) {
+    display: none;
+  }
 `;
 
 const Hamburger = styled.div<{ $menuOpen: boolean }>`
@@ -207,8 +168,7 @@ const Hamburger = styled.div<{ $menuOpen: boolean }>`
   }
 
   ${({ $menuOpen }) =>
-    $menuOpen &&
-    `
+    $menuOpen && `
     span:nth-child(1) {
       transform: rotate(45deg) translate(5px, 5px);
     }
@@ -232,7 +192,7 @@ const MotionRightSection = styled(motion.div)`
   width: 100%;
   background-color: rgba(64, 62, 45, 1);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   border-radius: 0 0 20px 20px;
   z-index: 998;
@@ -244,6 +204,10 @@ const MotionRightSection = styled(motion.div)`
 
 const DesktopRightSection = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  margin-left: auto;
 
   @media (max-width: 1024px) {
     display: none;
@@ -309,22 +273,15 @@ const MotionButton = styled(motion.a)`
 `;
 
 const MobileLangSelector = styled.div`
-  display: none;
+  display: block;
 
-  @media (max-width: 1024px) {
-    display: block;
-    width: 150px;
-    position: absolute;
-    right: 70px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1000;
+  @media (min-width: 1025px) {
+    display: none;
   }
 `;
 
 const DesktopLangSelector = styled.div`
   display: block;
-  min-width: 180px;
 
   @media (max-width: 1024px) {
     display: none;
