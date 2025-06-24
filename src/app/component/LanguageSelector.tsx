@@ -3,7 +3,6 @@
 import { useTranslation } from '../../utils/i18n';
 import styled from 'styled-components';
 import { useState, useRef, useEffect } from 'react';
-import { FiChevronDown } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -39,28 +38,27 @@ export default function LanguageSelector() {
 
   return (
     <Wrapper ref={wrapperRef}>
-      <SelectorButton onClick={toggleDropdown} aria-haspopup="listbox" aria-expanded={open}>
+      <FlagButton onClick={toggleDropdown} aria-haspopup="listbox" aria-expanded={open}>
         <Image
           src={languages[locale as keyof typeof languages].icon}
           alt={languages[locale as keyof typeof languages].abbr}
-          width={24}
-          height={24}
-          style={{ borderRadius: '2px' }}
+          width={32}
+          height={32}
+          style={{ borderRadius: '50%' }}
         />
-        <FiChevronDown size={20} />
-      </SelectorButton>
+      </FlagButton>
 
       <AnimatePresence>
         {open && (
           <Dropdown
             as={motion.ul}
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
             role="listbox"
           >
-            {Object.entries(languages).map(([code, { abbr, icon }]) => (
+            {Object.entries(languages).map(([code, { abbr }]) => (
               <DropdownItem
                 key={code}
                 onClick={() => onSelect(code as keyof typeof languages)}
@@ -72,13 +70,6 @@ export default function LanguageSelector() {
                   }
                 }}
               >
-                <Image
-                  src={icon}
-                  alt={abbr}
-                  width={24}
-                  height={24}
-                  style={{ marginRight: '8px', borderRadius: '2px' }}
-                />
                 {abbr}
               </DropdownItem>
             ))}
@@ -94,59 +85,45 @@ export default function LanguageSelector() {
 const Wrapper = styled.div`
   position: relative;
   display: inline-block;
-  width: 60px;
   font-family: 'Space Grotesk', sans-serif;
 `;
 
-const SelectorButton = styled.button`
-  width: 100%;
-  background-color: #d7c3a5;
-  color: #000;
+const FlagButton = styled.button`
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: none;
   border: none;
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.6rem;
-  font-size: 1rem;
-  font-weight: 600;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #ac9169;
-  }
+  border-radius: 50%;
+  overflow: hidden;
 
   &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(172, 145, 105, 0.7);
+    outline: 2px solid #ac9169;
   }
 `;
 
 const Dropdown = styled.ul`
   position: absolute;
-  width: 200%;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
   background: #fff;
-  border-radius: 0 0 0.5rem 0.5rem;
-  margin-top: 4px;
+  border-radius: 0.5rem;
   box-shadow: 0 8px 16px rgb(0 0 0 / 0.15);
   list-style: none;
   padding: 0.5rem 0;
-  max-height: 200px;
-  overflow-y: auto;
   z-index: 1000;
 `;
 
 const DropdownItem = styled.li`
-  padding: 0.5rem 1rem;
-  font-weight: 500;
+  text-align: center;
+  padding: 0.5rem 0;
+  font-weight: 600;
   color: #333;
   cursor: pointer;
   user-select: none;
-  display: flex;
-  align-items: center;
 
   &[aria-selected='true'] {
     background-color: #ac9169;
