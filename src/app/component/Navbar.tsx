@@ -3,7 +3,7 @@
 import styled, { keyframes } from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "../../utils/i18n";
 import LanguageSelector from "./LanguageSelector";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,10 +15,31 @@ const fadeSlideDown = keyframes`
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signupOpen, setSignupOpen] = useState(false);
   const { t } = useTranslation();
 
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !(dropdownRef.current as HTMLElement).contains(event.target as Node)
+      ) {
+        setSignupOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <Nav as={motion.nav} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+    <Nav
+      as={motion.nav}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
       <NavContainer>
         <LogoWrapper>
           <Link href="/">
@@ -27,7 +48,7 @@ const Navbar = () => {
         </LogoWrapper>
 
         <HamburgerLangWrapper>
-                    <MobileLangSelector>
+          <MobileLangSelector>
             <LanguageSelector />
           </MobileLangSelector>
           <Hamburger onClick={() => setMenuOpen(!menuOpen)} $menuOpen={menuOpen}>
@@ -68,12 +89,8 @@ const Navbar = () => {
                   </motion.a>
                 ))}
 
-                <MotionButton href="/driver-registration" onClick={() => setMenuOpen(false)} whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
-                  {t("navigation.driverRegister")}
-                </MotionButton>
-                <MotionButton href="/restaurant-registration" onClick={() => setMenuOpen(false)} whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
-                  {t("navigation.restaurantRegister")}
-                </MotionButton>
+                <Link href="/driver-registration" onClick={() => setMenuOpen(false)}>{t("navigation.driverRegister")}</Link>
+                <Link href="/restaurant-registration" onClick={() => setMenuOpen(false)}>{t("navigation.restaurantRegister")}</Link>
               </NavMenu>
             </MotionRightSection>
           )}
@@ -88,14 +105,29 @@ const Navbar = () => {
             <NavItem href="#about">{t("navigation.about")}</NavItem>
             <NavItem href="#how-it-works">{t("navigation.howItWorks")}</NavItem>
             <NavItem href="#faqs">{t("navigation.faq")}</NavItem>
-            <ButtonGroup>
-              <MotionButton href="/driver-registration" whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
-                {t("navigation.driverRegister")}
-              </MotionButton>
-              <MotionButton href="/restaurant-registration" whileHover={{ scale: 1.08, y: -4, boxShadow: "0px 8px 20px rgba(255, 195, 43, 0.5)", transition: { type: "spring", stiffness: 400, damping: 18, mass: 0.4 } }} whileTap={{ scale: 0.96 }}>
-                {t("navigation.restaurantRegister")}
-              </MotionButton>
-            </ButtonGroup>
+
+            <DropdownWrapper ref={dropdownRef}>
+              <SignupButton onClick={() => setSignupOpen(!signupOpen)}>
+                {t("navigation.signup")}
+              </SignupButton>
+              <AnimatePresence>
+                {signupOpen && (
+                  <DropdownMenu
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Link href="/driver-registration" onClick={() => setSignupOpen(false)}>
+                      {t("navigation.driverRegister")}
+                    </Link>
+                    <Link href="/restaurant-registration" onClick={() => setSignupOpen(false)}>
+                      {t("navigation.restaurantRegister")}
+                    </Link>
+                  </DropdownMenu>
+                )}
+              </AnimatePresence>
+            </DropdownWrapper>
           </NavMenu>
         </DesktopRightSection>
       </NavContainer>
@@ -104,6 +136,54 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+// --- styled-components below remain unchanged except the following new ones:
+
+const DropdownWrapper = styled.div`
+  position: relative;
+`;
+
+const SignupButton = styled.button`
+  background-color: #ffc32b;
+  color: black;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f3b71e;
+  }
+`;
+
+const DropdownMenu = styled(motion.div)`
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: white;
+  border-radius: 10px;
+  padding: 0.5rem 0;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  min-width: 220px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+
+  a {
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: black;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background-color: #f6f6f6;
+    }
+  }
+`;
 
 const Nav = styled.nav`
   width: 100%;
