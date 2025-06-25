@@ -6,8 +6,11 @@
     "faq": "FAQ",
     "contact": "Contact",
     "signup": "Sign Up",
+    "signin": "Sign In",
     "driverRegister": "Register as Driver",
-    "restaurantRegister": "Register as Restaurant"
+    "restaurantRegister": "Register as Restaurant",
+    "driverLogin": "Sign In as Driver",
+    "restaurantLogin": "Sign In as Restaurant"
   },
   "footer": {
     "email": "Email",
@@ -484,6 +487,69 @@
       "Top access to delivery partners",
       "Full analytics & performance tools"
     ]
+  },
+  "driverSignup": {
+    "title": "Join as a Driver",
+    "subtitle": "Start earning with flexible hours and instant payments",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "Enter your email address",
+      "passwordPlaceholder": "Create a strong password (min. 8 characters)",
+      "submitButton": "Create Account",
+      "submittingButton": "Creating Account...",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Sign In"
+    },
+    "benefits": {
+      "title": "Why Drive with Winngur?",
+      "earn": "Earn on your own schedule",
+      "instant": "Instant daily payouts",
+      "vehicle": "Use any vehicle",
+      "app": "Easy-to-use driver app"
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters"
+    }
+  },
+  "restaurantSignup": {
+    "title": "Partner with Winngur",
+    "subtitle": "Expand your delivery reach and grow your business",
+    "form": {
+      "name": "Restaurant Name",
+      "email": "Email Address",
+      "password": "Password",
+      "namePlaceholder": "Enter your restaurant name",
+      "emailPlaceholder": "Enter your email address",
+      "passwordPlaceholder": "Create a strong password (min. 8 characters)",
+      "submitButton": "Create Account",
+      "submittingButton": "Creating Account...",
+      "loginPrompt": "Already have an account?",
+      "loginLink": "Sign In"
+    },
+    "benefits": {
+      "title": "Why Partner with Winngur?",
+      "reach": "Expand your delivery reach",
+      "commission": "Competitive commission rates",
+      "support": "24/7 dedicated support",
+      "dashboard": "Real-time analytics dashboard"
+    },
+    "validation": {
+      "nameRequired": "Restaurant name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters"
+    }
   }
 }
 }
