@@ -92,7 +92,8 @@ function RestaurantRegistrationInner() {
     payload.append('stripePaymentIntentId', paymentIntentId);
 
     if (formData.businessDocument) payload.append('businessDocument', formData.businessDocument);
-    if (formData.businessLicense) payload.append('businessLicense', formData.businessLicense);
+    //if (formData.businessLicense) payload.append('businessLicense', formData.businessLicense);
+    if (formData.drivingLicense) payload.append('drivingLicense', formData.drivingLicense);
     if (formData.voidCheque) payload.append('voidCheque', formData.voidCheque);
 
     try {
@@ -131,7 +132,7 @@ function RestaurantRegistrationInner() {
 
       <h3>Documents</h3>
       <input name="businessDocument" type="file" onChange={handleChange} /><br />
-      <input name="businessLicense" type="file" onChange={handleChange} /><br />
+      <input name="drivingLicense" type="file" onChange={handleChange} /><br />
       <input name="voidCheque" type="file" onChange={handleChange} /><br />
 
       <h3>Menu Item</h3>

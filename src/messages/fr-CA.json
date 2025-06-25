@@ -8,10 +8,10 @@
     "restaurantRegister": "Inscription Restaurant"
   },
   "footer": {
-    "email": "Courriel",
+    "email": "Email",
     "phone": "Téléphone",
     "address": "Adresse",
-    "emailPlaceholder": "Courriel",
+    "emailPlaceholder": "Email",
     "subscribe": "S'abonner aux nouvelles",
     "copyright": "© 2025 Winngur. Tous droits réservés.",
     "privacyPolicy": "Politique de confidentialité"
@@ -19,326 +19,401 @@
   "home": {
     "hero": {
       "title1": "Rejoignez-nous pour",
-      "title2": "Révolutionner les Livraisons Locales !",
-      "description": "Faites partie de notre réseau en pleine croissance. Que vous soyez conducteur ou restaurant, nous sommes ravis de vous accueillir.",
-      "driverRegister": "S'inscrire comme Conducteur",
-      "restaurantRegister": "S'inscrire comme Restaurant"
+      "title2": "Révolutionner les livraisons locales!",
+      "description": "Faites partie de notre réseau en croissance. Que vous soyez chauffeur ou restaurant, nous sommes ravis de vous avoir à bord.",
+      "driverRegister": "S'inscrire comme chauffeur",
+      "restaurantRegister": "S'inscrire comme restaurant"
     }
   },
   "about": {
-    "title": "À Propos de Nous",
-    "description": "Nous avons pour mission de simplifier les livraisons locales. Notre plateforme connecte des chauffeurs passionnés et des restaurants dynamiques pour créer une expérience de livraison fluide pour tous.",
+    "title": "À propos de nous",
+    "description": "Notre mission est de simplifier les livraisons locales. Notre plateforme connecte les chauffeurs passionnés et les restaurants prospères pour créer une expérience de livraison fluide pour tous.",
     "mission": "Notre Mission",
-    "missionText": "Que vous cherchiez à gagner plus ou à développer votre entreprise, nous sommes là pour vous soutenir à chaque étape.",
+    "missionText": "Que vous cherchiez à gagner plus ou à développer votre entreprise, nous sommes là pour vous soutenir à chaque kilomètre.",
     "vision": "Notre Vision",
     "visionText": "Devenir la plateforme la plus fiable pour les livraisons locales, soutenant les communautés et les entreprises.",
     "driver": {
-      "earn": "Gagnez à Votre Rythme – Horaires flexibles et paiements rapides.",
-      "setup": "Configuration Unique – Un petit frais et vous êtes prêt à partir.",
-      "support": "Support Partenaire – Nous sommes là pour vous à chaque étape."
+      "earn": "Gagnez selon vos conditions – Horaires flexibles et paiements rapides.",
+      "setup": "Configuration unique – Juste un petit frais et vous êtes prêt.",
+      "support": "Support partenaire – Nous vous soutenons à chaque étape."
     },
     "restaurant": {
-      "expand": "Élargissez Votre Portée – Livrez à plus de clients dans votre région.",
-      "onboarding": "Intégration Rapide – Formulaire et téléchargement de documents faciles.",
-      "grow": "Grandissez avec Nous – Bénéficiez de notre réseau marketing et logistique."
+      "expand": "Élargissez votre portée – Livrez à plus de clients dans votre région.",
+      "onboarding": "Intégration rapide – Formulaire facile et téléchargement de documents.",
+      "grow": "Grandissez avec nous – Bénéficiez de notre réseau marketing et logistique."
     }
   },
   "howItWorks": {
-    "title": "Comment Ça Marche",
-    "description": "Commencez en 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
+    "title": "Comment ça marche",
+    "description": "Commencez en seulement 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
     "step1": {
-      "title": "Étape 1 : Remplissez un Formulaire Simple",
+      "title": "Étape 1: Remplissez un formulaire simple",
       "description": "Fournissez vos détails et documents nécessaires"
     },
     "step2": {
-      "title": "Étape 2 : Payez les Frais de Configuration Uniques",
-      "description": "La passerelle de paiement sécurisée garantit que votre inscription est vérifiée"
+      "title": "Étape 2: Payez les frais de configuration unique",
+      "description": "La passerelle de paiement sécurisée assure que votre inscription est vérifiée"
     },
     "step3": {
-      "title": "Étape 3 : Obtenez l'Approbation de l'Administrateur",
+      "title": "Étape 3: Obtenez l'approbation de l'administrateur",
       "description": "Une fois approuvé, vous recevrez une confirmation d'intégration"
     },
     "cta": {
-      "title": "Prêt à Commencer ?",
-      "description": "Rejoignez des centaines de chauffeurs et de restaurants qui pré-inscrivent aujourd'hui."
-    },
-    "forDrivers": {
-      "title": "Pour les Conducteurs",
-      "step1": "Inscrivez-vous comme conducteur",
-      "step2": "Complétez la vérification",
-      "step3": "Commencez à accepter les livraisons",
-      "step4": "Gagnez des tarifs compétitifs"
-    },
-    "forRestaurants": {
-      "title": "Pour les Restaurants",
-      "step1": "Inscrivez votre restaurant",
-      "step2": "Configurez votre menu",
-      "step3": "Connectez-vous avec les conducteurs",
-      "step4": "Commencez à livrer"
+      "title": "Prêt à commencer?",
+      "description": "Rejoignez des centaines de chauffeurs et restaurants qui se pré-inscrivent aujourd'hui."
     }
   },
   "faq": {
-    "title": "Questions Fréquemment Posées",
-    "question1": "Qui peut s'inscrire sur cette plateforme ?",
-    "answer1": "Notre plateforme est conçue pour les chauffeurs de livraison souhaitant gagner de manière flexible et les restaurants visant à élargir leur portée de livraison.",
-    "question2": "Quels documents dois-je télécharger lors de l'inscription ?",
-    "answer2": "Les chauffeurs doivent généralement fournir une pièce d'identité valide, un permis de conduire et les détails du véhicule. Les restaurants peuvent avoir besoin d'une licence commerciale et d'informations sur le menu.",
-    "question3": "Y a-t-il des frais d'inscription ?",
-    "answer3": "Oui, il y a des frais de configuration uniques pour nous aider à vérifier vos détails et à vous intégrer en toute sécurité. Pas de frais cachés après cela !",
-    "question4": "Combien de temps prend le processus d'approbation ?",
-    "answer4": "Une fois votre formulaire et votre paiement soumis, notre équipe administrative examinera et approuvera votre inscription dans les 24 à 48 heures.",
-    "question5": "Je possède plusieurs restaurants. Puis-je tous les inscrire ?",
-    "answer5": "Absolument ! Vous pouvez inscrire chaque établissement individuellement ou contacter notre équipe de support pour des options d'intégration en masse.",
-    "question6": "Quel type de soutien fournissez-vous après l'intégration ?",
-    "answer6": "Nous offrons un soutien aux partenaires, y compris une aide marketing, une intégration logistique et une assistance continue par téléphone et par e-mail."
+    "title": "Questions fréquemment posées",
+    "question1": "Qui peut s'inscrire sur cette plateforme?",
+    "answer1": "Notre plateforme est conçue pour les chauffeurs-livreurs cherchant à gagner de manière flexible et les restaurants visant à élargir leur portée de livraison.",
+    "question2": "Quels documents dois-je télécharger lors de l'inscription?",
+    "answer2": "Les chauffeurs doivent généralement fournir une pièce d'identité valide, un permis de conduire et des détails du véhicule. Les restaurants peuvent avoir besoin d'une licence commerciale et d'informations sur le menu.",
+    "question3": "Y a-t-il des frais d'inscription?",
+    "answer3": "Oui, il y a des frais de configuration unique pour nous aider à vérifier vos détails et vous intégrer en toute sécurité. Aucun frais caché après cela!",
+    "question4": "Combien de temps prend le processus d'approbation?",
+    "answer4": "Une fois votre formulaire et paiement soumis, notre équipe d'administration examinera et approuvera votre inscription dans les 24-48 heures.",
+    "question5": "Je possède plusieurs restaurants. Puis-je tous les inscrire?",
+    "answer5": "Absolument! Vous pouvez inscrire chaque établissement individuellement ou contacter notre équipe de support pour des options d'intégration en lot.",
+    "question6": "Quel type de support offrez-vous après l'intégration?",
+    "answer6": "Nous offrons un support partenaire, incluant l'aide marketing, l'intégration logistique et l'assistance continue par téléphone et email."
   },
   "contact": {
-    "title": "Contactez-Nous",
-    "description": "Vous avez des questions ? Contactez-nous ! Nous sommes là pour vous aider. Remplissez le formulaire ci-dessous et nous vous répondrons bientôt.",
+    "title": "Contactez-nous",
+    "description": "Des questions? Contactez-nous! Nous sommes là pour vous aider. Remplissez le formulaire ci-dessous et nous vous répondrons sous peu.",
     "name": "Nom",
     "namePlaceholder": "Nom",
     "email": "Email*",
     "emailPlaceholder": "Email",
     "message": "Message*",
     "messagePlaceholder": "Message",
-    "sendMessage": "Envoyer le Message"
+    "sendMessage": "Envoyer le message"
+  },
+  "registration": {
+    "driver": {
+      "title": "Inscription Partenaire Chauffeur",
+      "description": "Remplissez le formulaire ci-dessous pour commencer votre processus d'inscription.",
+      "personalInfo": {
+        "title": "Informations personnelles",
+        "firstName": "Prénom",
+        "middleName": "Deuxième prénom",
+        "lastName": "Nom de famille",
+        "dateOfBirth": "Date de naissance",
+        "email": "Adresse email",
+        "password": "Mot de passe",
+        "cellNumber": "Numéro de cellulaire",
+        "address": {
+          "title": "Informations d'adresse",
+          "street": "Nom et numéro de rue",
+          "unit": "Numéro d'appartement/unité",
+          "city": "Ville",
+          "province": "Province",
+          "postalCode": "Code postal"
+        }
+      },
+      "vehicleInfo": {
+        "title": "Informations du véhicule",
+        "type": "Type de véhicule",
+        "make": "Marque du véhicule",
+        "model": "Modèle du véhicule",
+        "year": "Année de fabrication",
+        "color": "Couleur du véhicule",
+        "licensePlate": "Plaque d'immatriculation"
+      },
+      "documents": {
+        "title": "Documents requis",
+        "driversLicense": "Permis de conduire",
+        "vehicleRegistration": "Immatriculation du véhicule",
+        "vehicleInsurance": "Assurance véhicule",
+        "drivingAbstract": "Relevé de conduite",
+        "backgroundCheck": "Vérification des antécédents criminels",
+        "workEligibility": "Document d'admissibilité au travail",
+        "sinCard": "Carte NAS"
+      },
+      "banking": {
+        "title": "Informations bancaires",
+        "transitNumber": "Numéro de transit",
+        "institutionNumber": "Numéro d'institution",
+        "accountNumber": "Numéro de compte"
+      },
+      "consent": {
+        "title": "Consentement et déclarations",
+        "termsAndConditions": "J'accepte les termes et conditions",
+        "backgroundScreening": "Je consens à la vérification des antécédents",
+        "privacyPolicy": "J'accepte la politique de confidentialité",
+        "electronicCommunication": "J'accepte de recevoir des communications électroniques"
+      },
+      "payment": {
+        "title": "Compléter l'inscription",
+        "success": "Formulaire d'inscription complété avec succès!",
+        "description": "Complétez votre inscription avec des frais d'inscription unique de 25$.",
+        "button": "Procéder au paiement (25$)"
+      },
+      "errors": {
+        "required": "Ce champ est requis",
+        "invalidEmail": "Format d'email invalide",
+        "invalidPhone": "Format de téléphone invalide",
+        "invalidPostal": "Le code postal doit être au format A1A 1A1",
+        "invalidYear": "Année invalide",
+        "oldVehicle": "Le véhicule ne doit pas être âgé de plus de 25 ans pour la livraison",
+        "invalidPlate": "Format de plaque d'immatriculation invalide",
+        "yearTooOld": "Le véhicule est trop vieux. Doit être de 1990 ou plus récent.",
+        "yearTooNew": "Année invalide. Ne peut pas être une année future.",
+        "vehicleAgeRestriction": "Le véhicule ne doit pas être âgé de plus de 25 ans pour le service de livraison."
+      }
+    },
+    "restaurant": {
+      "title": "Inscription Partenaire Restaurant",
+      "steps": {
+        "ownerInfo": "Informations propriétaire et entreprise",
+        "documents": "Documents et vérification",
+        "menu": "Configuration du menu",
+        "payment": "Informations de paiement"
+      },
+      "ownerInfo": {
+        "ownerName": "Nom du propriétaire",
+        "email": "Email du propriétaire",
+        "phone": "Téléphone du propriétaire",
+        "ownerAddress": "Adresse du propriétaire",
+        "identificationType": "Type d'identification"
+      },
+      "identificationTypes": {
+        "licence": "Permis de conduire",
+        "pr_card": "Carte de résident permanent",
+        "passport": "Passeport",
+        "medical_card": "Carte médicale",
+        "provincial_id": "Pièce d'identité provinciale"
+      },
+      "businessInfo": {
+        "title": "Détails de l'entreprise",
+        "restaurantName": "Nom du restaurant",
+        "businessEmail": "Email de l'entreprise",
+        "restaurantAddress": "Adresse de l'entreprise",
+        "city": "Ville",
+        "province": "Province",
+        "postalCode": "Code postal",
+        "businessType": "Type d'entreprise"
+      },
+      "bankingInfo": {
+        "title": "Informations bancaires",
+        "transitNumber": "Numéro de transit",
+        "institutionNumber": "Numéro d'institution",
+        "accountNumber": "Numéro de compte"
+      },
+      "taxInfo": {
+        "title": "Informations fiscales",
+        "requiredFor": "Champs fiscaux requis pour",
+        "gstNumber": "Numéro TPS",
+        "hstNumber": "Numéro TVH",
+        "pstNumber": "Numéro TVP",
+        "qstNumber": "Numéro TVQ"
+      },
+      "documents": {
+        "title": "Documents requis",
+        "businessDocument": "Document d'entreprise",
+        "businessLicense": "Licence d'entreprise",
+        "voidCheque": "Chèque annulé",
+        "hstDocument": "Document TVH",
+        "articleOfIncorporation": "Statuts constitutifs",
+        "articleOfIncorporationExpiryDate": "Date d'expiration des statuts constitutifs",
+        "foodHandlingCertificate": "Certificat de manipulation des aliments",
+        "foodHandlingCertificateExpiryDate": "Date d'expiration du certificat de manipulation des aliments"
+      },
+      "menu": {
+        "title": "Articles du menu",
+        "itemName": "Nom de l'article",
+        "price": "Prix",
+        "description": "Description",
+        "image": "Image de l'article",
+        "itemImage": "Image de l'article",
+        "addItem": "Ajouter un article au menu",
+        "removeItem": "Supprimer l'article",
+        "operatingHours": "Heures d'ouverture",
+        "day": "Jour",
+        "openTime": "Heure d'ouverture",
+        "closeTime": "Heure de fermeture",
+        "closed": "Fermé"
+      },
+      "hours": {
+        "title": "Heures d'ouverture",
+        "to": "à",
+        "closed": "Fermé",
+        "days": {
+          "monday": "Lundi",
+          "tuesday": "Mardi",
+          "wednesday": "Mercredi",
+          "thursday": "Jeudi",
+          "friday": "Vendredi",
+          "saturday": "Samedi",
+          "sunday": "Dimanche"
+        }
+      },
+      "success": {
+        "title": "Inscription réussie!",
+        "subtitle": "Bienvenue dans notre réseau de partenaires restaurants!",
+        "processing": "Votre inscription est en cours de traitement par notre équipe.",
+        "confirmation": "Vous recevrez un email de confirmation dans les 24-48 heures.",
+        "questions": "Si vous avez des questions, veuillez contacter notre équipe de support.",
+        "backToHome": "Retour à l'accueil"
+      },
+      "placeholders": {
+        "ownerName": "Entrez le nom du propriétaire",
+        "email": "Entrez l'adresse email",
+        "phone": "Entrez le numéro de téléphone",
+        "ownerAddress": "Entrez l'adresse du propriétaire",
+        "restaurantName": "Entrez le nom du restaurant",
+        "businessEmail": "Entrez l'email de l'entreprise",
+        "restaurantAddress": "Entrez l'adresse de l'entreprise",
+        "city": "Entrez la ville",
+        "postalCode": "Entrez le code postal",
+        "transitNumber": "Entrez le numéro de transit",
+        "institutionNumber": "Entrez le numéro d'institution",
+        "accountNumber": "Entrez le numéro de compte",
+        "gstNumber": "Entrez le numéro TPS",
+        "hstNumber": "Entrez le numéro TVH",
+        "pstNumber": "Entrez le numéro TVP",
+        "qstNumber": "Entrez le numéro TVQ",
+        "menuItemName": "Entrez le nom de l'article",
+        "menuItemPrice": "Entrez le prix",
+        "menuItemDescription": "Entrez la description de l'article"
+      },
+      "common": {
+        "digits": "chiffres",
+        "clickToUpload": "Cliquez pour télécharger le fichier",
+        "uploadImage": "Télécharger l'image",
+        "next": "Suivant",
+        "back": "Retour",
+        "submit": "Soumettre l'inscription",
+        "proceedToPayment": "Procéder au paiement"
+      },
+      "buttons": {
+        "back": "Retour",
+        "nextStep": "Étape suivante",
+        "proceedToPayment": "Procéder au paiement"
+      },
+      "errors": {
+        "ownerNameRequired": "Le nom du propriétaire est requis",
+        "emailRequired": "L'email est requis",
+        "phoneRequired": "Le numéro de téléphone est requis",
+        "ownerAddressRequired": "L'adresse du propriétaire est requise",
+        "identificationTypeRequired": "Le type d'identification est requis",
+        "restaurantNameRequired": "Le nom du restaurant est requis",
+        "businessEmailRequired": "L'email de l'entreprise est requis",
+        "restaurantAddressRequired": "L'adresse de l'entreprise est requise",
+        "cityRequired": "La ville est requise",
+        "provinceRequired": "La province est requise",
+        "postalCodeRequired": "Le code postal est requis",
+        "businessTypeRequired": "Le type d'entreprise est requis",
+        "transitNumberRequired": "Le numéro de transit est requis",
+        "institutionNumberRequired": "Le numéro d'institution est requis",
+        "accountNumberRequired": "Le numéro de compte est requis",
+        "gstNumberRequired": "Le numéro TPS est requis",
+        "hstNumberRequired": "Le numéro TVH est requis",
+        "pstNumberRequired": "Le numéro TVP est requis",
+        "qstNumberRequired": "Le numéro TVQ est requis",
+        "businessDocumentRequired": "Le document d'entreprise est requis",
+        "businessLicenseRequired": "La licence d'entreprise est requise",
+        "voidChequeRequired": "Le chèque annulé est requis",
+        "menuItemNameRequired": "Le nom de l'article du menu est requis",
+        "menuItemPriceRequired": "Le prix de l'article du menu est requis",
+        "menuItemImageRequired": "L'image de l'article du menu est requise",
+        "invalidEmail": "Format d'email invalide",
+        "invalidPhone": "Format de téléphone invalide",
+        "invalidPostalCode": "Format de code postal invalide"
+      }
+    }
   },
   "driverRegistration": {
     "title": "Inscription Partenaire Chauffeur",
-    "sections": {
-      "personalInfo": "Informations Personnelles",
-      "addressInfo": "Informations d'Adresse",
-      "vehicleInfo": "Informations du Véhicule",
-      "vehicleDocuments": "Documents du Véhicule",
-      "documentsLicenses": "Documents & Permis",
-      "driversLicense": "Permis de Conduire",
-      "backgroundWorkEligibility": "Vérification & Admissibilité au Travail",
-      "bankingConsent": "Informations Bancaires & Consentement"
-    },
     "labels": {
       "firstName": "Prénom",
-      "middleName": "Deuxième Prénom",
-      "lastName": "Nom de Famille",
-      "dateOfBirth": "Date de Naissance",
-      "email": "Adresse Courriel",
-      "password": "Mot de Passe",
-      "cellNumber": "Numéro de Téléphone",
-      "streetNameNumber": "Nom de Rue & Numéro",
-      "appUniteNumber": "App/Unité",
+      "middleName": "Deuxième prénom",
+      "lastName": "Nom de famille",
+      "dateOfBirth": "Date de naissance",
+      "email": "Adresse email",
+      "password": "Mot de passe",
+      "cellNumber": "Numéro de cellulaire",
+      "streetAddress": "Nom et numéro de rue",
+      "unitNumber": "Numéro d'appartement/unité",
       "city": "Ville",
       "province": "Province",
-      "postalCode": "Code Postal",
-      "profilePhoto": "Photo de Profil",
-      "vehicleType": "Type de Véhicule",
-      "vehicleMake": "Marque du Véhicule",
-      "vehicleModel": "Modèle du Véhicule",
-      "yearOfManufacture": "Année de Fabrication",
-      "vehicleColor": "Couleur du Véhicule",
-      "vehicleLicensePlate": "Plaque d'Immatriculation",
-      "vehicleRegistration": "Immatriculation du Véhicule",
-      "vehicleInsurance": "Assurance du Véhicule",
-      "driversLicenseFront": "Permis de Conduire (Recto)",
-      "driversLicenseBack": "Permis de Conduire (Verso)",
-      "driversLicenseClass": "Classe du Permis",
-      "drivingAbstractDate": "Date du Dossier de Conduite",
-      "drivingAbstract": "Dossier de Conduite",
-      "criminalBackgroundCheck": "Vérification du Casier Judiciaire",
-      "workEligibility": "Document d'Admissibilité au Travail",
-      "workEligibilityType": "Type d'Admissibilité au Travail",
-      "sinNumber": "Numéro d'Assurance Sociale",
-      "sinCard": "Carte d'Assurance Sociale",
-      "transitNumber": "Numéro de Transit",
-      "institutionNumber": "Numéro d'Institution",
-      "accountNumber": "Numéro de Compte"
+      "postalCode": "Code postal",
+      "vehicleType": "Type de véhicule",
+      "vehicleMake": "Marque du véhicule",
+      "vehicleModel": "Modèle du véhicule",
+      "vehicleYear": "Année de fabrication",
+      "vehicleColor": "Couleur du véhicule",
+      "licensePlate": "Plaque d'immatriculation",
+      "driversLicense": "Permis de conduire",
+      "vehicleRegistration": "Immatriculation du véhicule",
+      "vehicleInsurance": "Assurance véhicule",
+      "drivingAbstract": "Relevé de conduite",
+      "backgroundCheck": "Vérification des antécédents criminels",
+      "workEligibility": "Document d'admissibilité au travail",
+      "sinCard": "Carte NAS",
+      "transitNumber": "Numéro de transit",
+      "institutionNumber": "Numéro d'institution",
+      "accountNumber": "Numéro de compte"
     },
     "placeholders": {
       "firstName": "Entrez votre prénom",
       "middleName": "Entrez votre deuxième prénom (optionnel)",
       "lastName": "Entrez votre nom de famille",
-      "email": "Entrez votre adresse courriel",
+      "email": "Entrez votre adresse email",
       "password": "Entrez un mot de passe sécurisé",
-      "cellNumber": "+1-XXX-XXX-XXXX",
-      "streetNameNumber": "Entrez l'adresse",
-      "appUniteNumber": "Entrez le numéro d'appartement (optionnel)",
-      "city": "Entrez le nom de la ville",
-      "postalCode": "A1A 1A1",
-      "vehicleMake": "ex., Toyota, Honda",
-      "vehicleModel": "ex., Camry, Civic",
-      "yearOfManufacture": "AAAA",
+      "cellNumber": "Entrez votre numéro de cellulaire",
+      "streetAddress": "Entrez le nom et numéro de rue",
+      "unitNumber": "Entrez le numéro d'appartement/unité",
+      "city": "Entrez votre ville",
+      "postalCode": "Entrez le code postal (A1A 1A1)",
+      "vehicleMake": "Entrez la marque du véhicule",
+      "vehicleModel": "Entrez le modèle du véhicule",
+      "vehicleYear": "Entrez l'année de fabrication",
       "vehicleColor": "Entrez la couleur du véhicule",
-      "vehicleLicensePlate": "Entrez le numéro de plaque",
-      "driversLicenseClassOntario": "Entrez G ou G2",
-      "driversLicenseClassOther": "Entrez Classe 5",
-      "sinNumber": "Entrez le NAS à 9 chiffres",
-      "transitNumber": "Entrez le numéro à 3 chiffres",
-      "institutionNumber": "Entrez le numéro à 5 chiffres",
-      "accountNumber": "Entrez le numéro de 7-12 chiffres"
+      "licensePlate": "Entrez le numéro de plaque d'immatriculation",
+      "transitNumber": "Entrez le numéro de transit à 5 chiffres",
+      "institutionNumber": "Entrez le numéro d'institution à 3 chiffres",
+      "accountNumber": "Entrez le numéro de compte"
     },
     "common": {
-      "clickToUpload": "Cliquez pour télécharger",
-      "uploadImage": "Télécharger l'image",
-      "digits": "chiffres"
+      "required": "Requis",
+      "optional": "Optionnel",
+      "upload": "Télécharger le fichier",
+      "clickToUpload": "Cliquez pour télécharger le fichier",
+      "fileSelected": "Fichier sélectionné",
+      "next": "Suivant",
+      "back": "Retour",
+      "submit": "Soumettre l'inscription"
     },
     "buttons": {
+      "next": "Étape suivante",
       "back": "Retour",
-      "nextStep": "Suivant",
-      "proceedToPayment": "Procéder au Paiement"
+      "submit": "Soumettre l'inscription",
+      "proceedToPayment": "Procéder au paiement (25$)"
     },
     "paymentInfo": {
-      "title": "Frais d'Inscription",
-      "amount": "25,00 $ CAD",
-      "description": "Frais d'inscription unique pour la vérification des antécédents et la configuration du compte"
+      "title": "Compléter l'inscription",
+      "description": "Complétez votre inscription avec des frais d'inscription unique de 25$.",
+      "fee": "25,00$ CAD",
+      "success": "Formulaire d'inscription complété avec succès!"
     },
     "consent": {
-      "termsAndConditions": "J'accepte les conditions générales",
+      "termsAndConditions": "J'accepte les termes et conditions",
       "backgroundScreening": "Je consens à la vérification des antécédents",
       "privacyPolicy": "J'accepte la politique de confidentialité",
       "electronicCommunication": "J'accepte de recevoir des communications électroniques"
     },
     "errors": {
-      "firstNameRequired": "Le prénom est requis",
-      "lastNameRequired": "Le nom de famille est requis",
-      "emailRequired": "L'adresse courriel est requise",
-      "invalidEmail": "Format d'adresse courriel invalide",
-      "passwordRequired": "Le mot de passe est requis",
-      "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
-      "cellNumberRequired": "Le numéro de téléphone est requis",
-      "invalidCellNumber": "Format de numéro de téléphone invalide",
-      "dateOfBirthRequired": "La date de naissance est requise",
-      "ageRestriction": "Vous devez avoir au moins 18 ans",
-      "streetAddressRequired": "L'adresse est requise",
-      "cityRequired": "La ville est requise",
-      "provinceRequired": "La province est requise",
-      "postalCodeRequired": "Le code postal est requis",
-      "invalidPostalCode": "Format de code postal invalide",
-      "profilePhotoRequired": "La photo de profil est requise",
-      "vehicleTypeRequired": "Le type de véhicule est requis",
-      "vehicleMakeRequired": "La marque du véhicule est requise",
-      "vehicleModelRequired": "Le modèle du véhicule est requis",
-      "yearRequired": "L'année est requise",
-      "yearTooOld": "Le véhicule est trop ancien. Doit être de 1990 ou plus récent.",
+      "required": "Ce champ est requis",
+      "invalidEmail": "Format d'email invalide",
+      "invalidPhone": "Format de téléphone invalide",
+      "invalidPostal": "Le code postal doit être au format A1A 1A1",
+      "invalidYear": "Année invalide",
+      "oldVehicle": "Le véhicule ne doit pas être âgé de plus de 25 ans pour la livraison",
+      "invalidPlate": "Format de plaque d'immatriculation invalide",
+      "yearTooOld": "Le véhicule est trop vieux. Doit être de 1990 ou plus récent.",
       "yearTooNew": "Année invalide. Ne peut pas être une année future.",
-      "vehicleAgeRestriction": "Le véhicule ne doit pas avoir plus de 25 ans pour le service de livraison.",
-      "vehicleColorRequired": "La couleur du véhicule est requise",
-      "licensePlateRequired": "La plaque d'immatriculation est requise",
-      "invalidLicensePlate": "Format de plaque d'immatriculation invalide",
-      "vehicleRegistrationRequired": "L'immatriculation du véhicule est requise",
-      "vehicleInsuranceRequired": "L'assurance du véhicule est requise",
-      "driversLicenseFrontRequired": "La photo recto du permis est requise",
-      "driversLicenseBackRequired": "La photo verso du permis est requise",
-      "licenseClassRequired": "La classe du permis est requise",
-      "ontarioLicenseClass": "Pour l'Ontario, le permis doit être G ou G2",
-      "otherProvinceLicenseClass": "Le permis doit être de Classe 5",
-      "drivingAbstractDateRequired": "La date du dossier de conduite est requise",
-      "drivingAbstractDateRecency": "Le dossier de conduite doit avoir moins de 3 mois",
-      "drivingAbstractRequired": "Le dossier de conduite est requis",
-      "criminalBackgroundCheckRequired": "La vérification du casier judiciaire est requise",
-      "workEligibilityRequired": "Le document d'admissibilité au travail est requis",
-      "workEligibilityTypeRequired": "Le type d'admissibilité au travail est requis",
-      "sinNumberRequired": "Le numéro d'assurance sociale est requis",
-      "invalidSinNumber": "Format de NAS invalide",
-      "transitNumberRequired": "Le numéro de transit est requis",
-      "invalidTransitNumber": "Format de numéro de transit invalide",
-      "institutionNumberRequired": "Le numéro d'institution est requis",
-      "invalidInstitutionNumber": "Format de numéro d'institution invalide",
-      "accountNumberRequired": "Le numéro de compte est requis",
-      "invalidAccountNumber": "Format de numéro de compte invalide",
-      "consentRequired": "Vous devez accepter toutes les conditions",
-      "submissionFailed": "L'envoi de l'inscription a échoué. Veuillez réessayer."
-    }
-  },
-  "registration": {
-    "restaurant": {
-      "title": "Inscription Restaurant Partenaire",
-      "steps": {
-        "ownerInfo": "Informations du Propriétaire et de l'Entreprise",
-        "documents": "Documents et Vérification",
-        "menu": "Configuration du Menu",
-        "payment": "Informations de Paiement"
-      },
-      "ownerInfo": {
-        "ownerName": "Nom du Propriétaire",
-        "email": "Courriel du Propriétaire",
-        "phone": "Téléphone du Propriétaire",
-        "identificationType": "Type d'Identification"
-      },
-      "businessInfo": {
-        "title": "Détails de l'Entreprise",
-        "restaurantName": "Nom du Restaurant",
-        "businessAddress": "Adresse de l'Entreprise",
-        "city": "Ville",
-        "province": "Province",
-        "postalCode": "Code Postal"
-      },
-      "bankingInfo": {
-        "title": "Informations Bancaires",
-        "transitNumber": "Numéro de Transit",
-        "institutionNumber": "Numéro d'Institution",
-        "accountNumber": "Numéro de Compte"
-      },
-      "taxInfo": {
-        "title": "Informations Fiscales",
-        "gstNumber": "Numéro de TPS",
-        "hstNumber": "Numéro de TVH",
-        "pstNumber": "Numéro de TVP",
-        "qstNumber": "Numéro de TVQ"
-      },
-      "documents": {
-        "title": "Documents Requis",
-        "businessDocument": "Document d'Entreprise",
-        "fssai": "Certificat FSSAI",
-        "gst": "Certificat TPS",
-        "pan": "Carte PAN",
-        "businessLicense": "Licence d'Entreprise",
-        "voidCheque": "Chèque Annulé"
-      },
-      "menu": {
-        "title": "Configuration du Menu",
-        "itemName": "Nom de l'Article",
-        "price": "Prix",
-        "description": "Description"
-      },
-      "hours": {
-        "title": "Heures d'Ouverture",
-        "openTime": "Heure d'Ouverture",
-        "closeTime": "Heure de Fermeture",
-        "closed": "Fermé"
-      },
-      "payment": {
-        "title": "Paiement",
-        "description": "Complétez votre inscription avec des frais de configuration uniques",
-        "button": "Soumettre et Payer"
-      },
-      "errors": {
-        "required": "Ce champ est obligatoire",
-        "invalidEmail": "Format de courriel invalide",
-        "invalidPhone": "Format de téléphone invalide",
-        "invalidPostal": "Format de code postal invalide"
-      },
-      "placeholders": {
-        "ownerName": "Entrez le nom complet du propriétaire",
-        "email": "Entrez l'adresse courriel du propriétaire",
-        "phone": "Entrez le numéro de téléphone du propriétaire",
-        "restaurantName": "Entrez le nom du restaurant",
-        "businessAddress": "Entrez l'adresse de l'entreprise",
-        "city": "Entrez le nom de la ville",
-        "postalCode": "Entrez le code postal (ex: A1A 1A1)"
-      },
-      "identificationTypes": {
-        "licence": "Permis d'exploitation",
-        "passport": "Passeport",
-        "driverLicence": "Permis de conduire",
-        "healthCard": "Carte santé"
-      },
-      "buttons": {
-        "nextStep": "Suivant",
-        "back": "Retour",
-        "submit": "Soumettre"
-      }
-    },
-    "driver": {
-      "title": "Inscription Partenaire Chauffeur",
-      "description": "Remplissez le formulaire ci-dessous pour commencer votre inscription."
+      "vehicleAgeRestriction": "Le véhicule ne doit pas être âgé de plus de 25 ans pour le service de livraison."
     }
   }
 } 

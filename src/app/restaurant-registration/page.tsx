@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
-// CORRECTED IMPORT: Assumes Navbar is in src/components/common/Navbar.tsx. Please adjust if your path is different.
-import Navbar from "../component/Navbar";
+import Navbar from "../component/Navbar"; // Assuming Navbar path is correct
 import { UploadCloud, Plus, Trash2 } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -50,6 +49,11 @@ const IDENTIFICATION_TYPES = [
   { value: "provincial_id", label: "Provincial ID" },
 ];
 
+const BUSINESS_TYPES = [ // NEW
+  { value: "Solo proprietor", label: "Solo proprietor" },
+  { value: "Corporate", label: "Corporate" },
+];
+
 const WEEKDAYS = [
   "Monday",
   "Tuesday",
@@ -74,47 +78,46 @@ interface OperatingHours {
   isClosed: boolean;
 }
 
+// Updated FormData interface from forms.ts
 interface FormData {
-  // Owner Information
   ownerName: string;
   email: string;
   phone: string;
+  ownerAddress: string; // NEW
   identificationType: string;
 
-  // Business Information
   restaurantName: string;
-  businessEmail: string;
-  businessPhone: string;
-  businessAddress: string;
+  businessEmail: string; // NEW
+  restaurantAddress: string; // RENAMED
   city: string;
   province: string;
   postalCode: string;
+  businessType: 'Solo proprietor' | 'Corporate'; // NEW
 
-  // Banking Information
   transitNumber: string;
   institutionNumber: string;
   accountNumber: string;
 
-  // Tax Information
   gstNumber: string;
   hstNumber: string;
   pstNumber: string;
   qstNumber: string;
 
-  // Documents
   businessDocument: File | null;
-  fssai: File | null;
-  gst: File | null;
-  pan: File | null;
   businessLicense: File | null;
   voidCheque: File | null;
+  hstDocument: File | null; // NEW
+  articleOfIncorporation: File | null; // NEW
+  articleOfIncorporationExpiryDate: string; // NEW
+  foodHandlingCertificate: File | null; // NEW
+  foodHandlingCertificateExpiryDate: string; // NEW
 
-  // Menu & Hours
   menuItems: MenuItem[];
   operatingHours: OperatingHours[];
 }
 
-// Payment Form Component
+
+// Payment Form Component (No changes needed)
 function PaymentForm({
   onSuccess,
 }: {
@@ -181,7 +184,7 @@ function PaymentForm({
   );
 }
 
-// Main Registration Component - RENAMED FOR CLARITY
+// Main Registration Component
 export default function RestaurantRegistrationPage() {
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
@@ -192,14 +195,16 @@ export default function RestaurantRegistrationPage() {
     ownerName: "",
     email: "",
     phone: "",
+    ownerAddress: "", // Initialize new field
     identificationType: "licence",
     restaurantName: "",
-    businessEmail: "",
-    businessPhone: "",
-    businessAddress: "",
+    businessEmail: "", // Initialize new field
+    // businessPhone: "", // Remove if not used in backend model/migrations
+    restaurantAddress: "", // Renamed
     city: "",
     province: "ON",
     postalCode: "",
+    businessType: "Solo proprietor", // Initialize new field
     transitNumber: "",
     institutionNumber: "",
     accountNumber: "",
@@ -208,11 +213,13 @@ export default function RestaurantRegistrationPage() {
     pstNumber: "",
     qstNumber: "",
     businessDocument: null,
-    fssai: null,
-    gst: null,
-    pan: null,
     businessLicense: null,
     voidCheque: null,
+    hstDocument: null, // Initialize new file field
+    articleOfIncorporation: null, // Initialize new file field
+    articleOfIncorporationExpiryDate: "", // Initialize new date field
+    foodHandlingCertificate: null, // Initialize new file field
+    foodHandlingCertificateExpiryDate: "", // Initialize new date field
     menuItems: [{ name: "", price: "", description: "", image: null }],
     operatingHours: WEEKDAYS.map((day) => ({
       day,
@@ -289,6 +296,8 @@ export default function RestaurantRegistrationPage() {
 
   const validateStep = (stepNumber: number): boolean => {
     const newErrors: { [key: string]: string } = {};
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to start of day for comparison
 
     switch (stepNumber) {
       case 1: // Owner & Business Info
@@ -299,10 +308,17 @@ export default function RestaurantRegistrationPage() {
         if (!formData.phone.trim()) newErrors.phone = "Phone is required";
         else if (!/^\+?1?\d{10,14}$/.test(formData.phone.replace(/[\s-()]/g, "")))
           newErrors.phone = "Invalid phone format";
+        // NEW: ownerAddress is optional, no validation here unless you make it required
         if (!formData.restaurantName.trim()) newErrors.restaurantName = "Restaurant name is required";
-        if (!formData.businessAddress.trim()) newErrors.businessAddress = "Business address is required";
+        // NEW: businessEmail is optional, but validate if present
+        if (formData.businessEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.businessEmail))
+          newErrors.businessEmail = "Invalid business email format";
+        // RENAMED: businessAddress to restaurantAddress
+        if (!formData.restaurantAddress.trim()) newErrors.restaurantAddress = "Restaurant address is required";
         if (!formData.city.trim()) newErrors.city = "City is required";
         if (!formData.postalCode.trim()) newErrors.postalCode = "Postal code is required";
+        // NEW: businessType is required
+        if (!formData.businessType) newErrors.businessType = "Business type is required";
         break;
 
       case 2: // Banking & Tax Info
@@ -329,13 +345,47 @@ export default function RestaurantRegistrationPage() {
           newErrors.qstNumber = "QST number is required for your province";
         break;
 
-      case 3: // Documents
+      case 3: // Documents (Updated to reflect new docs)
         if (!formData.businessDocument) newErrors.businessDocument = "Business document is required";
-        if (!formData.fssai) newErrors.fssai = "FSSAI certificate is required";
-        if (!formData.gst) newErrors.gst = "GST certificate is required";
-        if (!formData.pan) newErrors.pan = "PAN card is required";
+        // Note: fssai, gst, pan removed as they are not in your backend upload config
         if (!formData.businessLicense) newErrors.businessLicense = "Business license is required";
         if (!formData.voidCheque) newErrors.voidCheque = "Void cheque is required";
+        
+        // NEW Document validations
+        // HST Document is optional in backend model, but required here if you want it
+        // if (!formData.hstDocument) newErrors.hstDocument = "HST document is required"; 
+
+        if (formData.articleOfIncorporationExpiryDate) {
+          const expiryDate = new Date(formData.articleOfIncorporationExpiryDate);
+          if (isNaN(expiryDate.getTime())) {
+            newErrors.articleOfIncorporationExpiryDate = "Invalid date format";
+          } else if (expiryDate < today) {
+            newErrors.articleOfIncorporationExpiryDate = "Expiry date cannot be in the past";
+          }
+        }
+        // If document is provided, its expiry date should also be provided, or vice-versa
+        if (formData.articleOfIncorporation && !formData.articleOfIncorporationExpiryDate) {
+          newErrors.articleOfIncorporationExpiryDate = "Expiry date required for Article of Incorporation";
+        }
+        if (!formData.articleOfIncorporation && formData.articleOfIncorporationExpiryDate) {
+          newErrors.articleOfIncorporation = "Document required if expiry date is provided for Article of Incorporation";
+        }
+
+        if (formData.foodHandlingCertificateExpiryDate) {
+          const expiryDate = new Date(formData.foodHandlingCertificateExpiryDate);
+          if (isNaN(expiryDate.getTime())) {
+            newErrors.foodHandlingCertificateExpiryDate = "Invalid date format";
+          } else if (expiryDate < today) {
+            newErrors.foodHandlingCertificateExpiryDate = "Expiry date cannot be in the past";
+          }
+        }
+        if (formData.foodHandlingCertificate && !formData.foodHandlingCertificateExpiryDate) {
+          newErrors.foodHandlingCertificateExpiryDate = "Expiry date required for Food Handling Certificate";
+        }
+        if (!formData.foodHandlingCertificate && formData.foodHandlingCertificateExpiryDate) {
+          newErrors.foodHandlingCertificate = "Document required if expiry date is provided for Food Handling Certificate";
+        }
+
         break;
 
       case 4: // Menu & Hours
@@ -358,7 +408,7 @@ export default function RestaurantRegistrationPage() {
 
   const handleNext = () => {
     if (validateStep(step)) {
-      if (step === 4) {
+      if (step === 4) { // After final step, show payment
         setShowPayment(true);
       } else {
         setStep(step + 1);
@@ -373,37 +423,54 @@ export default function RestaurantRegistrationPage() {
   const handlePaymentSuccess = async (intentId: string) => {
     setPaymentIntentId(intentId);
     const submitData = new FormData();
+
+    // Append text fields
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'menuItems' || key === 'operatingHours') {
+      if (key === 'menuItems' || key === 'operatingHours' || key === 'bankingInfo' || key === 'taxInfo') {
         submitData.append(key, JSON.stringify(value));
       } else if (value instanceof File) {
-        submitData.append(key, value);
-      } else if (typeof value === 'string') {
-        submitData.append(key, value);
+        // Handle files separately below to ensure correct field names
+      } else if (typeof value === 'string' || typeof value === 'boolean') {
+        submitData.append(key, value.toString());
       }
     });
+
+    // Append specific file fields as per backend Multer config
+    if (formData.businessDocument) submitData.append('businessDocument', formData.businessDocument);
+    if (formData.businessLicense) submitData.append('businessLicense', formData.businessLicense);
+    if (formData.voidCheque) submitData.append('voidCheque', formData.voidCheque);
+    if (formData.hstDocument) submitData.append('hstDocument', formData.hstDocument); // NEW
+    if (formData.articleOfIncorporation) submitData.append('articleOfIncorporation', formData.articleOfIncorporation); // NEW
+    if (formData.foodHandlingCertificate) submitData.append('foodHandlingCertificate', formData.foodHandlingCertificate); // NEW
+
+    // Append menu item images (if you need to handle these separately)
+    // Your backend's Multer setup for menu images isn't clear, assuming they are part of menuItems JSON
+    // If you need individual menu item images uploaded as separate files, you'd need additional Multer config
     formData.menuItems.forEach((item, index) => {
         if (item.image) {
             submitData.append(`menuItemImage_${index}`, item.image);
         }
     });
-    submitData.append("paymentIntentId", intentId);
+
+    submitData.append("stripePaymentIntentId", intentId); // Use the correct field name for payment intent
+
     try {
-      const response = await fetch("/api/restaurants/register", {
+      const response = await fetch("/api/restaurants", { // Corrected endpoint for registration
         method: "POST",
         body: submitData,
       });
+
       if (response.ok) {
         window.location.href = "/registration-success";
       } else {
         const errorData = await response.json();
         setErrors({ submit: errorData.message || "Registration failed on the server." });
-        setShowPayment(false);
+        setShowPayment(false); // Go back to form to show errors
       }
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({ submit: "Registration failed. Please try again." });
-      setShowPayment(false);
+      setShowPayment(false); // Go back to form to show errors
     }
   };
 
@@ -455,6 +522,11 @@ export default function RestaurantRegistrationPage() {
             <PaymentDescription>
               Complete your registration with a one-time registration fee of $50.
             </PaymentDescription>
+            {/* If using Stripe Elements payment form (previous method) */}
+            {/* <Elements stripe={stripePromise}>
+              <PaymentForm onSuccess={handlePaymentSuccess} />
+            </Elements> */}
+            {/* Using Stripe Checkout Session (new method) */}
             <Button onClick={handleCheckout}>
               Proceed to Payment ($50)
             </Button>
@@ -499,22 +571,37 @@ export default function RestaurantRegistrationPage() {
                     {errors.phone && <ErrorText>{t('registration.restaurant.errors.phoneRequired')}</ErrorText>}
                 </FormGroup>
               </FormRow>
+              {/* NEW: Owner Address */}
+              <FormGroup>
+                <label htmlFor="ownerAddress">{t('registration.restaurant.ownerInfo.ownerAddress')}</label>
+                <input id="ownerAddress" name="ownerAddress" value={formData.ownerAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.ownerAddress')} />
+                {errors.ownerAddress && <ErrorText>{errors.ownerAddress}</ErrorText>} {/* No specific error key in JSON for now */}
+              </FormGroup>
+
                <FormGroup>
                 <label htmlFor="identificationType">{t('registration.restaurant.ownerInfo.identificationType')} *</label>
                 <select id="identificationType" name="identificationType" value={formData.identificationType} onChange={handleChange}>
                     {IDENTIFICATION_TYPES.map(type => <option key={type.value} value={type.value}>{t(`registration.restaurant.identificationTypes.${type.value}`)}</option>)}
                 </select>
                </FormGroup>
+
               <SectionTitle style={{marginTop: '3rem'}}>{t('registration.restaurant.businessInfo.title')}</SectionTitle>
                <FormGroup>
                 <label htmlFor="restaurantName">{t('registration.restaurant.businessInfo.restaurantName')} *</label>
                 <input id="restaurantName" name="restaurantName" value={formData.restaurantName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantName')} />
                 {errors.restaurantName && <ErrorText>{t('registration.restaurant.errors.restaurantNameRequired')}</ErrorText>}
               </FormGroup>
+              {/* NEW: Business Email */}
+              <FormGroup>
+                <label htmlFor="businessEmail">{t('registration.restaurant.businessInfo.businessEmail')}</label>
+                <input id="businessEmail" name="businessEmail" type="email" value={formData.businessEmail} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.businessEmail')} />
+                {errors.businessEmail && <ErrorText>{errors.businessEmail}</ErrorText>} {/* No specific error key in JSON for now */}
+              </FormGroup>
+
                <FormGroup>
-                <label htmlFor="businessAddress">{t('registration.restaurant.businessInfo.businessAddress')} *</label>
-                <input id="businessAddress" name="businessAddress" value={formData.businessAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.businessAddress')} />
-                {errors.businessAddress && <ErrorText>{t('registration.restaurant.errors.businessAddressRequired')}</ErrorText>}
+                <label htmlFor="restaurantAddress">{t('registration.restaurant.businessInfo.restaurantAddress')} *</label> {/* RENAMED LABEL */}
+                <input id="restaurantAddress" name="restaurantAddress" value={formData.restaurantAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantAddress')} /> {/* RENAMED NAME */}
+                {errors.restaurantAddress && <ErrorText>{t('registration.restaurant.errors.restaurantAddressRequired')}</ErrorText>}
               </FormGroup>
               <FormRow>
                  <FormGroup>
@@ -527,6 +614,7 @@ export default function RestaurantRegistrationPage() {
                      <select id="province" name="province" value={formData.province} onChange={handleChange}>
                         {PROVINCES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                      </select>
+                     {errors.province && <ErrorText>{t('registration.restaurant.errors.provinceRequired')}</ErrorText>}
                 </FormGroup>
                  <FormGroup>
                     <label htmlFor="postalCode">{t('registration.restaurant.businessInfo.postalCode')} *</label>
@@ -534,6 +622,14 @@ export default function RestaurantRegistrationPage() {
                     {errors.postalCode && <ErrorText>{t('registration.restaurant.errors.postalCodeRequired')}</ErrorText>}
                 </FormGroup>
               </FormRow>
+              {/* NEW: Business Type */}
+              <FormGroup>
+                <label htmlFor="businessType">{t('registration.restaurant.businessInfo.businessType')} *</label>
+                <select id="businessType" name="businessType" value={formData.businessType} onChange={handleChange}>
+                    {BUSINESS_TYPES.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
+                </select>
+                {errors.businessType && <ErrorText>{errors.businessType}</ErrorText>}
+              </FormGroup>
             </motion.div>
           )}
 
@@ -601,13 +697,13 @@ export default function RestaurantRegistrationPage() {
               <SectionTitle>{t('registration.restaurant.documents.title')}</SectionTitle>
               <FormRow>
                 <UploadGroup>
-                  <label htmlFor="businessLicense">{t('registration.restaurant.documents.businessLicense')} *</label>
+                  <label htmlFor="businessDocument">{t('registration.restaurant.documents.businessDocument')} *</label>
                   <UploadWrapper>
                     <UploadCloud/>
-                    <span>{formData.businessLicense?.name || t('registration.restaurant.common.clickToUpload')}</span>
-                    <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                    <span>{formData.businessDocument?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="businessDocument" name="businessDocument" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
                   </UploadWrapper>
-                  {errors.businessLicense && <ErrorText>{t('registration.restaurant.errors.businessLicenseRequired')}</ErrorText>}
+                  {errors.businessDocument && <ErrorText>{t('registration.restaurant.errors.businessDocumentRequired')}</ErrorText>}
                 </UploadGroup>
                 <UploadGroup>
                   <label htmlFor="voidCheque">{t('registration.restaurant.documents.voidCheque')} *</label>
@@ -618,6 +714,61 @@ export default function RestaurantRegistrationPage() {
                   </UploadWrapper>
                   {errors.voidCheque && <ErrorText>{t('registration.restaurant.errors.voidChequeRequired')}</ErrorText>}
                 </UploadGroup>
+              </FormRow>
+              <FormRow>
+                <UploadGroup>
+                  <label htmlFor="businessLicense">{t('registration.restaurant.documents.businessLicense')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.businessLicense?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.businessLicense && <ErrorText>{t('registration.restaurant.errors.businessLicenseRequired')}</ErrorText>}
+                </UploadGroup>
+                {/* NEW: HST Document Upload */}
+                <UploadGroup>
+                  <label htmlFor="hstDocument">{t('registration.restaurant.documents.hstDocument')}</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.hstDocument?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="hstDocument" name="hstDocument" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.hstDocument && <ErrorText>{errors.hstDocument}</ErrorText>}
+                </UploadGroup>
+              </FormRow>
+              <FormRow>
+                {/* NEW: Article of Incorporation Upload and Expiry Date */}
+                <UploadGroup>
+                  <label htmlFor="articleOfIncorporation">{t('registration.restaurant.documents.articleOfIncorporation')}</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.articleOfIncorporation?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="articleOfIncorporation" name="articleOfIncorporation" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.articleOfIncorporation && <ErrorText>{errors.articleOfIncorporation}</ErrorText>}
+                </UploadGroup>
+                <FormGroup>
+                  <label htmlFor="articleOfIncorporationExpiryDate">{t('registration.restaurant.documents.articleOfIncorporationExpiryDate')}</label>
+                  <input id="articleOfIncorporationExpiryDate" name="articleOfIncorporationExpiryDate" type="date" value={formData.articleOfIncorporationExpiryDate} onChange={handleChange} />
+                  {errors.articleOfIncorporationExpiryDate && <ErrorText>{errors.articleOfIncorporationExpiryDate}</ErrorText>}
+                </FormGroup>
+              </FormRow>
+              <FormRow>
+                {/* NEW: Food Handling Certificate Upload and Expiry Date */}
+                <UploadGroup>
+                  <label htmlFor="foodHandlingCertificate">{t('registration.restaurant.documents.foodHandlingCertificate')}</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.foodHandlingCertificate?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="foodHandlingCertificate" name="foodHandlingCertificate" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.foodHandlingCertificate && <ErrorText>{errors.foodHandlingCertificate}</ErrorText>}
+                </UploadGroup>
+                <FormGroup>
+                  <label htmlFor="foodHandlingCertificateExpiryDate">{t('registration.restaurant.documents.foodHandlingCertificateExpiryDate')}</label>
+                  <input id="foodHandlingCertificateExpiryDate" name="foodHandlingCertificateExpiryDate" type="date" value={formData.foodHandlingCertificateExpiryDate} onChange={handleChange} />
+                  {errors.foodHandlingCertificateExpiryDate && <ErrorText>{errors.foodHandlingCertificateExpiryDate}</ErrorText>}
+                </FormGroup>
               </FormRow>
             </motion.div>
           )}
@@ -674,6 +825,11 @@ export default function RestaurantRegistrationPage() {
                       placeholder={t('registration.restaurant.placeholders.menuItemDescription')}
                     />
                   </FormGroup>
+                  {formData.menuItems.length > 1 && (
+                    <RemoveButton type="button" onClick={() => removeMenuItem(index)}>
+                      <Trash2 size={20} /> {t('registration.restaurant.menu.removeItem')}
+                    </RemoveButton>
+                  )}
                 </MenuItemCard>
               ))}
 

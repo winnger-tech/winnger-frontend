@@ -1,187 +1,137 @@
-'use client';
+"use client";
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { CheckCircle, Home } from 'lucide-react';
-
-const Container = styled.div`
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  padding: 2rem;
-`;
+import { CheckCircle } from 'lucide-react';
+import { useTranslation } from '../../../utils/i18n';
+import Navbar from '../../component/Navbar';
 
 const SuccessContainer = styled(motion.div)`
-  max-width: 800px;
-  margin: 2rem auto;
-  background: white;
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   text-align: center;
 `;
 
-const IconWrapper = styled.div`
+const SuccessCard = styled(motion.div)`
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const IconWrapper = styled(motion.div)`
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
-  
-  svg {
-    width: 80px;
-    height: 80px;
-    color: #10B981;
-  }
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
-  color: #1F2937;
   margin-bottom: 1rem;
+  color: #fff;
 `;
 
-const Message = styled.p`
+const Subtitle = styled.p`
   font-size: 1.2rem;
-  color: #4B5563;
   margin-bottom: 2rem;
-  line-height: 1.6;
+  opacity: 0.9;
 `;
 
-const NextSteps = styled.div`
-  background: #F3F4F6;
-  padding: 2rem;
-  border-radius: 8px;
-  margin-top: 2rem;
-  text-align: left;
-`;
-
-const StepTitle = styled.h2`
-  font-size: 1.5rem;
-  color: #1F2937;
+const InfoText = styled.p`
+  font-size: 1rem;
   margin-bottom: 1rem;
+  opacity: 0.8;
 `;
 
-const StepList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const StepItem = styled.li`
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  color: #4B5563;
-  font-size: 1.1rem;
-  
-  &:before {
-    content: "•";
-    color: #10B981;
-    font-weight: bold;
-    margin-right: 0.5rem;
-  }
-`;
-
-const HomeButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 2rem auto 0;
-  padding: 0.75rem 1.5rem;
-  background-color: #10B981;
-  color: white;
+const Button = styled.button`
+  background: #fff;
+  color: #667eea;
   border: none;
-  border-radius: 8px;
+  padding: 1rem 2rem;
+  border-radius: 50px;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: transform 0.2s;
+  margin-top: 2rem;
 
   &:hover {
-    background-color: #059669;
-  }
-
-  svg {
-    width: 20px;
-    height: 20px;
+    transform: translateY(-2px);
   }
 `;
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
+const fadeIn = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
-function RestaurantRegistrationSuccessInner() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (searchParams) {
-      const id = searchParams.get('session_id');
-      if (id) {
-        setSessionId(id);
-      }
+const iconAnimation = {
+  hidden: { scale: 0 },
+  visible: { 
+    scale: 1, 
+    transition: { 
+      type: "spring",
+      stiffness: 200,
+      damping: 15,
+      delay: 0.2
     }
-  }, [searchParams]);
+  }
+};
 
-  const handleHomeClick = () => {
-    router.push('/');
-  };
+export default function RestaurantRegistrationSuccess() {
+  const { t } = useTranslation();
 
   return (
     <>
-      <Container>
-        <SuccessContainer
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-          transition={{ duration: 0.5 }}
-        >
-          <IconWrapper>
-            <CheckCircle />
+      <Navbar />
+      <SuccessContainer
+        initial="hidden"
+        animate="visible"
+        variants={fadeIn}
+      >
+        <SuccessCard variants={fadeIn}>
+          <IconWrapper variants={iconAnimation}>
+            <CheckCircle size={80} color="#4ade80" />
           </IconWrapper>
           
-          <Title>Registration Payment Successful!</Title>
+          <Title>
+            {t('registration.restaurant.success.title') || 'Registration Successful!'}
+          </Title>
           
-          <Message>
-            Thank you for completing your restaurant registration payment. Your application is now being processed.
-            We will review your information and get back to you within 2-3 business days.
-          </Message>
-
-          <NextSteps>
-            <StepTitle>Next Steps</StepTitle>
-            <StepList>
-              <StepItem>
-                Our team will review your application and documents within 2-3 business days.
-              </StepItem>
-              <StepItem>
-                You will receive an email notification once your application has been reviewed.
-              </StepItem>
-              <StepItem>
-                If approved, you'll receive access to your restaurant dashboard where you can start setting up your menu and business details.
-              </StepItem>
-              <StepItem>
-                For any questions or concerns, please contact our support team at support@winnger.com
-              </StepItem>
-            </StepList>
-          </NextSteps>
-
-          <HomeButton onClick={handleHomeClick}>
-            <Home />
-            Return to Home
-          </HomeButton>
-        </SuccessContainer>
-      </Container>
+          <Subtitle>
+            {t('registration.restaurant.success.subtitle') || 'Welcome to our restaurant partner network!'}
+          </Subtitle>
+          
+          <InfoText>
+            {t('registration.restaurant.success.processing') || 
+             'Your registration has been submitted successfully. Our team will review your application and get back to you within 24-48 hours.'}
+          </InfoText>
+          
+          <InfoText>
+            {t('registration.restaurant.success.confirmation') || 
+             'You will receive a confirmation email shortly with your registration details and next steps.'}
+          </InfoText>
+          
+          <InfoText>
+            {t('registration.restaurant.success.questions') || 
+             'If you have any questions, please don\'t hesitate to contact our support team.'}
+          </InfoText>
+          
+          <Button onClick={() => window.location.href = '/'}>
+            {t('registration.restaurant.success.backToHome') || 'Back to Home'}
+          </Button>
+        </SuccessCard>
+      </SuccessContainer>
     </>
-  );
-}
-
-export default function RestaurantRegistrationSuccessPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <RestaurantRegistrationSuccessInner />
-    </Suspense>
   );
 } 
