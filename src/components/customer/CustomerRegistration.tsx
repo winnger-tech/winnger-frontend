@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import {
-  InputField,
-  DatePicker,
-  Select,
+  FormInput,
+  FormDatePicker,
+  FormSelect,
   CameraUpload,
   provinceOptions
 } from '../common/FormComponents';
@@ -31,7 +31,7 @@ export const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ onSu
     streetNameNumber: '',
     appUniteNumber: '',
     city: '',
-    province: 'Ontario',
+    province: 'ON',
     postalCode: '',
     profilePicture: null as unknown as File,
     gender: 'Male'
@@ -85,48 +85,48 @@ export const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ onSu
       <h2 className="text-2xl font-bold mb-4">Customer Registration</h2>
 
       <div className="mb-8">
-        <InputField
+        <FormInput
           label="First Name"
           type="text"
           value={customerInfo.firstName}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, firstName: value })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, firstName: value })}
           error={errors.firstName}
           required
         />
-        <InputField
+        <FormInput
           label="Middle Name"
           type="text"
           value={customerInfo.middleName || ''}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, middleName: value })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, middleName: value })}
         />
-        <InputField
+        <FormInput
           label="Last Name"
           type="text"
           value={customerInfo.lastName}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, lastName: value })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, lastName: value })}
           error={errors.lastName}
           required
         />
-        <DatePicker
+        <FormDatePicker
           label="Date of Birth"
           value={customerInfo.dateOfBirth}
-          onChange={(date) => setCustomerInfo({ ...customerInfo, dateOfBirth: date })}
+          onChange={(date: Date) => setCustomerInfo({ ...customerInfo, dateOfBirth: date })}
           error={errors.dateOfBirth}
           required
         />
-        <InputField
+        <FormInput
           label="Email Address"
           type="email"
           value={customerInfo.email}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, email: value })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, email: value })}
           error={errors.email}
           required
         />
-        <InputField
+        <FormInput
           label="Cell Number"
           type="tel"
           value={customerInfo.cellNumber}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, cellNumber: value })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, cellNumber: value })}
           placeholder="+1-XXX-XXX-XXXX"
           error={errors.cellNumber}
           required
@@ -148,16 +148,16 @@ export const CustomerRegistration: React.FC<CustomerRegistrationProps> = ({ onSu
         />
         <CameraUpload
           label="Profile Picture"
-          onCapture={(file) => setCustomerInfo({ ...customerInfo, profilePicture: file })}
+          onCapture={(file: File) => setCustomerInfo({ ...customerInfo, profilePicture: file })}
           error={errors.profilePicture}
           accept="image/*"
           required
         />
-        <Select
+        <FormSelect
           label="Gender"
           options={genderOptions}
           value={customerInfo.gender}
-          onChange={(value) => setCustomerInfo({ ...customerInfo, gender: value as 'Male' | 'Female' | 'Other' })}
+          onChange={(value: string) => setCustomerInfo({ ...customerInfo, gender: value as 'Male' | 'Female' | 'Other' })}
           error={errors.gender}
           required
         />

@@ -8,8 +8,10 @@ export function AuthInitializer({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    // Load user data from localStorage on app initialization
-    dispatch(loadUserFromStorage());
+    // Only run on client side and load user data from localStorage
+    if (typeof window !== 'undefined') {
+      dispatch(loadUserFromStorage());
+    }
   }, [dispatch]);
 
   return <>{children}</>;

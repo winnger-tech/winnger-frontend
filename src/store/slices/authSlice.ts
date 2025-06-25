@@ -50,9 +50,11 @@ export const loginRestaurant = createAsyncThunk(
         return rejectWithValue(result.message || 'Login failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data.restaurant));
+      // Store token in localStorage (only in browser)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.restaurant));
+      }
 
       return {
         user: { ...result.data.restaurant, type: 'restaurant' as const },
@@ -82,9 +84,11 @@ export const registerRestaurant = createAsyncThunk(
         return rejectWithValue(result.message || 'Registration failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data.restaurant));
+      // Store token in localStorage (only in browser)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.restaurant));
+      }
 
       return {
         user: { ...result.data.restaurant, type: 'restaurant' as const },
@@ -115,9 +119,11 @@ export const loginDriver = createAsyncThunk(
         return rejectWithValue(result.message || 'Login failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data.driver));
+      // Store token in localStorage (only in browser)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.driver));
+      }
 
       return {
         user: { ...result.data.driver, type: 'driver' as const },
@@ -147,9 +153,11 @@ export const registerDriver = createAsyncThunk(
         return rejectWithValue(result.message || 'Registration failed');
       }
 
-      // Store token in localStorage
-      localStorage.setItem('token', result.data.token);
-      localStorage.setItem('user', JSON.stringify(result.data.driver));
+      // Store token in localStorage (only in browser)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.driver));
+      }
 
       return {
         user: { ...result.data.driver, type: 'driver' as const },
@@ -165,6 +173,11 @@ export const loadUserFromStorage = createAsyncThunk(
   'auth/loadUserFromStorage',
   async (_, { rejectWithValue }) => {
     try {
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined') {
+        return rejectWithValue('Server-side rendering');
+      }
+
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
 
@@ -193,8 +206,10 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     },
     clearError: (state) => {
       state.error = null;
@@ -202,7 +217,9 @@ const authSlice = createSlice({
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-        localStorage.setItem('user', JSON.stringify(state.user));
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(state.user));
+        }
       }
     },
   },
