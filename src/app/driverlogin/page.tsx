@@ -21,7 +21,6 @@ export default function DriverLoginPage() {
     email: '',
     password: ''
   });
-  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   // Redirect to appropriate dashboard after successful login
@@ -50,43 +49,11 @@ export default function DriverLoginPage() {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-    // Clear auth error
-    if (error) {
-      dispatch(clearError());
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    }
-
-    setValidationErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
-
     try {
       const result = await dispatch(loginDriver(formData));
       
@@ -124,36 +91,29 @@ export default function DriverLoginPage() {
             <Form onSubmit={handleSubmit}>
               <InputGroup>
                 <Label>
-                  Email Address <Required>*</Required>
+                  Email Address
                 </Label>
                 <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  $hasError={!!validationErrors.email}
                   placeholder="Enter your email address"
                 />
-                {validationErrors.email && <ErrorText>{validationErrors.email}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
                 <Label>
-                  Password <Required>*</Required>
+                  Password
                 </Label>
                 <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  $hasError={!!validationErrors.password}
                   placeholder="Enter your password"
                 />
-                {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
               </InputGroup>
-
-              {/* Show Redux error */}
-              {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
 
               <ForgotPassword href="/forgot-password">
                 Forgot your password?
@@ -283,34 +243,25 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
-const Required = styled.span`
-  color: #e74c3c;
-`;
-
-const Input = styled.input<{ $hasError?: boolean }>`
+const Input = styled.input`
   padding: 1rem;
-  border: 2px solid ${props => props.$hasError ? '#e74c3c' : '#e1e1e1'};
+  border: 2px solid #e1e1e1;
   border-radius: 12px;
   font-size: 1rem;
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.3s ease;
   background: white;
+  color: #111;
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$hasError ? '#e74c3c' : '#ffc32b'};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(231, 76, 60, 0.1)' : 'rgba(255, 195, 43, 0.1)'};
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
   }
 
   &::placeholder {
     color: #999;
   }
-`;
-
-const ErrorText = styled.span`
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
 `;
 
 const ForgotPassword = styled(Link)`

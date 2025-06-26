@@ -57,10 +57,8 @@ export default function Stage1BasicInfo({
                   value={data.firstName || ''}
                   onChange={handleInputChange}
                   placeholder="Enter your first name"
-                  $hasError={!!errors.firstName}
                   readOnly
                 />
-                {errors.firstName && <ErrorText>{errors.firstName}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
@@ -71,10 +69,8 @@ export default function Stage1BasicInfo({
                   value={data.lastName || ''}
                   onChange={handleInputChange}
                   placeholder="Enter your last name"
-                  $hasError={!!errors.lastName}
                   readOnly
                 />
-                {errors.lastName && <ErrorText>{errors.lastName}</ErrorText>}
               </InputGroup>
             </InputRow>
           ) : (
@@ -86,10 +82,8 @@ export default function Stage1BasicInfo({
                 value={data.ownerName || ''}
                 onChange={handleInputChange}
                 placeholder="Enter owner name"
-                $hasError={!!errors.ownerName}
                 readOnly
               />
-              {errors.ownerName && <ErrorText>{errors.ownerName}</ErrorText>}
             </InputGroup>
           )}
 
@@ -101,10 +95,8 @@ export default function Stage1BasicInfo({
               value={data.email || ''}
               onChange={handleInputChange}
               placeholder="Enter your email address"
-              $hasError={!!errors.email}
               readOnly
             />
-            {errors.email && <ErrorText>{errors.email}</ErrorText>}
           </InputGroup>
 
           <InfoNote>
@@ -131,6 +123,7 @@ export default function Stage1BasicInfo({
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
+  padding-top: 110px;
 `;
 
 const StageCard = styled.div`
@@ -192,31 +185,25 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
-const Input = styled.input<{ $hasError?: boolean }>`
+const Input = styled.input`
   padding: 1rem;
-  border: 2px solid ${props => props.$hasError ? '#e74c3c' : '#e1e1e1'};
+  border: 2px solid #e1e1e1;
   border-radius: 12px;
   font-size: 1rem;
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.3s ease;
   background: ${props => props.readOnly ? '#f5f5f5' : 'white'};
-  color: ${props => props.readOnly ? '#999' : '#333'};
+  color: #111;
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$hasError ? '#e74c3c' : '#ffc32b'};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(231, 76, 60, 0.1)' : 'rgba(255, 195, 43, 0.1)'};
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
   }
 
   &::placeholder {
     color: #999;
   }
-`;
-
-const ErrorText = styled.span`
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
 `;
 
 const InfoNote = styled.div`

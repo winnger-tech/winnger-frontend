@@ -295,6 +295,7 @@ const Input = styled.input<{ $hasError?: boolean }>`
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.3s ease;
   background: white;
+  color: #111;
 
   &:focus {
     outline: none;

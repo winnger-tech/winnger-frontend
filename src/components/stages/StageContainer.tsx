@@ -364,11 +364,11 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 const Container = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #403E2D 0%, #2d2b1f 100%);
-  padding: 2rem;
+  padding: 110px 2rem 2rem 2rem;
   font-family: 'Space Grotesk', sans-serif;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 110px 1rem 1rem 1rem;
   }
 `;
 

@@ -60,7 +60,7 @@ const Stage5BackgroundCheck: React.FC = () => {
   const isValid = data.agreedToTerms && data.consentToCheck;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pt-28">
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">Background Check & Final Steps</h2>
         <p className="text-gray-300">

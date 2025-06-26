@@ -24,109 +24,19 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
     ...currentStageData
   });
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Real-time validation function
-  const validateField = (name: string, value: string) => {
-    switch (name) {
-      case 'phoneNumber':
-        if (!value?.trim()) {
-          return 'Phone number is required';
-        } else if (!/^\(\d{3}\) \d{3}-\d{4}$/.test(value)) {
-          return 'Please enter a valid phone number (xxx) xxx-xxxx';
-        }
-        return '';
-      
-      case 'dateOfBirth':
-        if (!value?.trim()) {
-          return 'Date of birth is required';
-        }
-        return '';
-      
-      case 'address':
-        if (!value?.trim()) {
-          return 'Address is required';
-        }
-        return '';
-      
-      case 'city':
-        if (!value?.trim()) {
-          return 'City is required';
-        }
-        return '';
-      
-      case 'province':
-        if (!value?.trim()) {
-          return 'Province is required';
-        }
-        return '';
-      
-      case 'postalCode':
-        if (!value?.trim()) {
-          return 'Postal code is required';
-        } else if (!/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(value.toUpperCase())) {
-          return 'Please enter a valid postal code (A1A 1A1)';
-        }
-        return '';
-      
-      case 'emergencyContactName':
-        if (!value?.trim()) {
-          return 'Emergency contact name is required';
-        }
-        return '';
-      
-      case 'emergencyContactPhone':
-        if (!value?.trim()) {
-          return 'Emergency contact phone is required';
-        } else if (!/^\(\d{3}\) \d{3}-\d{4}$/.test(value)) {
-          return 'Please enter a valid phone number (xxx) xxx-xxxx';
-        }
-        return '';
-      
-      default:
-        return '';
-    }
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
     
-    // Real-time validation
-    const fieldError = validateField(name, value);
-    setErrors(prev => ({ 
-      ...prev, 
-      [name]: fieldError 
-    }));
-
     // Auto-save after a short delay
     setTimeout(() => {
       actions.autoSave(2, { ...formData, [name]: value });
     }, 1000);
   };
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    // Validate all fields
-    Object.keys(formData).forEach(field => {
-      if (['phoneNumber', 'dateOfBirth', 'address', 'city', 'province', 'postalCode', 'emergencyContactName', 'emergencyContactPhone'].includes(field)) {
-        const error = validateField(field, formData[field]);
-        if (error) {
-          newErrors[field] = error;
-        }
-      }
-    });
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleNext = () => {
-    if (validateForm()) {
-      actions.updateStageData(2, formData);
-      onNext();
-    }
+    actions.updateStageData(2, formData);
+    onNext();
   };
 
   const handlePrevious = () => {
@@ -152,7 +62,7 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg pt-28">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Details</h2>
         <p className="text-gray-600">Please provide your personal information and emergency contact details.</p>
@@ -172,11 +82,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
               value={formData.phoneNumber}
               onChange={handleInputChange}
               placeholder="(xxx) xxx-xxxx"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
             />
-            {errors.phoneNumber && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
           </div>
 
           <div>
@@ -189,11 +96,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
             />
-            {errors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{errors.dateOfBirth}</p>}
           </div>
         </div>
 
@@ -212,11 +116,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                 value={formData.address}
                 onChange={handleInputChange}
                 placeholder="123 Main Street"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.address ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
               />
-              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -231,11 +132,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                   value={formData.city}
                   onChange={handleInputChange}
                   placeholder="Toronto"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.city ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
                 />
-                {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
               </div>
 
               <div>
@@ -247,9 +145,7 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                   name="province"
                   value={formData.province}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.province ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
                 >
                   {provinces.map(province => (
                     <option key={province.value} value={province.value}>
@@ -257,7 +153,6 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                     </option>
                   ))}
                 </select>
-                {errors.province && <p className="text-red-500 text-sm mt-1">{errors.province}</p>}
               </div>
 
               <div>
@@ -271,11 +166,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                   value={formData.postalCode}
                   onChange={handleInputChange}
                   placeholder="A1A 1A1"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.postalCode ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
                 />
-                {errors.postalCode && <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>}
               </div>
             </div>
           </div>
@@ -296,11 +188,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                 value={formData.emergencyContactName}
                 onChange={handleInputChange}
                 placeholder="John Doe"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.emergencyContactName ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
               />
-              {errors.emergencyContactName && <p className="text-red-500 text-sm mt-1">{errors.emergencyContactName}</p>}
             </div>
 
             <div>
@@ -314,11 +203,8 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
                 value={formData.emergencyContactPhone}
                 onChange={handleInputChange}
                 placeholder="(xxx) xxx-xxxx"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.emergencyContactPhone ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
               />
-              {errors.emergencyContactPhone && <p className="text-red-500 text-sm mt-1">{errors.emergencyContactPhone}</p>}
             </div>
           </div>
         </div>

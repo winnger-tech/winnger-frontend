@@ -173,7 +173,7 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
   const years = Array.from({ length: currentYear - 1989 }, (_, i) => currentYear - i);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg pt-28">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Vehicle Information</h2>
         <p className="text-gray-600">Please provide details about your vehicle and insurance.</p>

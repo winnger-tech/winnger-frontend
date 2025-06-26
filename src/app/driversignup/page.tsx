@@ -23,7 +23,6 @@ export default function DriverSignupPage() {
     email: '',
     password: ''
   });
-  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   // Redirect if already authenticated
@@ -52,53 +51,11 @@ export default function DriverSignupPage() {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
-    if (validationErrors[name]) {
-      setValidationErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-    // Clear Redux error
-    if (error) {
-      dispatch(clearError());
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-
-    setValidationErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      return;
-    }
-
     try {
       const result = await dispatch(registerDriver(formData));
       
@@ -137,67 +94,56 @@ export default function DriverSignupPage() {
               <InputRow>
                 <InputGroup>
                   <Label>
-                    {t('driverSignup.form.firstName')} <Required>*</Required>
+                    {t('driverSignup.form.firstName')}
                   </Label>
                   <Input
                     type="text"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    $hasError={!!validationErrors.firstName}
                     placeholder={t('driverSignup.form.firstNamePlaceholder')}
                   />
-                  {validationErrors.firstName && <ErrorText>{validationErrors.firstName}</ErrorText>}
                 </InputGroup>
 
                 <InputGroup>
                   <Label>
-                    {t('driverSignup.form.lastName')} <Required>*</Required>
+                    {t('driverSignup.form.lastName')}
                   </Label>
                   <Input
                     type="text"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    $hasError={!!validationErrors.lastName}
                     placeholder={t('driverSignup.form.lastNamePlaceholder')}
                   />
-                  {validationErrors.lastName && <ErrorText>{validationErrors.lastName}</ErrorText>}
                 </InputGroup>
               </InputRow>
 
               <InputGroup>
                 <Label>
-                  {t('driverSignup.form.email')} <Required>*</Required>
+                  {t('driverSignup.form.email')}
                 </Label>
                 <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  $hasError={!!validationErrors.email}
                   placeholder={t('driverSignup.form.emailPlaceholder')}
                 />
-                {validationErrors.email && <ErrorText>{validationErrors.email}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
                 <Label>
-                  {t('driverSignup.form.password')} <Required>*</Required>
+                  {t('driverSignup.form.password')}
                 </Label>
                 <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  $hasError={!!validationErrors.password}
                   placeholder={t('driverSignup.form.passwordPlaceholder')}
                 />
-                {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
               </InputGroup>
-
-              {/* Show Redux error */}
-              {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
 
               <SubmitButton 
                 type="submit" 
@@ -333,34 +279,25 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
-const Required = styled.span`
-  color: #e74c3c;
-`;
-
-const Input = styled.input<{ $hasError?: boolean }>`
+const Input = styled.input`
   padding: 1rem;
-  border: 2px solid ${props => props.$hasError ? '#e74c3c' : '#e1e1e1'};
+  border: 2px solid #e1e1e1;
   border-radius: 12px;
   font-size: 1rem;
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.3s ease;
   background: white;
+  color: #111;
 
   &:focus {
     outline: none;
-    border-color: ${props => props.$hasError ? '#e74c3c' : '#ffc32b'};
-    box-shadow: 0 0 0 3px ${props => props.$hasError ? 'rgba(231, 76, 60, 0.1)' : 'rgba(255, 195, 43, 0.1)'};
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
   }
 
   &::placeholder {
     color: #999;
   }
-`;
-
-const ErrorText = styled.span`
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
 `;
 
 const SubmitButton = styled.button<{ $loading?: boolean }>`
