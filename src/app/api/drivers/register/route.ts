@@ -4,7 +4,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/drivers/register`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/drivers/register`, {
       method: 'POST',
       body: formData
     });

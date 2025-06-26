@@ -13,12 +13,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ driverId, onSuccess, o
   const elements = useElements();
   const [clientSecret, setClientSecret] = useState('');
   const [processing, setProcessing] = useState(false);
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     // Create payment intent when component mounts
     
-    fetch(`${API_BASE}/api/drivers/create-payment-intent`, {
+    fetch(`${API_BASE}/drivers/create-payment-intent`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ driverId }),
@@ -61,7 +61,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({ driverId, onSuccess, o
       setProcessing(false);
     } else if (paymentIntent?.status === 'succeeded') {
       // Confirm payment on backend
-      fetch(`${API_BASE}/api/drivers/confirm-payment`, {
+      fetch(`${API_BASE}/drivers/confirm-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

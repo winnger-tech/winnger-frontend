@@ -2,12 +2,15 @@
   "navigation": {
     "home": "首页",
     "about": "关于我们",
-    "howItWorks": "工作原理",
+    "howItWorks": "如何运作",
     "faq": "常见问题",
     "contact": "联系我们",
     "signup": "注册",
+    "signin": "登录",
     "driverRegister": "司机注册",
-    "restaurantRegister": "餐厅注册"
+    "restaurantRegister": "餐厅注册",
+    "driverLogin": "司机登录",
+    "restaurantLogin": "餐厅登录"
   },
   "footer": {
     "email": "电子邮件",
@@ -47,379 +50,70 @@
     "driver": {
       "title": "司机如何使用平台",
       "earn": "按您的条件赚钱 – 灵活的工作时间和快速付款。",
-      "setup": "一次性设置 – 只需小额费用，您就可以开始。",
-      "support": "合作伙伴支持 – 我们会在每一步为您提供支持。"
-    },
-    "restaurant": {
-      "title": "餐厅如何使用平台",
-      "expand": "扩大您的覆盖范围 – 为更多客户提供配送服务。",
-      "onboarding": "快速入职 – 简单的表单和文档上传。",
-      "grow": "与我们共同成长 – 受益于我们的营销和物流网络。"
+      "setup": "一次性设置 – 只需小额费用，您就可以开始。"
     }
   },
-   "whyWinggur": {
-   "title": "为什么选择 Winggur？",
-    "features": {
-      "flexibility": "灵活的工作时间",
-      "instantPay": "即时收入",
-      "community": "司机社区",
-      "support": "全天候司机支持",
-      "tips": "保留100%的小费",
-      "noExperience": "无需经验"
-    }
-  },
-  "howItWorks": {
-    "title": "如何运作",
-    "description": "只需3个简单步骤即可开始。无论您是司机还是餐厅，加入我们的平台都是快速、安全和无忧的。",
-    "step1": {
-  "title": "步骤 1：填写简单表格",
-  "description": "提供您的详细信息和所需文件"
-},
-"step2": {
-  "title": "步骤 2：一次性设置",
-  "description": "确保您的注册已验证"
-},
-"step3": {
-  "title": "步骤 3：管理员审批",
-  "description": "审批通过后，您将在24至48小时内收到入职确认"
-},
-    "cta": {
-      "title": "准备好开始了吗？",
-      "description": "加入今天预注册的数百名司机和餐厅。"
-    },
-    "forDrivers": {
-      "title": "司机指南"
-    },
-    "forRestaurants": {
-      "title": "餐厅指南"
-    }
-  },
-  "faq": {
-    "title": "常见问题",
-    "question1": "谁可以在这个平台上注册？",
-    "answer1": "我们的平台专为希望灵活赚钱的配送司机和希望扩大配送范围的餐厅设计。",
-    "question2": "注册时需要上传哪些文件？",
-    "answer2": "司机通常需要提供有效的身份证、驾驶执照和车辆详情。餐厅可能需要营业执照和菜单信息。",
-    "question3": "是否有注册费？",
-    "answer3": "是的，有一笔一次性设置费，帮助我们验证您的详细信息并安全地为您提供入职服务。之后没有隐藏费用！",
-    "question4": "审批过程需要多长时间？",
-    "answer4": "一旦您提交了表格和付款，我们的管理团队将在24至48小时内审核并批准您的注册。",
-    "question5": "我拥有多家餐厅。我可以全部注册吗？",
-    "answer5": "当然可以！您可以单独注册每个分店，或联系我们的支持团队获取批量入职选项。",
-    "question6": "入职后您提供什么样的支持？",
-    "answer6": "我们提供合作伙伴支持，包括营销帮助、物流集成以及通过电话和电子邮件的持续协助。"
-  },
-  "contact": {
-    "title": "联系我们",
-    "description": "有问题吗？请联系我们！我们随时为您提供帮助。填写下面的表格，我们会尽快回复您。",
-    "name": "姓名",
-    "namePlaceholder": "姓名",
-    "email": "电子邮件*",
-    "emailPlaceholder": "电子邮件",
-    "message": "留言*",
-    "messagePlaceholder": "留言",
-    "sendMessage": "发送留言"
-  },
-  "driverRegistration": {
-    "title": "司机合作伙伴注册",
-    "sections": {
-      "personalInfo": "个人信息",
-      "addressInfo": "地址信息",
-      "vehicleInfo": "车辆信息",
-      "vehicleDocuments": "车辆文件",
-      "documentsLicenses": "证件和执照",
-      "driversLicense": "驾驶执照",
-      "backgroundWorkEligibility": "背景调查和工作资格",
-      "bankingConsent": "银行信息和同意书"
-    },
-    "labels": {
+  "driverSignup": {
+    "title": "加入成为司机",
+    "subtitle": "灵活工作时间，即时收入",
+    "form": {
       "firstName": "名字",
-      "middleName": "中间名",
       "lastName": "姓氏",
-      "dateOfBirth": "出生日期",
-      "email": "电子邮件",
+      "email": "电子邮箱",
       "password": "密码",
-      "cellNumber": "手机号码",
-      "streetNameNumber": "街道名称和门牌号",
-      "appUniteNumber": "公寓/单元号",
-      "city": "城市",
-      "province": "省份",
-      "postalCode": "邮政编码",
-      "profilePhoto": "个人照片",
-      "vehicleType": "车辆类型",
-      "vehicleMake": "车辆品牌",
-      "vehicleModel": "车辆型号",
-      "yearOfManufacture": "制造年份",
-      "vehicleColor": "车辆颜色",
-      "vehicleLicensePlate": "车牌号",
-      "vehicleRegistration": "车辆登记证",
-      "vehicleInsurance": "车辆保险",
-      "driversLicenseFront": "驾驶执照（正面）",
-      "driversLicenseBack": "驾驶执照（背面）",
-      "driversLicenseClass": "驾驶执照等级",
-      "drivingAbstractDate": "驾驶记录日期",
-      "drivingAbstract": "驾驶记录",
-      "criminalBackgroundCheck": "犯罪背景调查",
-      "workEligibility": "工作资格文件",
-      "workEligibilityType": "工作资格类型",
-      "sinNumber": "社会保险号",
-      "sinCard": "社会保险卡",
-      "transitNumber": "转账号码",
-      "institutionNumber": "机构号码",
-      "accountNumber": "账户号码"
+      "firstNamePlaceholder": "请输入您的名字",
+      "lastNamePlaceholder": "请输入您的姓氏",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "passwordPlaceholder": "创建强密码（至少8个字符）",
+      "submitButton": "创建账户",
+      "submittingButton": "正在创建账户...",
+      "loginPrompt": "已有账户？",
+      "loginLink": "登录"
     },
-    "placeholders": {
-      "firstName": "输入您的名字",
-      "middleName": "输入您的中间名（可选）",
-      "lastName": "输入您的姓氏",
-      "email": "输入您的电子邮件",
-      "password": "输入安全密码",
-      "cellNumber": "+1-XXX-XXX-XXXX",
-      "streetNameNumber": "输入街道地址",
-      "appUniteNumber": "输入公寓号码（可选）",
-      "city": "输入城市名称",
-      "postalCode": "A1A 1A1",
-      "vehicleMake": "例如：丰田、本田",
-      "vehicleModel": "例如：凯美瑞、思域",
-      "yearOfManufacture": "YYYY",
-      "vehicleColor": "输入车辆颜色",
-      "vehicleLicensePlate": "输入车牌号",
-      "driversLicenseClassOntario": "输入 G 或 G2",
-      "driversLicenseClassOther": "输入 5 级",
-      "sinNumber": "输入9位社会保险号",
-      "transitNumber": "输入3位转账号码",
-      "institutionNumber": "输入5位机构号码",
-      "accountNumber": "输入7-12位账户号码"
+    "benefits": {
+      "title": "为什么选择 Winngur 司机？",
+      "earn": "自主安排工作时间",
+      "instant": "每日即时付款",
+      "vehicle": "使用任何车辆",
+      "app": "易用的司机应用"
     },
-    "common": {
-      "clickToUpload": "点击上传",
-      "uploadImage": "上传图片",
-      "digits": "位数字"
-    },
-    "buttons": {
-      "back": "返回",
-      "nextStep": "下一步",
-      "proceedToPayment": "进行支付"
-    },
-    "paymentInfo": {
-      "title": "注册费用",
-      "amount": "25.00 加元",
-      "description": "一次性注册费用，用于背景调查和账户设置"
-    },
-    "consent": {
-      "termsAndConditions": "我同意条款和条件",
-      "backgroundScreening": "我同意进行背景调查",
-      "privacyPolicy": "我同意隐私政策",
-      "electronicCommunication": "我同意接收电子通讯"
-    },
-    "errors": {
+    "validation": {
       "firstNameRequired": "请输入名字",
       "lastNameRequired": "请输入姓氏",
-      "emailRequired": "请输入电子邮件",
-      "invalidEmail": "电子邮件格式无效",
+      "emailRequired": "请输入电子邮箱",
+      "emailInvalid": "请输入有效的电子邮箱",
       "passwordRequired": "请输入密码",
-      "passwordLength": "密码至少需要6个字符",
-      "cellNumberRequired": "请输入手机号码",
-      "invalidCellNumber": "手机号码格式无效",
-      "dateOfBirthRequired": "请输入出生日期",
-      "ageRestriction": "您必须年满18岁",
-      "streetAddressRequired": "请输入街道地址",
-      "cityRequired": "请输入城市",
-      "provinceRequired": "请选择省份",
-      "postalCodeRequired": "请输入邮政编码",
-      "invalidPostalCode": "邮政编码格式无效",
-      "profilePhotoRequired": "请上传个人照片",
-      "vehicleTypeRequired": "请选择车辆类型",
-      "vehicleMakeRequired": "请输入车辆品牌",
-      "vehicleModelRequired": "请输入车辆型号",
-      "yearRequired": "请输入年份",
-      "yearTooOld": "车辆太旧。必须是1990年或之后的车辆。",
-      "yearTooNew": "年份无效。不能是未来年份。",
-      "vehicleAgeRestriction": "送餐服务的车辆不能超过25年。",
-      "vehicleColorRequired": "请输入车辆颜色",
-      "licensePlateRequired": "请输入车牌号",
-      "invalidLicensePlate": "车牌号格式无效",
-      "vehicleRegistrationRequired": "请上传车辆登记证",
-      "vehicleInsuranceRequired": "请上传车辆保险",
-      "driversLicenseFrontRequired": "请上传驾驶执照正面",
-      "driversLicenseBackRequired": "请上传驾驶执照背面",
-      "licenseClassRequired": "请输入驾驶执照等级",
-      "ontarioLicenseClass": "安大略省必须是G或G2级",
-      "otherProvinceLicenseClass": "必须是5级驾照",
-      "drivingAbstractDateRequired": "请输入驾驶记录日期",
-      "drivingAbstractDateRecency": "驾驶记录必须在3个月内",
-      "drivingAbstractRequired": "请上传驾驶记录",
-      "criminalBackgroundCheckRequired": "请上传犯罪背景调查",
-      "workEligibilityRequired": "请上传工作资格文件",
-      "workEligibilityTypeRequired": "请选择工作资格类型",
-      "sinNumberRequired": "请输入社会保险号",
-      "invalidSinNumber": "社会保险号格式无效",
-      "transitNumberRequired": "请输入转账号码",
-      "invalidTransitNumber": "转账号码格式无效",
-      "institutionNumberRequired": "请输入机构号码",
-      "invalidInstitutionNumber": "机构号码格式无效",
-      "accountNumberRequired": "请输入账户号码",
-      "invalidAccountNumber": "账户号码格式无效",
-      "consentRequired": "您必须同意所有条款",
-      "submissionFailed": "注册提交失败。请重试。"
+      "passwordMinLength": "密码至少需要8个字符"
     }
   },
-  "registration": {
-    "restaurant": {
-      "title": "餐厅合作伙伴注册",
-      "steps": {
-        "ownerInfo": "所有者和企业信息",
-        "documents": "文件和验证",
-        "menu": "菜单设置",
-        "payment": "支付信息"
-      },
-      "ownerInfo": {
-        "ownerName": "所有者姓名",
-        "email": "所有者电子邮件",
-        "phone": "所有者电话",
-        "identificationType": "身份证明类型"
-      },
-      "businessInfo": {
-        "title": "企业详情",
-        "restaurantName": "餐厅名称",
-        "businessAddress": "企业地址",
-        "city": "城市",
-        "province": "省份",
-        "postalCode": "邮政编码"
-      },
-      "bankingInfo": {
-        "title": "银行信息",
-        "transitNumber": "转账号码",
-        "institutionNumber": "机构号码",
-        "accountNumber": "账户号码"
-      },
-      "taxInfo": {
-        "title": "税务信息",
-        "gstNumber": "GST号码",
-        "hstNumber": "HST号码",
-        "pstNumber": "PST号码",
-        "qstNumber": "QST号码"
-      },
-      "documents": {
-        "title": "所需文件",
-        "businessDocument": "企业文件",
-        "fssai": "FSSAI证书",
-        "gst": "GST证书",
-        "pan": "PAN卡",
-        "businessLicense": "营业执照",
-        "voidCheque": "作废支票"
-      },
-      "menu": {
-        "title": "菜单设置",
-        "itemName": "项目名称",
-        "price": "价格",
-        "description": "描述"
-      },
-      "hours": {
-        "title": "营业时间",
-        "openTime": "开始时间",
-        "closeTime": "结束时间",
-        "closed": "休息"
-      },
-      "payment": {
-        "title": "支付",
-        "description": "支付一次性设置费用完成注册",
-        "button": "提交并支付"
-      },
-      "common": {
-      "digits": "数字",
-      "clickToUpload": "点击上传"
+  "restaurantSignup": {
+    "title": "与 Winngur 合作",
+    "subtitle": "扩大配送范围，发展您的业务",
+    "form": {
+      "name": "餐厅名称",
+      "email": "电子邮箱",
+      "password": "密码",
+      "namePlaceholder": "请输入您的餐厅名称",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "passwordPlaceholder": "创建强密码（至少8个字符）",
+      "submitButton": "创建账户",
+      "submittingButton": "正在创建账户...",
+      "loginPrompt": "已有账户？",
+      "loginLink": "登录"
     },
-    "errors": {
-      "ownerNameRequired": "必须填写所有者姓名",
-      "emailRequired": "必须填写所有者邮箱",
-      "phoneRequired": "必须填写电话",
-      "restaurantNameRequired": "必须填写餐厅名称",
-      "businessAddressRequired": "必须填写企业地址",
-      "cityRequired": "必须填写城市",
-      "postalCodeRequired": "必须填写邮政编码",
-      "transitNumberRequired": "必须填写转账号码",
-      "institutionNumberRequired": "必须填写机构编号",
-      "accountNumberRequired": "必须填写账户号码",
-      "hstNumberRequired": "必须填写HST编号",
-      "businessLicenseRequired": "必须上传营业执照",
-      "voidChequeRequired": "必须上传作废支票",
-      "required": "此字段为必填项",
-      "invalidEmail": "邮箱格式无效",
-      "invalidPhone": "电话格式无效",
-      "invalidPostal": "邮政编码格式无效"
+    "benefits": {
+      "title": "为什么选择与 Winngur 合作？",
+      "reach": "扩大配送覆盖范围",
+      "commission": "有竞争力的佣金费率",
+      "support": "24/7 专属客服支持",
+      "dashboard": "实时数据分析仪表板"
     },
-      "placeholders": {
-        "ownerName": "输入所有者全名",
-        "email": "输入所有者电子邮件",
-        "phone": "输入所有者电话号码",
-        "restaurantName": "输入餐厅名称",
-        "businessAddress": "输入企业地址",
-        "city": "输入城市名称",
-        "postalCode": "输入邮政编码（例如：A1A 1A1）"
-      },
-      "identificationTypes": {
-      "licence": "营业执照",
-      "passport": "护照",
-      "pr_card": "永久居民卡",
-      "medical_card": "医疗卡",
-      "provincial_id": "省身份证",
-      "driverLicence": "驾照",
-      "healthCard": "健康卡"
-    },
-      "buttons": {
-        "nextStep": "下一步",
-        "back": "返回",
-        "submit": "提交"
-      }
-    },
-    "driver": {
-      "title": "司机合作伙伴注册",
-      "description": "请填写以下表格以开始您的注册流程。"
+    "validation": {
+      "nameRequired": "请输入餐厅名称",
+      "emailRequired": "请输入电子邮箱",
+      "emailInvalid": "请输入有效的电子邮箱",
+      "passwordRequired": "请输入密码",
+      "passwordMinLength": "密码至少需要8个字符"
     }
-  },
-  "plans": {
-  "heading": "餐厅订阅计划",
-  "subheading": "选择适合您业务和曝光目标的计划。",
-  "lite": {
-    "title": "Winngur Lite",
-    "price": "10% – 18% 佣金",
-    "description": "基础上架，曝光有限，无推广支持",
-    "features": [
-      "Winngur Meals 应用中的基础上架",
-      "配送佣金 18%，自取手续费 10%",
-      "有曝光但无排名提升",
-      "每周结算",
-      "访问商户仪表盘",
-      "无市场营销或广告支持"
-    ]
-  },
-  "pro": {
-    "title": "Winngur Pro",
-    "price": "10% – 24% 佣金",
-    "description": "提升曝光，享受 Winngur 营销支持",
-    "features": [
-      "排名高于 Lite 计划",
-      "配送佣金 24%，自取手续费 10%",
-      "营销工具：应用内促销、买一送一",
-      "出现在“您附近的热门”中",
-      "参与忠诚度促销计划",
-      "接入 Winngur 配送合作伙伴",
-      "订单洞察和分析数据"
-    ]
-  },
-  "proPlus": {
-    "title": "Winngur Pro Plus",
-    "price": "10% – 27% 佣金",
-    "description": "最高排名，完整推广工具",
-    "features": [
-      "始终位列顶部推荐",
-      "配送佣金 27%，自取手续费 10%",
-      "完整的市场营销与推广工具",
-      "所有忠诚计划功能",
-      "优先接入配送合作伙伴",
-      "完整的数据分析与性能工具"
-    ]
   }
 }
-} 

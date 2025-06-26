@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/restaurants/create-payment-intent`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/restaurants/create-payment-intent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

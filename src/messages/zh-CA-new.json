@@ -1,0 +1,78 @@
+{
+  "navigation": {
+    "home": "首页",
+    "about": "关于我们",
+    "howItWorks": "如何运作",
+    "faq": "常见问题",
+    "contact": "联系我们",
+    "signup": "注册",
+    "signin": "登录",
+    "driverRegister": "司机注册",
+    "restaurantRegister": "餐厅注册",
+    "driverLogin": "司机登录",
+    "restaurantLogin": "餐厅登录"
+  },
+  "driverSignup": {
+    "title": "加入成为司机",
+    "subtitle": "灵活工作时间，即时收入",
+    "form": {
+      "firstName": "名字",
+      "lastName": "姓氏", 
+      "email": "电子邮箱",
+      "password": "密码",
+      "firstNamePlaceholder": "请输入您的名字",
+      "lastNamePlaceholder": "请输入您的姓氏",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "passwordPlaceholder": "创建强密码（至少8个字符）",
+      "submitButton": "创建账户",
+      "submittingButton": "正在创建账户...",
+      "loginPrompt": "已有账户？",
+      "loginLink": "登录"
+    },
+    "benefits": {
+      "title": "为什么选择 Winngur 司机？",
+      "earn": "自主安排工作时间",
+      "instant": "每日即时付款",
+      "vehicle": "使用任何车辆",
+      "app": "易用的司机应用"
+    },
+    "validation": {
+      "firstNameRequired": "请输入名字",
+      "lastNameRequired": "请输入姓氏",
+      "emailRequired": "请输入电子邮箱",
+      "emailInvalid": "请输入有效的电子邮箱",
+      "passwordRequired": "请输入密码",
+      "passwordMinLength": "密码至少需要8个字符"
+    }
+  },
+  "restaurantSignup": {
+    "title": "与 Winngur 合作",
+    "subtitle": "扩大配送范围，发展您的业务",
+    "form": {
+      "name": "餐厅名称",
+      "email": "电子邮箱",
+      "password": "密码",
+      "namePlaceholder": "请输入您的餐厅名称",
+      "emailPlaceholder": "请输入您的电子邮箱",
+      "passwordPlaceholder": "创建强密码（至少8个字符）",
+      "submitButton": "创建账户",
+      "submittingButton": "正在创建账户...",
+      "loginPrompt": "已有账户？",
+      "loginLink": "登录"
+    },
+    "benefits": {
+      "title": "为什么选择与 Winngur 合作？",
+      "reach": "扩大配送覆盖范围",
+      "commission": "有竞争力的佣金费率",
+      "support": "24/7 专属客服支持",
+      "dashboard": "实时数据分析仪表板"
+    },
+    "validation": {
+      "nameRequired": "请输入餐厅名称",
+      "emailRequired": "请输入电子邮箱",
+      "emailInvalid": "请输入有效的电子邮箱",
+      "passwordRequired": "请输入密码",
+      "passwordMinLength": "密码至少需要8个字符"
+    }
+  }
+}

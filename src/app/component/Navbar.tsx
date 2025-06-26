@@ -4,9 +4,12 @@ import styled, { keyframes } from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "../../utils/i18n";
 import LanguageSelector from "./LanguageSelector";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { logout, loadUserFromStorage } from "../../store/slices/authSlice";
 
 const fadeSlideDown = keyframes`
   0% { opacity: 0; transform: translateY(-20px); }
@@ -16,9 +19,21 @@ const fadeSlideDown = keyframes`
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
+  const [signinOpen, setSigninOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   const dropdownRef = useRef(null);
+  const signinDropdownRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    // Load user from storage on mount
+    dispatch(loadUserFromStorage());
+  }, [dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,10 +43,45 @@ const Navbar = () => {
       ) {
         setSignupOpen(false);
       }
+      if (
+        signinDropdownRef.current &&
+        !(signinDropdownRef.current as HTMLElement).contains(event.target as Node)
+      ) {
+        setSigninOpen(false);
+      }
+      if (
+        userMenuRef.current &&
+        !(userMenuRef.current as HTMLElement).contains(event.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setUserMenuOpen(false);
+    router.push('/');
+  };
+
+  const handleDashboard = () => {
+    if (user?.type === 'restaurant') {
+      if (user.isRegistrationComplete) {
+        router.push('/restaurant-dashboard');
+      } else {
+        router.push('/restaurant-dashboard-staged');
+      }
+    } else if (user?.type === 'driver') {
+      if (user.isRegistrationComplete) {
+        router.push('/driver-dashboard');
+      } else {
+        router.push('/driver-dashboard-staged');
+      }
+    }
+    setUserMenuOpen(false);
+  };
 
   return (
     <Nav
@@ -89,8 +139,10 @@ const Navbar = () => {
                   </motion.a>
                 ))}
 
-                <Link href="/driver-registration" onClick={() => setMenuOpen(false)}>{t("navigation.driverRegister")}</Link>
-                <Link href="/restaurant-registration" onClick={() => setMenuOpen(false)}>{t("navigation.restaurantRegister")}</Link>
+                <Link href="/driversignup" onClick={() => setMenuOpen(false)}>{t("navigation.driverRegister")}</Link>
+                <Link href="/resturantsignup" onClick={() => setMenuOpen(false)}>{t("navigation.restaurantRegister")}</Link>
+                <Link href="/driverlogin" onClick={() => setMenuOpen(false)}>{t("navigation.driverLogin")}</Link>
+                <Link href="/restaurantlogin" onClick={() => setMenuOpen(false)}>{t("navigation.restaurantLogin")}</Link>
               </NavMenu>
             </MotionRightSection>
           )}
@@ -106,28 +158,80 @@ const Navbar = () => {
             <NavItem href="#how-it-works">{t("navigation.howItWorks")}</NavItem>
             <NavItem href="#faqs">{t("navigation.faq")}</NavItem>
 
-            <DropdownWrapper ref={dropdownRef}>
-              <SignupButton onClick={() => setSignupOpen(!signupOpen)}>
-                {t("navigation.signup")}
-              </SignupButton>
-              <AnimatePresence>
-                {signupOpen && (
-                  <DropdownMenu
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Link href="/driver-registration" onClick={() => setSignupOpen(false)}>
-                      {t("navigation.driverRegister")}
-                    </Link>
-                    <Link href="/restaurant-registration" onClick={() => setSignupOpen(false)}>
-                      {t("navigation.restaurantRegister")}
-                    </Link>
-                  </DropdownMenu>
-                )}
-              </AnimatePresence>
-            </DropdownWrapper>
+            {isAuthenticated ? (
+              // Authenticated user menu
+              <DropdownWrapper ref={userMenuRef}>
+                <UserButton onClick={() => setUserMenuOpen(!userMenuOpen)}>
+                  {user?.ownerName || 'User'}
+                </UserButton>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <DropdownMenu
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <DropdownItem onClick={handleDashboard}>
+                        Dashboard
+                      </DropdownItem>
+                      <DropdownItem onClick={handleLogout}>
+                        Logout
+                      </DropdownItem>
+                    </DropdownMenu>
+                  )}
+                </AnimatePresence>
+              </DropdownWrapper>
+            ) : (
+              // Non-authenticated user buttons
+              <>
+                <DropdownWrapper ref={dropdownRef}>
+                  <SignupButton onClick={() => setSignupOpen(!signupOpen)}>
+                    {t("navigation.signup")}
+                  </SignupButton>
+                  <AnimatePresence>
+                    {signupOpen && (
+                      <DropdownMenu
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link href="/driversignup" onClick={() => setSignupOpen(false)}>
+                          {t("navigation.driverRegister")}
+                        </Link>
+                        <Link href="/resturantsignup" onClick={() => setSignupOpen(false)}>
+                          {t("navigation.restaurantRegister")}
+                        </Link>
+                      </DropdownMenu>
+                    )}
+                  </AnimatePresence>
+                </DropdownWrapper>
+
+                <DropdownWrapper ref={signinDropdownRef}>
+                  <SigninButton onClick={() => setSigninOpen(!signinOpen)}>
+                    {t("navigation.signin")}
+                  </SigninButton>
+                  <AnimatePresence>
+                    {signinOpen && (
+                      <DropdownMenu
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link href="/driverlogin" onClick={() => setSigninOpen(false)}>
+                          {t("navigation.driverLogin")}
+                        </Link>
+                        <Link href="/restaurantlogin" onClick={() => setSigninOpen(false)}>
+                          {t("navigation.restaurantLogin")}
+                        </Link>
+                      </DropdownMenu>
+                    )}
+                  </AnimatePresence>
+                </DropdownWrapper>
+              </>
+            )}
           </NavMenu>
         </DesktopRightSection>
       </NavContainer>
@@ -158,6 +262,22 @@ const SignupButton = styled.button`
   }
 `;
 
+const SigninButton = styled.button`
+  background-color: transparent;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: 2px solid #ffc32b;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #ffc32b;
+    color: black;
+  }
+`;
+
 const DropdownMenu = styled(motion.div)`
   position: absolute;
   top: 110%;
@@ -182,6 +302,43 @@ const DropdownMenu = styled(motion.div)`
     &:hover {
       background-color: #f6f6f6;
     }
+  }
+`;
+
+const UserButton = styled.button`
+  background-color: #403E2D;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: 2px solid #ffc32b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background-color: #ffc32b;
+    color: #403E2D;
+  }
+`;
+
+const DropdownItem = styled.button`
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background-color: #f6f6f6;
   }
 `;
 
