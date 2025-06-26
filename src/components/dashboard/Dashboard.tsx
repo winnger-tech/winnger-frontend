@@ -224,9 +224,11 @@ export default function Dashboard({ userType }: DashboardProps) {
 
 // Styled Components
 const Container = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 110px 2rem 2rem 2rem;
   min-height: 100vh;
   background: linear-gradient(135deg, #403E2D 0%, #2d2b1f 100%);
-  padding: 2rem;
   font-family: 'Space Grotesk', sans-serif;
 
   @media (max-width: 768px) {

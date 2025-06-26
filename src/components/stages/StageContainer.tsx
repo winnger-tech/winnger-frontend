@@ -36,6 +36,9 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [validationErrors, setValidationErrors] = useState<any>({});
 
+  // Store backend requiredFields for current stage
+  const [requiredFields, setRequiredFields] = useState<string[]>([]);
+
   const currentStage = stageId || parseInt((params?.stage as string) || '1') || 1;
 
   console.log('🎯 StageContainer Debug:', {
@@ -62,6 +65,38 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       }
     }, 2000); // Auto-save after 2 seconds of inactivity
   }, [currentStage, actions]);
+
+  // Fetch requiredFields from backend profile
+  const fetchRequiredFields = useCallback(async () => {
+    try {
+      const profile = await StageService.getDashboard();
+      if (profile?.data?.nextStage?.requiredFields) {
+        setRequiredFields(profile.data.nextStage.requiredFields);
+      } else {
+        setRequiredFields([]);
+      }
+    } catch {
+      setRequiredFields([]);
+    }
+  }, []);
+
+  // Fetch requiredFields on mount and when currentStage changes
+  useEffect(() => {
+    fetchRequiredFields();
+  }, [fetchRequiredFields, currentStage]);
+
+  // Auto-advance if all backend required fields are filled
+  useEffect(() => {
+    if (!loading && stageData && requiredFields.length > 0) {
+      const allFilled = requiredFields.every((field: string) => {
+        const value = stageData[field];
+        return value !== undefined && value !== null && value !== '';
+      });
+      if (allFilled && currentStage < state.totalStages) {
+        router.replace(`/${userType}-registration-staged/stage/${currentStage + 1}`);
+      }
+    }
+  }, [loading, stageData, requiredFields, currentStage, state.totalStages, router, userType]);
 
   // Load stage data
   const loadStageData = useCallback(async () => {
@@ -137,8 +172,9 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     try {
       await actions.updateStageData(currentStage, data);
       setShowSaveToast(true);
-      
-      // Navigate to next stage or dashboard
+      // Fetch latest profile to get new registrationStage and requiredFields
+      await fetchRequiredFields();
+      // Only navigate if no errors
       const nextStage = currentStage + 1;
       if (nextStage <= state.progress.totalStages) {
         setTimeout(() => {
@@ -155,6 +191,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       } else {
         setError(error.message || 'Failed to save stage data');
       }
+      // Do NOT navigate if there are errors
     } finally {
       setSaving(false);
     }
@@ -364,11 +401,11 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 const Container = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #403E2D 0%, #2d2b1f 100%);
-  padding: 2rem;
+  padding: 110px 2rem 2rem 2rem;
   font-family: 'Space Grotesk', sans-serif;
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 110px 1rem 1rem 1rem;
   }
 `;
 

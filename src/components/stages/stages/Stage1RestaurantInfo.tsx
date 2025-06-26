@@ -228,7 +228,7 @@ export default function Stage1RestaurantInfo({
 const StageContainer = styled(motion.div)`
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 6rem 2rem 2rem 2rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -291,6 +291,7 @@ const Input = styled.input.withConfig({
   border: 2px solid ${props => props.hasError ? '#ef4444' : '#e5e7eb'};
   border-radius: 8px;
   font-size: 1rem;
+  color: #111;
   transition: border-color 0.2s ease;
 
   &:focus {

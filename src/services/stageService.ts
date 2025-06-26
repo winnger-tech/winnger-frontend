@@ -24,12 +24,12 @@ class StageService {
     this.userType = type;
   }
 
-  // Get dashboard data
-  async getDashboard(): Promise<DashboardResponse> {
+  // Get dashboard data (profile)
+  async getDashboard(): Promise<any> {
     if (!this.userType) {
       throw new Error('User type not set');
     }
-    return ApiService.get<DashboardResponse>(`/${this.userType}s-staged/dashboard`);
+    return ApiService.get(`/${this.userType}s-staged/profile`);
   }
 
   // Get specific stage data
@@ -45,10 +45,8 @@ class StageService {
     if (!this.userType) {
       throw new Error('User type not set');
     }
-    return ApiService.put(`/${this.userType}s-staged/update-specific-stage`, {
-      stage,
-      data
-    });
+    // Only send the data for the current stage
+    return ApiService.put(`/${this.userType}s-staged/update-stage`, data);
   }
 
   // Get user profile
