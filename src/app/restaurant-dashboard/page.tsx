@@ -4,107 +4,134 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { logout, loadUserFromStorage } from '../../store/slices/authSlice';
-import { AuthGuard } from '../../components/AuthGuard';
+import { useAppSelector } from '../../store/hooks';
+import { useDashboardStats } from '../../hooks/useApi';
 
 export default function RestaurantDashboard() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  
+  // Fetch dashboard stats
+  const { data: stats } = useDashboardStats();
 
+  // Handle authentication redirect
   useEffect(() => {
-    // Load user data on mount
-    dispatch(loadUserFromStorage());
-  }, [dispatch]);
+    if (!isAuthenticated) {
+      router.push('/restaurantlogin');
+    }
+  }, [isAuthenticated, router]);
 
   const handleLogout = () => {
-    dispatch(logout());
+    // Clear auth data and redirect
+    localStorage.removeItem('winngr_auth_token');
+    localStorage.removeItem('winngr_refresh_token');
+    localStorage.removeItem('winngr_user_data');
+    localStorage.removeItem('winngr_token_expiry');
     router.push('/');
+    window.location.reload(); // Force reload to clear state
   };
 
   const handleCompleteRegistration = () => {
-    router.push('/restaurant-registration');
+    router.push('/restaurant-dashboard-staged');
   };
 
+  // Mock stats if API data is not available
+  const displayStats = stats || {
+    ordersToday: 0,
+    totalRevenue: 0,
+    activeMenuItems: 0,
+    rating: 5.0
+  };
+
+  // Don't render if not authenticated
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
   return (
-    <AuthGuard>
-      <Container>
-        <Header>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <Title>Restaurant Dashboard</Title>
-            <Subtitle>Welcome back, {user?.ownerName}!</Subtitle>
-          </motion.div>
-          
-          <LogoutButton onClick={handleLogout}>
-            Logout
-          </LogoutButton>
-        </Header>
+    <Container>
+      <Header>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Title>Restaurant Dashboard</Title>
+          <Subtitle>Welcome back, {user?.ownerName}!</Subtitle>
+        </motion.div>
+        
+        <LogoutButton onClick={handleLogout}>
+          Logout
+        </LogoutButton>
+      </Header>
 
-        <MainContent>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <WelcomeCard>
-              <CardTitle>Account Status</CardTitle>
-              <StatusInfo>
-                <StatusItem>
-                  <StatusLabel>Registration Stage:</StatusLabel>
-                  <StatusValue>{user?.registrationStage || 1}</StatusValue>
-                </StatusItem>
-                <StatusItem>
-                  <StatusLabel>Registration Complete:</StatusLabel>
-                  <StatusBadge $complete={user?.isRegistrationComplete || false}>
-                    {user?.isRegistrationComplete ? 'Complete' : 'Incomplete'}
-                  </StatusBadge>
-                </StatusItem>
-                <StatusItem>
-                  <StatusLabel>Email:</StatusLabel>
-                  <StatusValue>{user?.email}</StatusValue>
-                </StatusItem>
-              </StatusInfo>
+      <MainContent>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <WelcomeCard>
+            <CardTitle>Account Status</CardTitle>
+            <StatusInfo>
+              <StatusItem>
+                <StatusLabel>Registration Stage:</StatusLabel>
+                <StatusValue>{user?.registrationStage || 1}</StatusValue>
+              </StatusItem>
+              <StatusItem>
+                <StatusLabel>Registration Complete:</StatusLabel>
+                <StatusBadge $complete={user?.isRegistrationComplete || false}>
+                  {user?.isRegistrationComplete ? 'Complete' : 'Incomplete'}
+                </StatusBadge>
+              </StatusItem>
+              <StatusItem>
+                <StatusLabel>Email:</StatusLabel>
+                <StatusValue>{user?.email}</StatusValue>
+              </StatusItem>
+            </StatusInfo>
 
-              {!user?.isRegistrationComplete && (
-                <CompleteButton onClick={handleCompleteRegistration}>
-                  Complete Registration
-                </CompleteButton>
-              )}
-            </WelcomeCard>
-          </motion.div>
+            {!user?.isRegistrationComplete && (
+              <CompleteButton onClick={handleCompleteRegistration}>
+                Complete Registration
+              </CompleteButton>
+            )}
+          </WelcomeCard>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <StatsGrid>
-              <StatCard>
-                <StatTitle>Orders Today</StatTitle>
-                <StatValue>0</StatValue>
-              </StatCard>
-              <StatCard>
-                <StatTitle>Total Revenue</StatTitle>
-                <StatValue>$0.00</StatValue>
-              </StatCard>
-              <StatCard>
-                <StatTitle>Active Menu Items</StatTitle>
-                <StatValue>0</StatValue>
-              </StatCard>
-              <StatCard>
-                <StatTitle>Rating</StatTitle>
-                <StatValue>5.0★</StatValue>
-              </StatCard>
-            </StatsGrid>
-          </motion.div>
-        </MainContent>
-      </Container>
-    </AuthGuard>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <StatsGrid>
+            <StatCard>
+              <StatTitle>Orders Today</StatTitle>
+              <StatValue>
+                {displayStats.ordersToday}
+              </StatValue>
+            </StatCard>
+            <StatCard>
+              <StatTitle>Total Revenue</StatTitle>
+              <StatValue>
+                ${displayStats.totalRevenue.toFixed(2)}
+              </StatValue>
+            </StatCard>
+            <StatCard>
+              <StatTitle>Active Menu Items</StatTitle>
+              <StatValue>
+                {displayStats.activeMenuItems}
+              </StatValue>
+            </StatCard>
+            <StatCard>
+              <StatTitle>Rating</StatTitle>
+              <StatValue>
+                {displayStats.rating}★
+              </StatValue>
+            </StatCard>
+          </StatsGrid>
+        </motion.div>
+      </MainContent>
+    </Container>
   );
 }
 
@@ -250,3 +277,6 @@ const StatValue = styled.div`
   font-size: 2rem;
   font-weight: 700;
 `;
+
+
+

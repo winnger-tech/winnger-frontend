@@ -75,7 +75,7 @@ const PaymentTestComponent = () => {
       setLoading(true);
       setError('');
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/drivers/create-payment-intent`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/drivers/create-payment-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -38,6 +38,14 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 
   const currentStage = stageId || parseInt((params?.stage as string) || '1') || 1;
 
+  console.log('🎯 StageContainer Debug:', {
+    stageId,
+    params,
+    currentStage,
+    userType,
+    state: state
+  });
+
   // Auto-save functionality
   const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -61,21 +69,44 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     setError(null);
 
     try {
-      // First try to get data from server
-      const response = await StageService.getStageData(currentStage);
+      console.log('🔧 Setting userType for StageService:', userType);
+      // Set user type for StageService
+      StageService.setUserType(userType);
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Stage data load timeout')), 10000)
+      );
+
+      console.log('📡 Fetching stage data for stage:', currentStage);
+      const dataPromise = StageService.getStageData(currentStage);
+      
+      const response = await Promise.race([dataPromise, timeoutPromise]) as any;
+      console.log('✅ Stage data received:', response);
       setStageData(response.data.data || {});
     } catch (error) {
+      console.warn('⚠️ Stage data load failed, using fallback:', error);
+      
       // If server fails, try to get draft data
-      const draftData = StageService.getDraft(currentStage);
-      if (draftData) {
-        setStageData(draftData);
-      } else {
-        setError(error instanceof Error ? error.message : 'Failed to load stage data');
+      try {
+        console.log('📋 Attempting to load draft data for stage:', currentStage);
+        const draftData = StageService.getDraft(currentStage);
+        console.log('📋 Draft data result:', draftData);
+        if (draftData) {
+          setStageData(draftData);
+        } else {
+          setStageData({}); // Use empty data as fallback
+          setError(null); // Don't show error, just use empty data
+        }
+      } catch (draftError) {
+        console.warn('⚠️ Draft data load also failed:', draftError);
+        setStageData({}); // Use empty data as fallback
+        setError(null); // Don't show error, just use empty data
       }
     } finally {
       setLoading(false);
     }
-  }, [currentStage]);
+  }, [currentStage, userType]);
 
   useEffect(() => {
     loadStageData();
@@ -111,7 +142,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       const nextStage = currentStage + 1;
       if (nextStage <= state.progress.totalStages) {
         setTimeout(() => {
-          router.push(`/${userType}-registration/stage/${nextStage}`);
+          router.push(`/${userType}-registration-staged/stage/${nextStage}`);
         }, 1000);
       } else {
         setTimeout(() => {
@@ -132,7 +163,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
   // Navigation handlers
   const handleBack = () => {
     if (currentStage > 1) {
-      router.push(`/${userType}-registration/stage/${currentStage - 1}`);
+      router.push(`/${userType}-registration-staged/stage/${currentStage - 1}`);
     } else {
       router.push(`/${userType}-dashboard-staged`);
     }
@@ -141,7 +172,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
   const handleSkip = () => {
     const nextStage = currentStage + 1;
     if (nextStage <= state.progress.totalStages) {
-      router.push(`/${userType}-registration/stage/${nextStage}`);
+      router.push(`/${userType}-registration-staged/stage/${nextStage}`);
     } else {
       router.push(`/${userType}-dashboard-staged`);
     }

@@ -29,10 +29,32 @@ export default function Dashboard({ userType }: DashboardProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  // Initialize dashboard on mount
+  // Initialize dashboard on mount - only run once
   useEffect(() => {
-    actions.initializeDashboard(userType);
-  }, [userType, actions]);
+    // Only initialize if not already loading and not already initialized
+    if (state.loading || (state.stages && Object.keys(state.stages).length > 0)) {
+      console.log('🔄 Dashboard already loading or initialized, skipping...');
+      return;
+    }
+
+    console.log('🚀 Starting dashboard initialization...');
+    
+    const initializeWithTimeout = async () => {
+      try {
+        await Promise.race([
+          actions.initializeDashboard(userType),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Dashboard initialization timeout')), 15000)
+          )
+        ]);
+      } catch (error) {
+        console.error('Dashboard initialization failed or timed out:', error);
+        // The DashboardContext will handle the fallback
+      }
+    };
+
+    initializeWithTimeout();
+  }, [userType, state.loading, state.stages]); // Add state dependencies to prevent unnecessary re-runs
 
   // Enhanced dashboard data processing
   const dashboardData = user?.dashboardData;
@@ -60,6 +82,13 @@ export default function Dashboard({ userType }: DashboardProps) {
 
   const handleContinueRegistration = () => {
     const nextStage = state.currentStage;
+    console.log('🚀 Continue Registration clicked:', {
+      nextStage,
+      userType,
+      currentStage: state.currentStage,
+      stages: state.stages,
+      user: user
+    });
     router.push(`/${userType}-registration-staged/stage/${nextStage}`);
   };
 
@@ -69,6 +98,9 @@ export default function Dashboard({ userType }: DashboardProps) {
         <LoadingWrapper>
           <LoadingSpinner />
           <LoadingText>Loading your dashboard...</LoadingText>
+          <LoadingSubtext>
+            This may take a few moments. If it takes too long, please refresh the page.
+          </LoadingSubtext>
         </LoadingWrapper>
       </Container>
     );
@@ -79,8 +111,11 @@ export default function Dashboard({ userType }: DashboardProps) {
       <Container>
         <ErrorWrapper>
           <ErrorText>Error loading dashboard: {state.error}</ErrorText>
+          <ErrorSubtext>
+            There was an issue connecting to the server. This might be a temporary problem.
+          </ErrorSubtext>
           <RetryButton onClick={() => actions.initializeDashboard(userType)}>
-            Retry
+            Try Again
           </RetryButton>
         </ErrorWrapper>
       </Container>
@@ -213,6 +248,12 @@ const LoadingText = styled.p`
   font-size: 1.1rem;
 `;
 
+const LoadingSubtext = styled.p`
+  color: white;
+  font-size: 0.9rem;
+  opacity: 0.8;
+`;
+
 const ErrorWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -226,6 +267,13 @@ const ErrorText = styled.p`
   color: #ff6b6b;
   font-size: 1.1rem;
   text-align: center;
+`;
+
+const ErrorSubtext = styled.p`
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0.8;
 `;
 
 const RetryButton = styled.button`
@@ -293,7 +341,7 @@ const AutoSaveIndicator = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #ffc32b;
+  color: #4CAF50;
   font-size: 0.9rem;
   font-weight: 500;
 `;
@@ -310,6 +358,7 @@ const LogoutButton = styled.button`
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
 
@@ -324,15 +373,15 @@ const ProgressSection = styled.div`
 `;
 
 const ContinueSection = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 2rem;
   margin-top: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -343,6 +392,7 @@ const ContinueSection = styled.div`
 
 const CurrentStageInfo = styled.div`
   color: white;
+  flex: 1;
 `;
 
 const CurrentStageTitle = styled.h3`

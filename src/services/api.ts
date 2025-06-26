@@ -23,7 +23,7 @@ class ApiService {
   // Get auth token from localStorage
   getAuthToken() {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
+      return localStorage.getItem('winngr_auth_token');
     }
     return null;
   }
@@ -52,7 +52,16 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(url, config);
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (!response.ok) {
@@ -64,6 +73,9 @@ class ApiService {
       return data;
     } catch (error) {
       console.error('💥 API Request Error:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Request timeout - server is not responding');
+      }
       throw error;
     }
   }

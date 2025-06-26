@@ -24,21 +24,20 @@ export default function DriverLoginPage() {
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect to appropriate dashboard after successful login
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      setTimeout(() => {
-        if (user.isRegistrationComplete) {
-          router.push('/driver-dashboard');
-        } else {
-          router.push('/driver-registration');
-        }
-      }, 1500);
+      // Navigate immediately without delay
+      if (user.isRegistrationComplete) {
+        router.push('/driver-dashboard');
+      } else {
+        router.push('/driver-dashboard-staged');
+      }
     }
   }, [isAuthenticated, user, router]);
 
-  // Clear Redux error when component unmounts
+  // Clear error when component unmounts
   useEffect(() => {
     return () => {
       dispatch(clearError());
@@ -58,7 +57,7 @@ export default function DriverLoginPage() {
         [name]: ''
       }));
     }
-    // Clear Redux error
+    // Clear auth error
     if (error) {
       dispatch(clearError());
     }

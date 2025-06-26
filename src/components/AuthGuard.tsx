@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loadUserFromStorage } from '../store/slices/authSlice';
@@ -19,14 +19,18 @@ export function AuthGuard({
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { isAuthenticated, isLoading, user } = useAppSelector((state) => state.auth);
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
-    // Try to load user from localStorage on mount
-    dispatch(loadUserFromStorage());
+    // Only load user data once on mount
+    if (!hasInitialized.current && typeof window !== 'undefined') {
+      hasInitialized.current = true;
+      dispatch(loadUserFromStorage());
+    }
   }, [dispatch]);
 
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && hasInitialized.current) {
       if (requireAuth && !isAuthenticated) {
         router.push(redirectTo);
       }
@@ -34,7 +38,7 @@ export function AuthGuard({
   }, [isAuthenticated, isLoading, requireAuth, router, redirectTo]);
 
   // Show loading while checking authentication
-  if (isLoading) {
+  if (isLoading || !hasInitialized.current) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#ffc32b]"></div>

@@ -30,16 +30,98 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Real-time validation function
+  const validateField = (name: string, value: any) => {
+    switch (name) {
+      case 'vehicleYear':
+        if (!value?.toString().trim()) {
+          return 'Vehicle year is required';
+        } else {
+          const year = parseInt(value.toString());
+          const currentYear = new Date().getFullYear();
+          if (year < 1990 || year > currentYear + 1) {
+            return `Vehicle year must be between 1990 and ${currentYear + 1}`;
+          }
+        }
+        return '';
+      
+      case 'vehicleMake':
+        if (!value?.toString().trim()) {
+          return 'Vehicle make is required';
+        }
+        return '';
+      
+      case 'vehicleModel':
+        if (!value?.toString().trim()) {
+          return 'Vehicle model is required';
+        }
+        return '';
+      
+      case 'vehicleColor':
+        if (!value?.toString().trim()) {
+          return 'Vehicle color is required';
+        }
+        return '';
+      
+      case 'licensePlate':
+        if (!value?.toString().trim()) {
+          return 'License plate is required';
+        }
+        return '';
+      
+      case 'vehicleType':
+        if (!value?.toString().trim()) {
+          return 'Vehicle type is required';
+        }
+        return '';
+      
+      case 'insuranceProvider':
+        if (!value?.toString().trim()) {
+          return 'Insurance provider is required';
+        }
+        return '';
+      
+      case 'insurancePolicyNumber':
+        if (!value?.toString().trim()) {
+          return 'Insurance policy number is required';
+        }
+        return '';
+      
+      case 'insuranceExpiryDate':
+        if (!value?.toString().trim()) {
+          return 'Insurance expiry date is required';
+        }
+        return '';
+      
+      case 'licenseNumber':
+        if (formData.hasValidLicense && !value?.toString().trim()) {
+          return 'License number is required';
+        }
+        return '';
+      
+      case 'licenseExpiryDate':
+        if (formData.hasValidLicense && !value?.toString().trim()) {
+          return 'License expiry date is required';
+        }
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const inputValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     
     setFormData((prev: any) => ({ ...prev, [name]: inputValue }));
     
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    // Real-time validation
+    const fieldError = validateField(name, inputValue);
+    setErrors(prev => ({ 
+      ...prev, 
+      [name]: fieldError 
+    }));
 
     // Auto-save after a short delay
     setTimeout(() => {
@@ -50,29 +132,15 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.vehicleYear) newErrors.vehicleYear = 'Vehicle year is required';
-    if (!formData.vehicleMake) newErrors.vehicleMake = 'Vehicle make is required';
-    if (!formData.vehicleModel) newErrors.vehicleModel = 'Vehicle model is required';
-    if (!formData.vehicleColor) newErrors.vehicleColor = 'Vehicle color is required';
-    if (!formData.licensePlate) newErrors.licensePlate = 'License plate is required';
-    if (!formData.vehicleType) newErrors.vehicleType = 'Vehicle type is required';
-    if (!formData.insuranceProvider) newErrors.insuranceProvider = 'Insurance provider is required';
-    if (!formData.insurancePolicyNumber) newErrors.insurancePolicyNumber = 'Insurance policy number is required';
-    if (!formData.insuranceExpiryDate) newErrors.insuranceExpiryDate = 'Insurance expiry date is required';
-    
-    if (formData.hasValidLicense) {
-      if (!formData.licenseNumber) newErrors.licenseNumber = 'License number is required';
-      if (!formData.licenseExpiryDate) newErrors.licenseExpiryDate = 'License expiry date is required';
-    }
-
-    // Validate year (must be reasonable)
-    if (formData.vehicleYear) {
-      const year = parseInt(formData.vehicleYear);
-      const currentYear = new Date().getFullYear();
-      if (year < 1990 || year > currentYear + 1) {
-        newErrors.vehicleYear = `Vehicle year must be between 1990 and ${currentYear + 1}`;
+    // Validate all fields
+    Object.keys(formData).forEach(field => {
+      if (['vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleType', 'insuranceProvider', 'insurancePolicyNumber', 'insuranceExpiryDate', 'licenseNumber', 'licenseExpiryDate'].includes(field)) {
+        const error = validateField(field, formData[field]);
+        if (error) {
+          newErrors[field] = error;
+        }
       }
-    }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

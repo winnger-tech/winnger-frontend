@@ -30,13 +30,12 @@ export default function DriverSignupPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      setTimeout(() => {
-        if (user.isRegistrationComplete) {
-          router.push('/driver-dashboard');
-        } else {
-          router.push('/driver-registration');
-        }
-      }, 1500);
+      // Navigate immediately without delay
+      if (user.isRegistrationComplete) {
+        router.push('/driver-dashboard');
+      } else {
+        router.push('/driver-dashboard-staged');
+      }
     }
   }, [isAuthenticated, user, router]);
 

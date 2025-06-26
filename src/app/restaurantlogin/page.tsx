@@ -28,13 +28,12 @@ export default function RestaurantLoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      setTimeout(() => {
-        if (user.isRegistrationComplete) {
-          router.push('/restaurant-dashboard');
-        } else {
-          router.push('/restaurant-registration');
-        }
-      }, 1500);
+      // Navigate immediately without delay
+      if (user.isRegistrationComplete) {
+        router.push('/restaurant-dashboard');
+      } else {
+        router.push('/restaurant-dashboard-staged');
+      }
     }
   }, [isAuthenticated, user, router]);
 

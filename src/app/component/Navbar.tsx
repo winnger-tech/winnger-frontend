@@ -68,9 +68,17 @@ const Navbar = () => {
 
   const handleDashboard = () => {
     if (user?.type === 'restaurant') {
-      router.push('/restaurant-dashboard');
-    } else {
-      router.push('/driver-dashboard');
+      if (user.isRegistrationComplete) {
+        router.push('/restaurant-dashboard');
+      } else {
+        router.push('/restaurant-dashboard-staged');
+      }
+    } else if (user?.type === 'driver') {
+      if (user.isRegistrationComplete) {
+        router.push('/driver-dashboard');
+      } else {
+        router.push('/driver-dashboard-staged');
+      }
     }
     setUserMenuOpen(false);
   };

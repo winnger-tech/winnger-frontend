@@ -9,8 +9,8 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { logout } from '../../store/slices/authSlice';
 
 export default function DriverDashboard() {
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function DriverDashboard() {
               </InfoItem>
               {!user.isRegistrationComplete && (
                 <CompleteRegistrationButton
-                  onClick={() => router.push('/driver-registration')}
+                  onClick={() => router.push('/driver-dashboard-staged')}
                 >
                   Complete Registration
                 </CompleteRegistrationButton>

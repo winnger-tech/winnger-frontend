@@ -1,183 +1,136 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { 
+  loginRestaurant, 
+  loginDriver, 
+  registerRestaurant, 
+  registerDriver, 
+  logout, 
+  loadUserFromStorage,
+  refreshAuthToken,
+  clearError,
+  updateUser
+} from '../store/slices/authSlice';
 
-interface User {
-  id: string;
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface RestaurantRegisterCredentials {
+  ownerName: string;
+  email: string;
+  password: string;
+}
+
+interface DriverRegisterCredentials {
   firstName: string;
   lastName: string;
-  ownerName?: string;
   email: string;
-  type: 'driver' | 'restaurant';
-  isRegistrationComplete: boolean;
-  registrationStage: number;
+  password: string;
 }
-
-interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
-}
-
-const STORAGE_KEYS = {
-  TOKEN: 'auth_token',
-  USER: 'auth_user',
-};
 
 export function useAuth() {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    isLoading: true,
-    error: null,
-  });
+  const dispatch = useAppDispatch();
+  const authState = useAppSelector((state) => state.auth);
 
-  // Load user from storage on mount
+  // Load user data on mount only once
   useEffect(() => {
-    const loadUserFromStorage = () => {
-      try {
-        const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-        const userStr = localStorage.getItem(STORAGE_KEYS.USER);
-        
-        if (token && userStr) {
-          const user = JSON.parse(userStr);
-          setState({
-            user,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
-        } else {
-          setState(prev => ({ ...prev, isLoading: false }));
-        }
-      } catch (error) {
-        console.error('Failed to load user from storage:', error);
-        setState(prev => ({ ...prev, isLoading: false, error: 'Failed to load user data' }));
+    let mounted = true;
+    
+    if (!authState.isAuthenticated && !authState.isLoading && typeof window !== 'undefined') {
+      const token = localStorage.getItem('winngr_auth_token');
+      if (token && mounted) {
+        dispatch(loadUserFromStorage());
       }
+    }
+    
+    return () => {
+      mounted = false;
     };
+  }, []); // Only run once on mount
 
-    loadUserFromStorage();
-  }, []);
-
-  const login = useCallback(async (email: string, password: string, userType: 'driver' | 'restaurant') => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      // Mock API call - replace with actual API when available
-      console.log(`🔐 Mock Login: ${email} as ${userType}`);
+  // Check token expiry and refresh if needed
+  useEffect(() => {
+    if (authState.isAuthenticated && authState.tokenExpiry) {
+      const timeUntilExpiry = authState.tokenExpiry - Date.now();
       
-      const mockUser: User = {
-        id: 'mock-id-' + Date.now(),
-        firstName: email.split('@')[0],
-        lastName: 'User',
-        ownerName: userType === 'restaurant' ? email.split('@')[0] + ' Restaurant' : undefined,
-        email,
-        type: userType,
-        isRegistrationComplete: false,
-        registrationStage: 1,
-      };
-
-      const mockToken = 'mock-jwt-token-' + Date.now();
-
-      // Store in localStorage
-      localStorage.setItem(STORAGE_KEYS.TOKEN, mockToken);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(mockUser));
-
-      setState({
-        user: mockUser,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-      });
-
-      return { success: true, user: mockUser };
-    } catch (error) {
-      const errorMessage = 'Login failed';
-      setState(prev => ({ ...prev, isLoading: false, error: errorMessage }));
-      return { success: false, error: errorMessage };
+      // If token expires in less than 5 minutes, refresh it
+      if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+        dispatch(refreshAuthToken());
+      }
+      
+      // Set up timer to refresh token before it expires
+      if (timeUntilExpiry > 5 * 60 * 1000) {
+        const refreshTimer = setTimeout(() => {
+          dispatch(refreshAuthToken());
+        }, timeUntilExpiry - 5 * 60 * 1000);
+        
+        return () => clearTimeout(refreshTimer);
+      }
     }
-  }, []);
+  }, [dispatch, authState.isAuthenticated, authState.tokenExpiry]);
 
-  const register = useCallback(async (data: {
-    firstName: string;
-    lastName: string;
-    ownerName?: string;
-    email: string;
-    password: string;
-    userType: 'driver' | 'restaurant';
-  }) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+  const loginAsRestaurant = useCallback(async (credentials: LoginCredentials) => {
+    const result = await dispatch(loginRestaurant(credentials));
+    return result;
+  }, [dispatch]);
 
-    try {
-      console.log(`📝 Mock Register:`, data);
-      
-      const mockUser: User = {
-        id: 'mock-id-' + Date.now(),
-        firstName: data.firstName,
-        lastName: data.lastName,
-        ownerName: data.ownerName,
-        email: data.email,
-        type: data.userType,
-        isRegistrationComplete: false,
-        registrationStage: 1,
-      };
+  const loginAsDriver = useCallback(async (credentials: LoginCredentials) => {
+    const result = await dispatch(loginDriver(credentials));
+    return result;
+  }, [dispatch]);
 
-      const mockToken = 'mock-jwt-token-' + Date.now();
+  const registerAsRestaurant = useCallback(async (credentials: RestaurantRegisterCredentials) => {
+    const result = await dispatch(registerRestaurant(credentials));
+    return result;
+  }, [dispatch]);
 
-      // Store in localStorage
-      localStorage.setItem(STORAGE_KEYS.TOKEN, mockToken);
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(mockUser));
+  const registerAsDriver = useCallback(async (credentials: DriverRegisterCredentials) => {
+    const result = await dispatch(registerDriver(credentials));
+    return result;
+  }, [dispatch]);
 
-      setState({
-        user: mockUser,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-      });
+  const logoutUser = useCallback(() => {
+    dispatch(logout());
+  }, [dispatch]);
 
-      return { success: true, user: mockUser };
-    } catch (error) {
-      const errorMessage = 'Registration failed';
-      setState(prev => ({ ...prev, isLoading: false, error: errorMessage }));
-      return { success: false, error: errorMessage };
-    }
-  }, []);
+  const clearAuthError = useCallback(() => {
+    dispatch(clearError());
+  }, [dispatch]);
 
-  const logout = useCallback(() => {
-    console.log('🚪 Logging out');
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
-    setState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    });
-  }, []);
+  const updateUserData = useCallback((userData: any) => {
+    dispatch(updateUser(userData));
+  }, [dispatch]);
 
-  const updateUser = useCallback((updatedUser: Partial<User>) => {
-    setState(prev => {
-      if (!prev.user) return prev;
-      
-      const newUser = { ...prev.user, ...updatedUser };
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(newUser));
-      
-      return {
-        ...prev,
-        user: newUser,
-      };
-    });
-  }, []);
-
-  const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }));
-  }, []);
+  const refreshToken = useCallback(async () => {
+    const result = await dispatch(refreshAuthToken());
+    return result;
+  }, [dispatch]);
 
   return {
-    ...state,
-    login,
-    register,
-    logout,
-    updateUser,
-    clearError,
+    // State
+    user: authState.user,
+    token: authState.token,
+    isAuthenticated: authState.isAuthenticated,
+    isLoading: authState.isLoading,
+    error: authState.error,
+    tokenExpiry: authState.tokenExpiry,
+    
+    // Computed values
+    isRestaurant: authState.user?.type === 'restaurant',
+    isDriver: authState.user?.type === 'driver',
+    isRegistrationComplete: authState.user?.isRegistrationComplete || false,
+    registrationStage: authState.user?.registrationStage || 1,
+    
+    // Actions
+    loginAsRestaurant,
+    loginAsDriver,
+    registerAsRestaurant,
+    registerAsDriver,
+    logout: logoutUser,
+    clearError: clearAuthError,
+    updateUser: updateUserData,
+    refreshToken,
   };
 }

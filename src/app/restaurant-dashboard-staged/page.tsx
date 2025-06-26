@@ -9,37 +9,34 @@ import Navbar from '../component/Navbar';
 
 export default function RestaurantDashboardPage() {
   const router = useRouter();
-  const { isAuthenticated, user, isLoading } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  // Temporary: Add mock authentication for testing
-  const [hasMockAuth, setHasMockAuth] = React.useState(false);
-  
-  React.useEffect(() => {
-    // Set mock authentication for testing
-    const mockUser = {
-      id: 'test-restaurant',
-      ownerName: 'Test Restaurant Owner',
-      email: 'test@example.com',
-      registrationStage: 2,
-      isRegistrationComplete: false,
-      type: 'restaurant' as const
-    };
-    
-    if (process.env.NODE_ENV === 'development' && !isAuthenticated) {
-      // Simulate authentication for testing
-      setHasMockAuth(true);
-    }
-  }, [isAuthenticated]);
+  // Debug logging
+  console.log('🏪 Restaurant Dashboard Staged Debug:', {
+    isAuthenticated,
+    user,
+    userType: user?.type,
+    registrationStage: user?.registrationStage,
+    isRegistrationComplete: user?.isRegistrationComplete
+  });
 
   useEffect(() => {
-    // Only redirect if we're not loading and user is not authenticated and no mock auth
-    if (!isLoading && (!isAuthenticated && !hasMockAuth || (user && user.type !== 'restaurant'))) {
+    console.log('🔄 Restaurant Dashboard useEffect triggered:', {
+      isAuthenticated,
+      user,
+      userType: user?.type
+    });
+    
+    // Only redirect if user is not authenticated or wrong type
+    if (!isAuthenticated || !user || user.type !== 'restaurant') {
+      console.log('🔄 Redirecting to restaurant login:', { isAuthenticated, user });
       router.push('/restaurantlogin');
     }
-  }, [isAuthenticated, user, router, isLoading, hasMockAuth]);
+  }, [isAuthenticated, user, router]);
 
-  // Show loading state while auth is being determined
-  if (isLoading || (!isAuthenticated && !hasMockAuth)) {
+  // Don't render if user is not a restaurant
+  if (!isAuthenticated || !user || user.type !== 'restaurant') {
+    console.log('❌ User is not authenticated or not a restaurant:', { isAuthenticated, user });
     return (
       <div style={{ 
         display: 'flex', 
@@ -52,16 +49,33 @@ export default function RestaurantDashboardPage() {
       }}>
         <div>
           <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-            Loading...
+            Access Denied
           </div>
           <div style={{ fontSize: '0.9rem', opacity: 0.7 }}>
-            Checking authentication status
+            This page is only for authenticated restaurant users
+          </div>
+          <div style={{ marginTop: '1rem' }}>
+            <button 
+              onClick={() => router.push('/restaurantlogin')}
+              style={{
+                background: '#ffc32b',
+                color: '#403E2D',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Go to Login
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
+  console.log('✅ Rendering restaurant dashboard for user:', user);
   return (
     <>
       <Navbar />

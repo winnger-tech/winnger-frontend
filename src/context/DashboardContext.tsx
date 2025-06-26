@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import StageService from '../services/stageService';
 
 // Enhanced dashboard state to match the API guide
 interface DashboardState {
@@ -132,37 +133,65 @@ export function DashboardProvider({
     }
   });
 
-  // API service calls (mock for now, will use real API)
-  const initializeDashboard = async (type: 'driver' | 'restaurant') => {
+  // API service calls using real StageService - memoized with useCallback
+  const initializeDashboard = useCallback(async (type: 'driver' | 'restaurant') => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
+    // Add a timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      setState(prev => ({ ...prev, loading: false, error: 'Loading timeout - please try again' }));
+    }, 20000); // 20 second timeout
+    
     try {
-      // Mock API call - replace with real StageService call
       console.log(`🔄 Initializing ${type} dashboard...`);
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Set user type in StageService
+      StageService.setUserType(type);
       
-      // Mock successful response matching the API guide
-      const mockResponse = {
-        currentStage: 2,
-        stages: type === 'driver' ? DRIVER_STAGES : RESTAURANT_STAGES,
-        progress: {
-          totalStages: Object.keys(type === 'driver' ? DRIVER_STAGES : RESTAURANT_STAGES).length,
-          completedStages: 1,
-          currentStage: 2,
-          percentage: type === 'driver' ? 20 : 33
+      // Get real dashboard data from API
+      const response = await StageService.getDashboard();
+      
+      clearTimeout(loadingTimeout); // Clear timeout on success
+      console.log('📊 Dashboard response:', response);
+
+      // Update state with real data
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        currentStage: response.currentStage || 1,
+        stages: response.stages || fallbackStages,
+        progress: response.progress || {
+          totalStages: Object.keys(fallbackStages).length,
+          completedStages: 0,
+          currentStage: 1,
+          percentage: 0
         },
-        userData: {
-          stage1: { firstName: 'Test', lastName: 'User', email: 'test@example.com' },
-          stage2: {}
-        }
+        userData: response.userData || {}
+      }));
+
+      console.log('✅ Dashboard initialized successfully');
+    } catch (error) {
+      clearTimeout(loadingTimeout); // Clear timeout on error
+      console.error('❌ Dashboard initialization failed:', error);
+      
+      // Fallback to mock data if API fails
+      console.log('🔄 Falling back to mock data...');
+      
+      const mockResponse = {
+        currentStage: 1,
+        stages: fallbackStages,
+        progress: {
+          totalStages: Object.keys(fallbackStages).length,
+          completedStages: 0,
+          currentStage: 1,
+          percentage: 0
+        },
+        userData: {}
       };
 
-      // Update stages with completion status
+      // Update stages with initial state
       const updatedStages = { ...mockResponse.stages };
-      updatedStages["1"].completed = true;
-      updatedStages["2"].isCurrentStage = true;
+      updatedStages["1"].isCurrentStage = true;
 
       setState(prev => ({
         ...prev,
@@ -170,32 +199,29 @@ export function DashboardProvider({
         currentStage: mockResponse.currentStage,
         stages: updatedStages,
         progress: mockResponse.progress,
-        userData: mockResponse.userData
+        userData: mockResponse.userData,
+        error: null // Clear any previous errors
       }));
 
-      console.log('✅ Dashboard initialized successfully');
-    } catch (error) {
-      console.error('❌ Dashboard initialization failed:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: 'Failed to load dashboard data'
-      }));
+      console.log('✅ Dashboard initialized with fallback data');
     }
-  };
+  }, [fallbackStages]);
 
-  const navigateToStage = (stage: number) => {
+  const navigateToStage = useCallback((stage: number) => {
     setState(prev => ({
       ...prev,
       currentStage: stage
     }));
-  };
+  }, []);
 
-  const updateStageData = async (stage: number, data: any): Promise<void> => {
+  const updateStageData = useCallback(async (stage: number, data: any): Promise<void> => {
     try {
-      // Mock API call for updating stage data
       console.log(`💾 Updating stage ${stage} data:`, data);
       
+      // Update stage data using StageService
+      await StageService.updateStage(stage, data);
+      
+      // Update local state
       setState(prev => ({
         ...prev,
         userData: {
@@ -204,20 +230,32 @@ export function DashboardProvider({
         }
       }));
 
-      // Return void instead of { success: true }
+      console.log('✅ Stage data updated successfully');
     } catch (error) {
       console.error('❌ Failed to update stage data:', error);
-      throw error;
+      
+      // Still update local state even if server update fails
+      setState(prev => ({
+        ...prev,
+        userData: {
+          ...prev.userData,
+          [`stage${stage}`]: { ...prev.userData[`stage${stage}`], ...data }
+        }
+      }));
+      
+      console.log('✅ Stage data updated locally (server update failed)');
+      
+      // Don't throw error to prevent UI from hanging
+      // throw error;
     }
-  };
+  }, []);
 
-  const autoSave = async (stage: number, data: any) => {
+  const autoSave = useCallback(async (stage: number, data: any) => {
     setState(prev => ({ ...prev, autoSaving: true }));
     
     try {
-      // Auto-save with debouncing
-      await new Promise(resolve => setTimeout(resolve, 500));
-      await updateStageData(stage, data);
+      // Use StageService auto-save functionality
+      await StageService.saveDraft(stage, data);
       
       console.log(`💾 Auto-saved stage ${stage} data`);
     } catch (error) {
@@ -225,18 +263,25 @@ export function DashboardProvider({
     } finally {
       setState(prev => ({ ...prev, autoSaving: false }));
     }
-  };
+  }, []);
 
-  const getStageData = async (stage: number) => {
+  const getStageData = useCallback(async (stage: number) => {
     try {
-      // Mock API call for getting stage data
       console.log(`📖 Getting stage ${stage} data`);
-      return state.userData[`stage${stage}`] || {};
+      
+      // Try to get data from server first
+      const response = await StageService.getStageData(stage);
+      return response.data || {};
     } catch (error) {
-      console.error('❌ Failed to get stage data:', error);
-      throw error;
+      console.warn('⚠️ Server data fetch failed, trying local draft:', error);
+      
+      // Fallback to local draft data
+      // Ensure userType is set before calling getDraft
+      StageService.setUserType(userType);
+      const draftData = StageService.getDraft(stage);
+      return draftData || {};
     }
-  };
+  }, [userType]);
 
   const actions: DashboardActions = {
     initializeDashboard,

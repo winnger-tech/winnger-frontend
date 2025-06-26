@@ -70,9 +70,51 @@ export default function Stage2RestaurantDetails({
     setFormData(newData);
     onChange(newData);
     
-    // Clear validation error when user starts typing
-    if (errors[name]) {
-      setErrors((prev: any) => ({ ...prev, [name]: '' }));
+    // Real-time validation
+    const fieldError = validateField(name, value);
+    setErrors((prev: any) => ({ 
+      ...prev, 
+      [name]: fieldError 
+    }));
+  };
+
+  // Real-time validation function
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'cuisineType':
+        if (!value?.trim()) {
+          return t('Cuisine type is required');
+        }
+        return '';
+      
+      case 'description':
+        if (!value?.trim()) {
+          return t('Restaurant description is required');
+        } else if (value.length < 50) {
+          return t('Description must be at least 50 characters long');
+        }
+        return '';
+      
+      case 'priceRange':
+        if (!value?.trim()) {
+          return t('Price range is required');
+        }
+        return '';
+      
+      case 'servingCapacity':
+        if (!value?.trim()) {
+          return t('Serving capacity is required');
+        }
+        return '';
+      
+      case 'website':
+        if (value && !/^https?:\/\/.+/.test(value)) {
+          return t('Please enter a valid website URL');
+        }
+        return '';
+      
+      default:
+        return '';
     }
   };
 
@@ -89,27 +131,15 @@ export default function Stage2RestaurantDetails({
   const validateForm = () => {
     const newErrors: any = {};
     
-    if (!formData.cuisineType?.trim()) {
-      newErrors.cuisineType = t('Cuisine type is required');
-    }
-    
-    if (!formData.description?.trim()) {
-      newErrors.description = t('Restaurant description is required');
-    } else if (formData.description.length < 50) {
-      newErrors.description = t('Description must be at least 50 characters long');
-    }
-    
-    if (!formData.priceRange?.trim()) {
-      newErrors.priceRange = t('Price range is required');
-    }
-    
-    if (!formData.servingCapacity?.trim()) {
-      newErrors.servingCapacity = t('Serving capacity is required');
-    }
-    
-    if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
-      newErrors.website = t('Please enter a valid website URL');
-    }
+    // Validate all fields
+    Object.keys(formData).forEach(field => {
+      if (['cuisineType', 'description', 'priceRange', 'servingCapacity', 'website'].includes(field)) {
+        const error = validateField(field, formData[field]);
+        if (error) {
+          newErrors[field] = error;
+        }
+      }
+    });
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -345,7 +375,9 @@ const Required = styled.span`
   color: #ef4444;
 `;
 
-const Input = styled.input<{ hasError?: boolean }>`
+const Input = styled.input.withConfig({
+  shouldForwardProp: (prop) => prop !== 'hasError'
+})<{ hasError?: boolean }>`
   padding: 0.75rem 1rem;
   border: 2px solid ${props => props.hasError ? '#ef4444' : '#e5e7eb'};
   border-radius: 8px;
@@ -364,7 +396,9 @@ const Input = styled.input<{ hasError?: boolean }>`
   }
 `;
 
-const Select = styled.select<{ hasError?: boolean }>`
+const Select = styled.select.withConfig({
+  shouldForwardProp: (prop) => prop !== 'hasError'
+})<{ hasError?: boolean }>`
   padding: 0.75rem 1rem;
   border: 2px solid ${props => props.hasError ? '#ef4444' : '#e5e7eb'};
   border-radius: 8px;
@@ -384,7 +418,9 @@ const Select = styled.select<{ hasError?: boolean }>`
   }
 `;
 
-const TextArea = styled.textarea<{ hasError?: boolean }>`
+const TextArea = styled.textarea.withConfig({
+  shouldForwardProp: (prop) => prop !== 'hasError'
+})<{ hasError?: boolean }>`
   padding: 0.75rem 1rem;
   border: 2px solid ${props => props.hasError ? '#ef4444' : '#e5e7eb'};
   border-radius: 8px;

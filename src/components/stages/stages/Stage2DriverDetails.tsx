@@ -26,14 +26,78 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Real-time validation function
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'phoneNumber':
+        if (!value?.trim()) {
+          return 'Phone number is required';
+        } else if (!/^\(\d{3}\) \d{3}-\d{4}$/.test(value)) {
+          return 'Please enter a valid phone number (xxx) xxx-xxxx';
+        }
+        return '';
+      
+      case 'dateOfBirth':
+        if (!value?.trim()) {
+          return 'Date of birth is required';
+        }
+        return '';
+      
+      case 'address':
+        if (!value?.trim()) {
+          return 'Address is required';
+        }
+        return '';
+      
+      case 'city':
+        if (!value?.trim()) {
+          return 'City is required';
+        }
+        return '';
+      
+      case 'province':
+        if (!value?.trim()) {
+          return 'Province is required';
+        }
+        return '';
+      
+      case 'postalCode':
+        if (!value?.trim()) {
+          return 'Postal code is required';
+        } else if (!/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(value.toUpperCase())) {
+          return 'Please enter a valid postal code (A1A 1A1)';
+        }
+        return '';
+      
+      case 'emergencyContactName':
+        if (!value?.trim()) {
+          return 'Emergency contact name is required';
+        }
+        return '';
+      
+      case 'emergencyContactPhone':
+        if (!value?.trim()) {
+          return 'Emergency contact phone is required';
+        } else if (!/^\(\d{3}\) \d{3}-\d{4}$/.test(value)) {
+          return 'Please enter a valid phone number (xxx) xxx-xxxx';
+        }
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
     
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }));
-    }
+    // Real-time validation
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({ 
+      ...prev, 
+      [name]: fieldError 
+    }));
 
     // Auto-save after a short delay
     setTimeout(() => {
@@ -44,24 +108,15 @@ export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2Driver
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone number is required';
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
-    if (!formData.address) newErrors.address = 'Address is required';
-    if (!formData.city) newErrors.city = 'City is required';
-    if (!formData.province) newErrors.province = 'Province is required';
-    if (!formData.postalCode) newErrors.postalCode = 'Postal code is required';
-    if (!formData.emergencyContactName) newErrors.emergencyContactName = 'Emergency contact name is required';
-    if (!formData.emergencyContactPhone) newErrors.emergencyContactPhone = 'Emergency contact phone is required';
-
-    // Validate phone number format
-    if (formData.phoneNumber && !/^\(\d{3}\) \d{3}-\d{4}$/.test(formData.phoneNumber)) {
-      newErrors.phoneNumber = 'Please enter a valid phone number (xxx) xxx-xxxx';
-    }
-
-    // Validate postal code format (Canadian)
-    if (formData.postalCode && !/^[A-Z]\d[A-Z] \d[A-Z]\d$/.test(formData.postalCode.toUpperCase())) {
-      newErrors.postalCode = 'Please enter a valid postal code (A1A 1A1)';
-    }
+    // Validate all fields
+    Object.keys(formData).forEach(field => {
+      if (['phoneNumber', 'dateOfBirth', 'address', 'city', 'province', 'postalCode', 'emergencyContactName', 'emergencyContactPhone'].includes(field)) {
+        const error = validateField(field, formData[field]);
+        if (error) {
+          newErrors[field] = error;
+        }
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

@@ -42,38 +42,68 @@ export default function Stage1RestaurantInfo({
     });
   }, [data]);
 
+  // Real-time validation function
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'restaurantName':
+        if (!value?.trim()) {
+          return t('Restaurant name is required');
+        }
+        return '';
+      
+      case 'ownerName':
+        if (!value?.trim()) {
+          return t('Owner name is required');
+        }
+        return '';
+      
+      case 'email':
+        if (!value?.trim()) {
+          return t('Email is required');
+        } else if (!/\S+@\S+\.\S+/.test(value)) {
+          return t('Please enter a valid email');
+        }
+        return '';
+      
+      case 'phone':
+        if (!value?.trim()) {
+          return t('Phone number is required');
+        } else if (!/^\+?1?\d{10,14}$/.test(value.replace(/[\s-()]/g, ''))) {
+          return t('Please enter a valid phone number');
+        }
+        return '';
+      
+      default:
+        return '';
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     const newData = { ...formData, [name]: value };
     setFormData(newData);
     onChange(newData);
     
-    // Clear validation error when user starts typing
-    if (errors[name]) {
-      setErrors((prev: any) => ({ ...prev, [name]: '' }));
-    }
+    // Real-time validation
+    const fieldError = validateField(name, value);
+    setErrors((prev: any) => ({ 
+      ...prev, 
+      [name]: fieldError 
+    }));
   };
 
   const validateForm = () => {
     const newErrors: any = {};
     
-    if (!formData.restaurantName?.trim()) {
-      newErrors.restaurantName = t('Restaurant name is required');
-    }
-    
-    if (!formData.ownerName?.trim()) {
-      newErrors.ownerName = t('Owner name is required');
-    }
-    
-    if (!formData.email?.trim()) {
-      newErrors.email = t('Email is required');
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = t('Please enter a valid email');
-    }
-    
-    if (!formData.phone?.trim()) {
-      newErrors.phone = t('Phone number is required');
-    }
+    // Validate all fields
+    Object.keys(formData).forEach(field => {
+      if (['restaurantName', 'ownerName', 'email', 'phone'].includes(field)) {
+        const error = validateField(field, formData[field]);
+        if (error) {
+          newErrors[field] = error;
+        }
+      }
+    });
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -254,7 +284,9 @@ const Required = styled.span`
   color: #ef4444;
 `;
 
-const Input = styled.input<{ hasError?: boolean }>`
+const Input = styled.input.withConfig({
+  shouldForwardProp: (prop) => prop !== 'hasError'
+})<{ hasError?: boolean }>`
   padding: 0.75rem 1rem;
   border: 2px solid ${props => props.hasError ? '#ef4444' : '#e5e7eb'};
   border-radius: 8px;

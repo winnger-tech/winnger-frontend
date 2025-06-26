@@ -29,13 +29,12 @@ export default function RestaurantSignupPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      setTimeout(() => {
-        if (user.isRegistrationComplete) {
-          router.push('/restaurant-dashboard');
-        } else {
-          router.push('/restaurant-registration');
-        }
-      }, 2000);
+      // Navigate immediately without delay
+      if (user.isRegistrationComplete) {
+        router.push('/restaurant-dashboard');
+      } else {
+        router.push('/restaurant-dashboard-staged');
+      }
     }
   }, [isAuthenticated, user, router]);
 
@@ -111,7 +110,7 @@ export default function RestaurantSignupPage() {
     <>
       <Navbar />
       <Toast 
-        message="Registration successful! Redirecting to complete your profile..."
+        message="Registration successful! Redirecting to complete your registration..."
         type="success"
         isVisible={showSuccessToast}
         onClose={() => setShowSuccessToast(false)}
