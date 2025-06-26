@@ -22,16 +22,20 @@ export default function DriverLoginPage() {
     password: ''
   });
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [stageMessage, setStageMessage] = useState<string | null>(null);
+  const [registrationStage, setRegistrationStage] = useState<number | null>(null);
+  const totalStages = 5;
 
-  // Redirect to appropriate dashboard after successful login
+  // Redirect to appropriate dashboard or stage after successful login
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      // Navigate immediately without delay
+      setRegistrationStage(user.registrationStage);
+      setStageMessage(user.stageMessage);
       if (user.isRegistrationComplete) {
         router.push('/driver-dashboard');
-      } else {
-        router.push('/driver-dashboard-staged');
+      } else if (user.registrationStage) {
+        router.push(`/driver-registration-staged/stage/${user.registrationStage}`);
       }
     }
   }, [isAuthenticated, user, router]);
@@ -86,6 +90,16 @@ export default function DriverLoginPage() {
             <FormHeader>
               <Title>Driver Sign In</Title>
               <Subtitle>Welcome back! Sign in to your driver account</Subtitle>
+              {stageMessage && (
+                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">
+                  {stageMessage}
+                </div>
+              )}
+              {registrationStage && (
+                <div className="mb-2 text-sm text-gray-700">
+                  Stage {registrationStage} of {totalStages}
+                </div>
+              )}
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>

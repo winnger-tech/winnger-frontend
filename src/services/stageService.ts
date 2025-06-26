@@ -29,7 +29,7 @@ class StageService {
     if (!this.userType) {
       throw new Error('User type not set');
     }
-    return ApiService.get(`/api/${this.userType}s-staged/profile`);
+    return ApiService.get(`/${this.userType}s-staged/profile`);
   }
 
   // Get specific stage data
@@ -46,7 +46,7 @@ class StageService {
       throw new Error('User type not set');
     }
     // Only send the data for the current stage
-    return ApiService.put(`/api/${this.userType}s-staged/update-stage`, data);
+    return ApiService.put(`/${this.userType}s-staged/update-stage`, data);
   }
 
   // Get user profile
