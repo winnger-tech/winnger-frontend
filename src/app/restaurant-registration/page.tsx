@@ -163,6 +163,21 @@ export default function RestaurantRegistrationPage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Format postal code as user types
+  const formatPostalCode = (value: string): string => {
+    // Remove all non-alphanumeric characters
+    const cleaned = value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    
+    // Format as X0X 0X0
+    if (cleaned.length <= 3) {
+      return cleaned;
+    } else if (cleaned.length <= 6) {
+      return `${cleaned.slice(0, 3)} ${cleaned.slice(3)}`;
+    }
+    // Limit to 6 characters
+    return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 6)}`;
+  };
+
   // Email verification functions
   const sendVerificationEmail = async () => {
     setLoading(true);
@@ -222,7 +237,15 @@ export default function RestaurantRegistrationPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Special handling for postal code
+    if (name === 'postalCode') {
+      const formattedValue = formatPostalCode(value);
+      setFormData((prev) => ({ ...prev, [name]: formattedValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+    
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -300,7 +323,13 @@ export default function RestaurantRegistrationPage() {
           newErrors.businessEmail = "Invalid business email format";
         if (!formData.restaurantAddress.trim()) newErrors.restaurantAddress = "Restaurant address is required";
         if (!formData.city.trim()) newErrors.city = "City is required";
-        if (!formData.postalCode.trim()) newErrors.postalCode = "Postal code is required";
+
+        if (!formData.postalCode.trim()) {
+          newErrors.postalCode = "Postal code is required";
+        } else if (!/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(formData.postalCode.trim())) {
+          newErrors.postalCode = "Invalid Canadian postal code format (e.g., A1A 1A1 or A1A1A1)";
+        }
+
         if (!formData.businessType) newErrors.businessType = "Business type is required";
         break;
 
@@ -618,11 +647,21 @@ export default function RestaurantRegistrationPage() {
                 {errors.ownerName && <ErrorText>{errors.ownerName}</ErrorText>}
               </FormGroup>
               <FormRow>
-                <FormGroup>
-                  <label htmlFor="phone">{t('registration.restaurant.ownerInfo.phone')} *</label>
-                  <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.phone')} />
-                  {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
-                </FormGroup>
+                
+
+              <FormGroup>
+  <label htmlFor="phone">{t('registration.restaurant.ownerInfo.phone')} *</label>
+  <input
+    id="phone"
+    name="phone"
+    type="tel"
+    value={formData.phone.startsWith('+1-') ? formData.phone : '+1-' + formData.phone}
+    onChange={handleChange}
+    placeholder={t('registration.restaurant.placeholders.phone')}
+  />
+  {errors.phone && <ErrorText>{errors.phone}</ErrorText>}
+</FormGroup>
+
                 <FormGroup>
                   <label htmlFor="identificationType">{t('registration.restaurant.ownerInfo.identificationType')} *</label>
                   <select id="identificationType" name="identificationType" value={formData.identificationType} onChange={handleChange}>
@@ -667,7 +706,15 @@ export default function RestaurantRegistrationPage() {
                 </FormGroup>
                 <FormGroup>
                   <label htmlFor="postalCode">{t('registration.restaurant.businessInfo.postalCode')} *</label>
-                  <input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.postalCode')} />
+                  <input 
+                    id="postalCode" 
+                    name="postalCode" 
+                    value={formData.postalCode} 
+                    onChange={handleChange} 
+                    placeholder="K1A 0B1"
+                    maxLength={7}
+                    style={{ textTransform: 'uppercase' }}
+                  />
                   {errors.postalCode && <ErrorText>{errors.postalCode}</ErrorText>}
                 </FormGroup>
               </FormRow>
