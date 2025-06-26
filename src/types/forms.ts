@@ -60,37 +60,101 @@ export interface PaymentInfo {
   institutionNumber: string;
   accountNumber: string;
 }
+interface FormData {
+  // Owner Information
+  ownerName: string;
+  email: string;
+  phone: string;
+  ownerAddress: string; // NEW
+  identificationType: string;
 
+  // Business Information
+  restaurantName: string;
+  businessEmail: string; // NEW
+  // businessPhone: string; // This was commented out in backend model, remove if not used.
+  restaurantAddress: string; // RENAMED
+  city: string;
+  province: string;
+  postalCode: string;
+  businessType: 'Solo proprietor' | 'Corporate'; // NEW
+
+  // Banking Information
+  transitNumber: string;
+  institutionNumber: string;
+  accountNumber: string;
+
+  // Tax Information
+  gstNumber: string;
+  hstNumber: string;
+  pstNumber: string;
+  qstNumber: string;
+
+  // Documents
+  businessDocument: File | null;
+  // fssai: File | null; // Not currently used in backend upload.js or model.
+  // gst: File | null;   // Not currently used in backend upload.js or model.
+  // pan: File | null;   // Not currently used in backend upload.js or model.
+  businessLicense: File | null;
+  voidCheque: File | null;
+  hstDocument: File | null; // NEW
+  articleOfIncorporation: File | null; // NEW
+  articleOfIncorporationExpiryDate: string; // NEW, sending as string
+  foodHandlingCertificate: File | null; // NEW
+  foodHandlingCertificateExpiryDate: string; // NEW, sending as string
+
+  // Menu & Hours
+  menuItems: MenuItem[];
+  operatingHours: OperatingHours[];
+}
+
+// Update the RestaurantInfo interface in your forms.ts file
 export interface RestaurantInfo {
-  name: string;
+  // Owner Information
+  ownerName: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
   phone: string;
-  businessName: string;
-  businessPhone: string;
-  businessEmail: string;
-  address: {
-    street: string;
-    city: string;
-    province: string;
-    postalCode: string;
+  ownerAddress?: string; // NEW
+  identificationType: 'driving licence' | 'pr_card' | 'passport' | 'medical_card' | 'provincial_id'; // NEW
+  
+  // Business Information
+  restaurantName: string;
+  businessEmail?: string; // NEW
+  restaurantAddress: string; // RENAMED from address
+  city: string;
+  province: Province;
+  postalCode: string;
+  businessType: 'Solo proprietor' | 'Corporate'; // NEW
+  
+  // Banking Info
+  bankingInfo: {
+    transitNumber: string;
+    institutionNumber: string;
+    accountNumber: string;
   };
+  
+  // Tax Info (dynamic based on province)
   taxInfo: {
-    gstNumber: string;
-    pstNumber: string;
-    businessNumber: string;
+    gstNumber?: string;
+    hstNumber?: string;
+    pstNumber?: string;
+    qstNumber?: string;
   };
+  
+  // Documents
+  businessDocument: File | null; // RENAMED from businessDocumentUrl
   businessLicense: File | null;
-  fssaiCertificate: File | null;
-  gstCertificate: File | null;
-  panCard: File | null;
   voidCheque: File | null;
+  hstDocument?: File | null; // NEW
+  articleOfIncorporation?: File | null; // NEW
+  articleOfIncorporationExpiryDate?: string; // NEW
+  foodHandlingCertificate?: File | null; // NEW
+  foodHandlingCertificateExpiryDate?: string; // NEW
+  
+  // Menu & Hours
   menuDetails: Array<{
     name: string;
-    price: number;
+    price: string; // Changed to string to match frontend
     description: string;
     image: File | null;
   }>;
@@ -100,6 +164,8 @@ export interface RestaurantInfo {
     closeTime: string;
     isClosed: boolean;
   }>;
+  
+  // Payment
   stripePaymentIntentId?: string;
   paymentStatus?: string;
   status?: string;
