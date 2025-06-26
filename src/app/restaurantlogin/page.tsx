@@ -103,11 +103,11 @@ export default function RestaurantLoginPage() {
     }
   };
 
-  return (
+ return (
     <>
       <Navbar />
-      <Toast 
-        message="Login successful! Redirecting..."
+      <Toast
+        message={t('restaurantLogin.toastSuccess')}
         type="success"
         isVisible={showSuccessToast}
         onClose={() => setShowSuccessToast(false)}
@@ -121,8 +121,8 @@ export default function RestaurantLoginPage() {
             transition={{ duration: 0.8 }}
           >
             <FormHeader>
-              <Title>Restaurant Sign In</Title>
-              <Subtitle>Welcome back! Sign in to your restaurant account</Subtitle>
+              <Title>{t('restaurantLogin.title')}</Title>
+              <Subtitle>{t('restaurantLogin.subtitle')}</Subtitle>
               {stageMessage && (
                 <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">
                   {stageMessage}
@@ -130,7 +130,7 @@ export default function RestaurantLoginPage() {
               )}
               {registrationStage && (
                 <div className="mb-2 text-sm text-gray-700">
-                  Stage {registrationStage} of {totalStages}
+                  {(t as any)('restaurantLogin.stage', { current: registrationStage, total: totalStages })}
                 </div>
               )}
             </FormHeader>
@@ -138,7 +138,7 @@ export default function RestaurantLoginPage() {
             <Form onSubmit={handleSubmit}>
               <InputGroup>
                 <Label>
-                  Email Address <Required>*</Required>
+                  {t('restaurantLogin.form.email')} <Required>*</Required>
                 </Label>
                 <Input
                   type="email"
@@ -146,14 +146,14 @@ export default function RestaurantLoginPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   $hasError={!!validationErrors.email}
-                  placeholder="Enter your email address"
+                  placeholder={t('restaurantLogin.form.emailPlaceholder')}
                 />
                 {validationErrors.email && <ErrorText>{validationErrors.email}</ErrorText>}
               </InputGroup>
 
               <InputGroup>
                 <Label>
-                  Password <Required>*</Required>
+                  {t('restaurantLogin.form.password')} <Required>*</Required>
                 </Label>
                 <Input
                   type="password"
@@ -161,29 +161,27 @@ export default function RestaurantLoginPage() {
                   value={formData.password}
                   onChange={handleInputChange}
                   $hasError={!!validationErrors.password}
-                  placeholder="Enter your password"
+                  placeholder={t('restaurantLogin.form.passwordPlaceholder')}
                 />
                 {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
               </InputGroup>
 
-              {/* Show Redux error */}
               {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
 
               <ForgotPassword href="/forgot-password">
-                Forgot your password?
+                {t('restaurantLogin.form.forgotPassword')}
               </ForgotPassword>
 
-              <SubmitButton 
-                type="submit" 
-                disabled={isLoading}
-                $loading={isLoading}
-              >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+              <SubmitButton type="submit" disabled={isLoading} $loading={isLoading}>
+                {isLoading
+                  ? t('restaurantLogin.form.submittingButton')
+                  : t('restaurantLogin.form.submitButton')}
               </SubmitButton>
             </Form>
 
             <SignupPrompt>
-              Don't have an account? <SignupLink href="/resturantsignup">Sign Up</SignupLink>
+              {t('restaurantLogin.form.signupPrompt')}{' '}
+              <SignupLink href="/resturantsignup">{t('restaurantLogin.form.signupLink')}</SignupLink>
             </SignupPrompt>
           </FormSection>
 
@@ -194,23 +192,23 @@ export default function RestaurantLoginPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <InfoCard>
-              <InfoTitle>Restaurant Portal</InfoTitle>
+              <InfoTitle>{t('restaurantLogin.portal.title')}</InfoTitle>
               <BenefitsList>
                 <BenefitItem>
                   <BenefitIcon>📊</BenefitIcon>
-                  <BenefitText>View your analytics dashboard</BenefitText>
+                  <BenefitText>{t('restaurantLogin.portal.analytics')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>🍽️</BenefitIcon>
-                  <BenefitText>Manage your menu items</BenefitText>
+                  <BenefitText>{t('restaurantLogin.portal.menu')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>🚀</BenefitIcon>
-                  <BenefitText>Track delivery orders</BenefitText>
+                  <BenefitText>{t('restaurantLogin.portal.orders')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>💰</BenefitIcon>
-                  <BenefitText>Monitor your earnings</BenefitText>
+                  <BenefitText>{t('restaurantLogin.portal.earnings')}</BenefitText>
                 </BenefitItem>
               </BenefitsList>
             </InfoCard>

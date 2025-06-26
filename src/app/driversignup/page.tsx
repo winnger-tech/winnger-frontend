@@ -150,12 +150,13 @@ export default function DriverSignupPage() {
                 disabled={isLoading}
                 $loading={isLoading}
               >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
+                {isLoading ? t('driverSignup.form.submittingButton') : t('driverSignup.form.submitButton')}
               </SubmitButton>
             </Form>
 
             <LoginPrompt>
-              Already have an account? <LoginLink href="/driverlogin">Sign In</LoginLink>
+              {t('driverSignup.form.loginPrompt')}{' '}
+  <LoginLink href="/driverlogin">{t('driverSignup.form.loginLink')}</LoginLink>
             </LoginPrompt>
           </FormSection>
 
