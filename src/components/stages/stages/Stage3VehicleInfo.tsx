@@ -1,39 +1,53 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { motion } from 'framer-motion';
 import { useDashboard } from '../../../context/DashboardContext';
 
-interface Stage3VehicleInfoProps {
-  onNext: () => void;
-  onPrevious: () => void;
+interface Stage3Props {
+  data: any;
+  onChange: (data: any) => void;
+  onSubmit: (data: any) => void;
+  loading: boolean;
+  errors: any;
+  userType: 'driver' | 'restaurant';
 }
 
-export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleInfoProps) {
+interface ValidationErrors {
+  [key: string]: string;
+}
+
+export default function Stage3VehicleInfo({ 
+  data, 
+  onChange, 
+  onSubmit, 
+  loading, 
+  errors,
+  userType 
+}: Stage3Props) {
   const { state, actions } = useDashboard();
   const currentStageData = state.userData?.stage3 || {};
   
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState({
-    vehicleYear: currentStageData.vehicleYear || '',
-    vehicleMake: currentStageData.vehicleMake || '',
-    vehicleModel: currentStageData.vehicleModel || '',
-    vehicleColor: currentStageData.vehicleColor || '',
-    licensePlate: currentStageData.licensePlate || '',
-    vehicleType: currentStageData.vehicleType || '',
-    insuranceProvider: currentStageData.insuranceProvider || '',
-    insurancePolicyNumber: currentStageData.insurancePolicyNumber || '',
-    insuranceExpiryDate: currentStageData.insuranceExpiryDate || '',
-    hasValidLicense: currentStageData.hasValidLicense || false,
-    licenseNumber: currentStageData.licenseNumber || '',
-    licenseExpiryDate: currentStageData.licenseExpiryDate || '',
-    ...currentStageData
+    vehicleType: data.vehicleType || '',
+    vehicleMake: data.vehicleMake || '',
+    vehicleModel: data.vehicleModel || '',
+    deliveryType: data.deliveryType || '',
+    yearOfManufacture: data.yearOfManufacture || '',
+    vehicleColor: data.vehicleColor || '',
+    vehicleLicensePlate: data.vehicleLicensePlate || '',
+    driversLicenseClass: data.driversLicenseClass || '',
+    vehicleInsuranceUrl: data.vehicleInsuranceUrl || '',
+    vehicleRegistrationUrl: data.vehicleRegistrationUrl || '',
+    ...data
   });
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Real-time validation function
   const validateField = (name: string, value: any) => {
     switch (name) {
-      case 'vehicleYear':
+      case 'yearOfManufacture':
         if (!value?.toString().trim()) {
           return 'Vehicle year is required';
         } else {
@@ -63,7 +77,7 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
         }
         return '';
       
-      case 'licensePlate':
+      case 'vehicleLicensePlate':
         if (!value?.toString().trim()) {
           return 'License plate is required';
         }
@@ -75,33 +89,15 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
         }
         return '';
       
-      case 'insuranceProvider':
+      case 'deliveryType':
         if (!value?.toString().trim()) {
-          return 'Insurance provider is required';
+          return 'Delivery type is required';
         }
         return '';
       
-      case 'insurancePolicyNumber':
+      case 'driversLicenseClass':
         if (!value?.toString().trim()) {
-          return 'Insurance policy number is required';
-        }
-        return '';
-      
-      case 'insuranceExpiryDate':
-        if (!value?.toString().trim()) {
-          return 'Insurance expiry date is required';
-        }
-        return '';
-      
-      case 'licenseNumber':
-        if (formData.hasValidLicense && !value?.toString().trim()) {
-          return 'License number is required';
-        }
-        return '';
-      
-      case 'licenseExpiryDate':
-        if (formData.hasValidLicense && !value?.toString().trim()) {
-          return 'License expiry date is required';
+          return 'Driver license class is required';
         }
         return '';
       
@@ -118,44 +114,45 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
     
     // Real-time validation
     const fieldError = validateField(name, inputValue);
-    setErrors(prev => ({ 
+    setValidationErrors(prev => ({ 
       ...prev, 
       [name]: fieldError 
     }));
 
-    // Auto-save after a short delay
-    setTimeout(() => {
-      actions.autoSave(3, { ...formData, [name]: inputValue });
-    }, 1000);
+    // Call the parent onChange function
+    onChange({ [name]: inputValue });
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Validate all fields
-    Object.keys(formData).forEach(field => {
-      if (['vehicleYear', 'vehicleMake', 'vehicleModel', 'vehicleColor', 'licensePlate', 'vehicleType', 'insuranceProvider', 'insurancePolicyNumber', 'insuranceExpiryDate', 'licenseNumber', 'licenseExpiryDate'].includes(field)) {
-        const error = validateField(field, formData[field]);
-        if (error) {
-          newErrors[field] = error;
-        }
+    // Validate all required fields
+    const requiredFields = ['vehicleType', 'vehicleMake', 'vehicleModel', 'deliveryType', 'yearOfManufacture', 'vehicleColor', 'vehicleLicensePlate', 'driversLicenseClass'];
+    
+    requiredFields.forEach(field => {
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
       }
     });
 
-    setErrors(newErrors);
+    setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (validateForm()) {
-      actions.updateStageData(3, formData);
-      onNext();
+      console.log('✅ Stage3 validation passed, calling onSubmit');
+      onSubmit(formData);
+    } else {
+      console.log('❌ Stage3 validation failed:', validationErrors);
     }
   };
 
   const handlePrevious = () => {
     actions.updateStageData(3, formData);
-    onPrevious();
   };
 
   const vehicleTypes = [
@@ -173,269 +170,343 @@ export default function Stage3VehicleInfo({ onNext, onPrevious }: Stage3VehicleI
   const years = Array.from({ length: currentYear - 1989 }, (_, i) => currentYear - i);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg pt-28">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Vehicle Information</h2>
-        <p className="text-gray-600">Please provide details about your vehicle and insurance.</p>
-      </div>
+    <Container
+      as={motion.div}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <StageCard>
+        <CardHeader>
+          <Title>Vehicle Information</Title>
+          <Description>
+            Please provide details about your vehicle and delivery preferences
+          </Description>
+        </CardHeader>
 
-      <div className="space-y-6">
-        {/* Vehicle Details */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Vehicle Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="vehicleYear" className="block text-sm font-medium text-gray-700 mb-1">
-                Year *
-              </label>
-              <select
-                id="vehicleYear"
-                name="vehicleYear"
-                value={formData.vehicleYear}
+        <Form onSubmit={handleSubmit}>
+          {/* Vehicle Details Section */}
+          <SectionTitle>Vehicle Details</SectionTitle>
+          <InputRow>
+            <InputGroup>
+              <Label>Vehicle Type *</Label>
+              <Select
+                name="vehicleType"
+                value={formData.vehicleType}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleYear ? 'border-red-500' : 'border-gray-300'
-                }`}
               >
-                <option value="">Select Year</option>
-                {years.map(year => (
-                  <option key={year} value={year.toString()}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-              {errors.vehicleYear && <p className="text-red-500 text-sm mt-1">{errors.vehicleYear}</p>}
-            </div>
+                <option value="">Select Vehicle Type</option>
+                <option value="Walk">Walk</option>
+                <option value="Scooter">Scooter</option>
+                <option value="Bike">Bike</option>
+                <option value="Car">Car</option>
+                <option value="Van">Van</option>
+                <option value="Other">Other</option>
+              </Select>
+              {(validationErrors.vehicleType || errors?.vehicleType) && (
+                <ErrorText>{validationErrors.vehicleType || errors.vehicleType}</ErrorText>
+              )}
+            </InputGroup>
 
-            <div>
-              <label htmlFor="vehicleMake" className="block text-sm font-medium text-gray-700 mb-1">
-                Make *
-              </label>
-              <input
+            <InputGroup>
+              <Label>Delivery Type *</Label>
+              <Select
+                name="deliveryType"
+                value={formData.deliveryType}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Delivery Type</option>
+                <option value="Meals">Meals</option>
+                <option value="Parcel">Parcel</option>
+                <option value="Grocery">Grocery</option>
+                <option value="Other">Other</option>
+              </Select>
+              {(validationErrors.deliveryType || errors?.deliveryType) && (
+                <ErrorText>{validationErrors.deliveryType || errors.deliveryType}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
+
+          <InputRow>
+            <InputGroup>
+              <Label>Vehicle Make *</Label>
+              <Input
                 type="text"
-                id="vehicleMake"
                 name="vehicleMake"
                 value={formData.vehicleMake}
                 onChange={handleInputChange}
                 placeholder="e.g., Toyota, Honda, Ford"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleMake ? 'border-red-500' : 'border-gray-300'
-                }`}
               />
-              {errors.vehicleMake && <p className="text-red-500 text-sm mt-1">{errors.vehicleMake}</p>}
-            </div>
+              {(validationErrors.vehicleMake || errors?.vehicleMake) && (
+                <ErrorText>{validationErrors.vehicleMake || errors.vehicleMake}</ErrorText>
+              )}
+            </InputGroup>
 
-            <div>
-              <label htmlFor="vehicleModel" className="block text-sm font-medium text-gray-700 mb-1">
-                Model *
-              </label>
-              <input
+            <InputGroup>
+              <Label>Vehicle Model *</Label>
+              <Input
                 type="text"
-                id="vehicleModel"
                 name="vehicleModel"
                 value={formData.vehicleModel}
                 onChange={handleInputChange}
                 placeholder="e.g., Camry, Civic, F-150"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleModel ? 'border-red-500' : 'border-gray-300'
-                }`}
               />
-              {errors.vehicleModel && <p className="text-red-500 text-sm mt-1">{errors.vehicleModel}</p>}
-            </div>
+              {(validationErrors.vehicleModel || errors?.vehicleModel) && (
+                <ErrorText>{validationErrors.vehicleModel || errors.vehicleModel}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
 
-            <div>
-              <label htmlFor="vehicleColor" className="block text-sm font-medium text-gray-700 mb-1">
-                Color *
-              </label>
-              <input
+          <InputRow>
+            <InputGroup>
+              <Label>Year of Manufacture *</Label>
+              <Select
+                name="yearOfManufacture"
+                value={formData.yearOfManufacture}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Year</option>
+                {Array.from({ length: new Date().getFullYear() - 1989 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </Select>
+              {(validationErrors.yearOfManufacture || errors?.yearOfManufacture) && (
+                <ErrorText>{validationErrors.yearOfManufacture || errors.yearOfManufacture}</ErrorText>
+              )}
+            </InputGroup>
+
+            <InputGroup>
+              <Label>Vehicle Color *</Label>
+              <Input
                 type="text"
-                id="vehicleColor"
                 name="vehicleColor"
                 value={formData.vehicleColor}
                 onChange={handleInputChange}
                 placeholder="e.g., Red, Blue, Silver"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleColor ? 'border-red-500' : 'border-gray-300'
-                }`}
               />
-              {errors.vehicleColor && <p className="text-red-500 text-sm mt-1">{errors.vehicleColor}</p>}
-            </div>
+              {(validationErrors.vehicleColor || errors?.vehicleColor) && (
+                <ErrorText>{validationErrors.vehicleColor || errors.vehicleColor}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
 
-            <div>
-              <label htmlFor="licensePlate" className="block text-sm font-medium text-gray-700 mb-1">
-                License Plate *
-              </label>
-              <input
+          <InputRow>
+            <InputGroup>
+              <Label>License Plate *</Label>
+              <Input
                 type="text"
-                id="licensePlate"
-                name="licensePlate"
-                value={formData.licensePlate}
+                name="vehicleLicensePlate"
+                value={formData.vehicleLicensePlate}
                 onChange={handleInputChange}
                 placeholder="ABC-123"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.licensePlate ? 'border-red-500' : 'border-gray-300'
-                }`}
               />
-              {errors.licensePlate && <p className="text-red-500 text-sm mt-1">{errors.licensePlate}</p>}
-            </div>
+              {(validationErrors.vehicleLicensePlate || errors?.vehicleLicensePlate) && (
+                <ErrorText>{validationErrors.vehicleLicensePlate || errors.vehicleLicensePlate}</ErrorText>
+              )}
+            </InputGroup>
 
-            <div>
-              <label htmlFor="vehicleType" className="block text-sm font-medium text-gray-700 mb-1">
-                Vehicle Type *
-              </label>
-              <select
-                id="vehicleType"
-                name="vehicleType"
-                value={formData.vehicleType}
+            <InputGroup>
+              <Label>Driver License Class *</Label>
+              <Select
+                name="driversLicenseClass"
+                value={formData.driversLicenseClass}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleType ? 'border-red-500' : 'border-gray-300'
-                }`}
               >
-                {vehicleTypes.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-              {errors.vehicleType && <p className="text-red-500 text-sm mt-1">{errors.vehicleType}</p>}
-            </div>
-          </div>
-        </div>
+                <option value="">Select License Class</option>
+                <option value="G">G (Car)</option>
+                <option value="G1">G1 (Learner)</option>
+                <option value="G2">G2 (Novice)</option>
+                <option value="M">M (Motorcycle)</option>
+                <option value="M1">M1 (Motorcycle Learner)</option>
+                <option value="M2">M2 (Motorcycle Novice)</option>
+                <option value="Other">Other</option>
+              </Select>
+              {(validationErrors.driversLicenseClass || errors?.driversLicenseClass) && (
+                <ErrorText>{validationErrors.driversLicenseClass || errors.driversLicenseClass}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
 
-        {/* Insurance Information */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Insurance Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="insuranceProvider" className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Provider *
-              </label>
-              <input
-                type="text"
-                id="insuranceProvider"
-                name="insuranceProvider"
-                value={formData.insuranceProvider}
+          {/* Document Upload Section */}
+          <SectionTitle>Document Upload</SectionTitle>
+          <InputRow>
+            <InputGroup>
+              <Label>Vehicle Insurance URL</Label>
+              <Input
+                type="url"
+                name="vehicleInsuranceUrl"
+                value={formData.vehicleInsuranceUrl}
                 onChange={handleInputChange}
-                placeholder="e.g., State Farm, Allstate"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.insuranceProvider ? 'border-red-500' : 'border-gray-300'
-                }`}
+                placeholder="https://example.com/insurance.pdf"
               />
-              {errors.insuranceProvider && <p className="text-red-500 text-sm mt-1">{errors.insuranceProvider}</p>}
-            </div>
+              {(validationErrors.vehicleInsuranceUrl || errors?.vehicleInsuranceUrl) && (
+                <ErrorText>{validationErrors.vehicleInsuranceUrl || errors.vehicleInsuranceUrl}</ErrorText>
+              )}
+            </InputGroup>
 
-            <div>
-              <label htmlFor="insurancePolicyNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                Policy Number *
-              </label>
-              <input
-                type="text"
-                id="insurancePolicyNumber"
-                name="insurancePolicyNumber"
-                value={formData.insurancePolicyNumber}
+            <InputGroup>
+              <Label>Vehicle Registration URL</Label>
+              <Input
+                type="url"
+                name="vehicleRegistrationUrl"
+                value={formData.vehicleRegistrationUrl}
                 onChange={handleInputChange}
-                placeholder="Policy number"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.insurancePolicyNumber ? 'border-red-500' : 'border-gray-300'
-                }`}
+                placeholder="https://example.com/registration.pdf"
               />
-              {errors.insurancePolicyNumber && <p className="text-red-500 text-sm mt-1">{errors.insurancePolicyNumber}</p>}
-            </div>
+              {(validationErrors.vehicleRegistrationUrl || errors?.vehicleRegistrationUrl) && (
+                <ErrorText>{validationErrors.vehicleRegistrationUrl || errors.vehicleRegistrationUrl}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
 
-            <div>
-              <label htmlFor="insuranceExpiryDate" className="block text-sm font-medium text-gray-700 mb-1">
-                Insurance Expiry Date *
-              </label>
-              <input
-                type="date"
-                id="insuranceExpiryDate"
-                name="insuranceExpiryDate"
-                value={formData.insuranceExpiryDate}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.insuranceExpiryDate ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
-              {errors.insuranceExpiryDate && <p className="text-red-500 text-sm mt-1">{errors.insuranceExpiryDate}</p>}
-            </div>
-          </div>
-        </div>
-
-        {/* Driver's License */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Driver's License</h3>
-          <div className="mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                name="hasValidLicense"
-                checked={formData.hasValidLicense}
-                onChange={handleInputChange}
-                className="mr-2"
-              />
-              <span className="text-sm text-gray-700">I have a valid driver's license</span>
-            </label>
-          </div>
-
-          {formData.hasValidLicense && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                  License Number *
-                </label>
-                <input
-                  type="text"
-                  id="licenseNumber"
-                  name="licenseNumber"
-                  value={formData.licenseNumber}
-                  onChange={handleInputChange}
-                  placeholder="License number"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.licenseNumber ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.licenseNumber && <p className="text-red-500 text-sm mt-1">{errors.licenseNumber}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="licenseExpiryDate" className="block text-sm font-medium text-gray-700 mb-1">
-                  License Expiry Date *
-                </label>
-                <input
-                  type="date"
-                  id="licenseExpiryDate"
-                  name="licenseExpiryDate"
-                  value={formData.licenseExpiryDate}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    errors.licenseExpiryDate ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                />
-                {errors.licenseExpiryDate && <p className="text-red-500 text-sm mt-1">{errors.licenseExpiryDate}</p>}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t">
-          <button
-            type="button"
-            onClick={handlePrevious}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <SubmitButton 
+            type="submit" 
+            disabled={loading}
+            $loading={loading}
           >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={handleNext}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Next Step
-          </button>
-        </div>
-      </div>
-    </div>
+            {loading ? 'Saving...' : 'Save & Continue'}
+          </SubmitButton>
+        </Form>
+      </StageCard>
+    </Container>
   );
 }
+
+// Styled Components
+const Container = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+`;
+
+const StageCard = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const CardHeader = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const Title = styled.h2`
+  color: white;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+`;
+
+const Description = styled.p`
+  color: #e0e0e0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const SectionTitle = styled.h3`
+  color: #f0f0f0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+`;
+
+const InputRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const Label = styled.label`
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
+`;
+
+const Input = styled.input`
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
+  }
+`;
+
+const Select = styled.select`
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  option {
+    background: #2d2b1f;
+    color: white;
+  }
+`;
+
+const ErrorText = styled.small`
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 500;
+`;
+
+const SubmitButton = styled.button<{ $loading: boolean }>`
+  padding: 1rem 2rem;
+  background: ${props => props.$loading ? '#666' : 'linear-gradient(135deg, #4CAF50, #45a049)'};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: ${props => props.$loading ? 'not-allowed' : 'pointer'};
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+`;

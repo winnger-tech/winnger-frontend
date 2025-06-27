@@ -45,8 +45,8 @@ class StageService {
     if (!this.userType) {
       throw new Error('User type not set');
     }
-    // Only send the data for the current stage
-    return ApiService.put(`/${this.userType}s-staged/update-stage`, data);
+    // Send to the specific stage endpoint as per API documentation
+    return ApiService.put(`/${this.userType}s-staged/stage/${stage}`, data);
   }
 
   // Get user profile

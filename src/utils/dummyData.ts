@@ -38,8 +38,7 @@ export const driverDummyData = {
     sinCard: null, // You'll need to provide an actual file
     workEligibilityType: 'passport',
     sinNumber: '123456789',
-    drivingAbstractDate: new Date().toISOString().split('T')[0],
-    criminalBackgroundCheckDate: new Date().toISOString().split('T')[0]
+    drivingAbstractDate: new Date().toISOString().split('T')[0]
   },
 
   // Payment Information

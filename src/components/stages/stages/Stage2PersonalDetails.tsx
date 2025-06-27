@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
-interface Stage1Props {
+interface Stage2Props {
   data: any;
   onChange: (data: any) => void;
   onSubmit: (data: any) => void;
@@ -17,14 +17,14 @@ interface ValidationErrors {
   [key: string]: string;
 }
 
-export default function Stage1BasicInfo({ 
+export default function Stage2PersonalDetails({ 
   data, 
   onChange, 
   onSubmit, 
   loading, 
   errors,
   userType 
-}: Stage1Props) {
+}: Stage2Props) {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
 
   // Phone number formatting function
@@ -90,6 +90,15 @@ export default function Stage1BasicInfo({
 
     // Apply formatting and validation based on field
     switch (name) {
+      case 'firstName':
+        error = validateRequired(value, 'First name');
+        break;
+      case 'lastName':
+        error = validateRequired(value, 'Last name');
+        break;
+      case 'middleName':
+        // Middle name is optional, so no validation needed
+        break;
       case 'cellNumber':
         formattedValue = formatPhoneNumber(value);
         error = validatePhoneNumber(formattedValue);
@@ -141,6 +150,8 @@ export default function Stage1BasicInfo({
     
     if (userType === 'driver') {
       // Validate all required fields for drivers
+      newErrors.firstName = validateRequired(data.firstName || '', 'First name');
+      newErrors.lastName = validateRequired(data.lastName || '', 'Last name');
       newErrors.dateOfBirth = validateDate(data.dateOfBirth || '');
       newErrors.cellNumber = validatePhoneNumber(data.cellNumber || '');
       newErrors.streetNameNumber = validateRequired(data.streetNameNumber || '', 'Street address');
@@ -157,7 +168,7 @@ export default function Stage1BasicInfo({
     // Check if there are any errors
     const hasErrors = Object.values(newErrors).some(error => error !== '');
     
-    console.log('🚀 Stage1 submission:', {
+    console.log('🚀 Stage2 submission:', {
       hasErrors,
       newErrors,
       data,
@@ -165,10 +176,10 @@ export default function Stage1BasicInfo({
     });
     
     if (!hasErrors) {
-      console.log('✅ Stage1 validation passed, calling onSubmit');
+      console.log('✅ Stage2 validation passed, calling onSubmit');
       onSubmit(data);
     } else {
-      console.log('❌ Stage1 validation failed:', newErrors);
+      console.log('❌ Stage2 validation failed:', newErrors);
     }
   };
 
@@ -201,8 +212,10 @@ export default function Stage1BasicInfo({
                     value={data.firstName || ''}
                     onChange={handleInputChange}
                     placeholder="Enter your first name"
-                    readOnly
                   />
+                  {(validationErrors.firstName || errors?.firstName) && (
+                    <ErrorText>{validationErrors.firstName || errors.firstName}</ErrorText>
+                  )}
                 </InputGroup>
 
                 <InputGroup>
@@ -213,35 +226,39 @@ export default function Stage1BasicInfo({
                     value={data.lastName || ''}
                     onChange={handleInputChange}
                     placeholder="Enter your last name"
-                    readOnly
                   />
+                  {(validationErrors.lastName || errors?.lastName) && (
+                    <ErrorText>{validationErrors.lastName || errors.lastName}</ErrorText>
+                  )}
                 </InputGroup>
               </InputRow>
 
-              <InputRow>
-                <InputGroup>
-                  <Label>Middle Name</Label>
-                  <Input
-                    type="text"
-                    name="middleName"
-                    value={data.middleName || ''}
-                    onChange={handleInputChange}
-                    placeholder="Enter your middle name (optional)"
-                  />
-                </InputGroup>
+              <InputGroup>
+                <Label>Middle Name</Label>
+                <Input
+                  type="text"
+                  name="middleName"
+                  value={data.middleName || ''}
+                  onChange={handleInputChange}
+                  placeholder="Enter your middle name (optional)"
+                />
+                {(validationErrors.middleName || errors?.middleName) && (
+                  <ErrorText>{validationErrors.middleName || errors.middleName}</ErrorText>
+                )}
+              </InputGroup>
 
-                <InputGroup>
-                  <Label>Email Address *</Label>
-                  <Input
-                    type="email"
-                    name="email"
-                    value={data.email || ''}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email address"
-                    readOnly
-                  />
-                </InputGroup>
-              </InputRow>
+              <InputGroup>
+                <Label>Email Address *</Label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={data.email || ''}
+                  onChange={handleInputChange}
+                  placeholder="Enter your email address"
+                  disabled
+                />
+                <HelperText>Email from registration</HelperText>
+              </InputGroup>
 
               {/* Personal Details Section */}
               <SectionTitle>Personal Details</SectionTitle>
@@ -253,12 +270,10 @@ export default function Stage1BasicInfo({
                     name="dateOfBirth"
                     value={data.dateOfBirth || ''}
                     onChange={handleInputChange}
-                    style={{
-                      borderColor: validationErrors.dateOfBirth ? '#ff4757' : '#e1e1e1'
-                    }}
+                    max={new Date().toISOString().split('T')[0]}
                   />
-                  {validationErrors.dateOfBirth && (
-                    <ErrorText>{validationErrors.dateOfBirth}</ErrorText>
+                  {(validationErrors.dateOfBirth || errors?.dateOfBirth) && (
+                    <ErrorText>{validationErrors.dateOfBirth || errors.dateOfBirth}</ErrorText>
                   )}
                 </InputGroup>
 
@@ -270,47 +285,39 @@ export default function Stage1BasicInfo({
                     value={data.cellNumber || ''}
                     onChange={handleInputChange}
                     placeholder="(123) 456-7890"
-                    style={{
-                      borderColor: validationErrors.cellNumber ? '#ff4757' : '#e1e1e1'
-                    }}
                   />
-                  {validationErrors.cellNumber && (
-                    <ErrorText>{validationErrors.cellNumber}</ErrorText>
+                  {(validationErrors.cellNumber || errors?.cellNumber) && (
+                    <ErrorText>{validationErrors.cellNumber || errors.cellNumber}</ErrorText>
                   )}
                 </InputGroup>
               </InputRow>
 
               {/* Address Information Section */}
               <SectionTitle>Address Information</SectionTitle>
-              <InputRow>
-                <InputGroup>
-                  <Label>Street Name & Number *</Label>
-                  <Input
-                    type="text"
-                    name="streetNameNumber"
-                    value={data.streetNameNumber || ''}
-                    onChange={handleInputChange}
-                    placeholder="123 Main Street"
-                    style={{
-                      borderColor: validationErrors.streetNameNumber ? '#ff4757' : '#e1e1e1'
-                    }}
-                  />
-                  {validationErrors.streetNameNumber && (
-                    <ErrorText>{validationErrors.streetNameNumber}</ErrorText>
-                  )}
-                </InputGroup>
+              <InputGroup>
+                <Label>Street Name & Number *</Label>
+                <Input
+                  type="text"
+                  name="streetNameNumber"
+                  value={data.streetNameNumber || ''}
+                  onChange={handleInputChange}
+                  placeholder="123 Main Street"
+                />
+                {(validationErrors.streetNameNumber || errors?.streetNameNumber) && (
+                  <ErrorText>{validationErrors.streetNameNumber || errors.streetNameNumber}</ErrorText>
+                )}
+              </InputGroup>
 
-                <InputGroup>
-                  <Label>Apartment/Unit Number</Label>
-                  <Input
-                    type="text"
-                    name="appUniteNumber"
-                    value={data.appUniteNumber || ''}
-                    onChange={handleInputChange}
-                    placeholder="Apt 4B (optional)"
-                  />
-                </InputGroup>
-              </InputRow>
+              <InputGroup>
+                <Label>App/Unit Number</Label>
+                <Input
+                  type="text"
+                  name="appUniteNumber"
+                  value={data.appUniteNumber || ''}
+                  onChange={handleInputChange}
+                  placeholder="Apt 4B (optional)"
+                />
+              </InputGroup>
 
               <InputRow>
                 <InputGroup>
@@ -321,12 +328,9 @@ export default function Stage1BasicInfo({
                     value={data.city || ''}
                     onChange={handleInputChange}
                     placeholder="Enter your city"
-                    style={{
-                      borderColor: validationErrors.city ? '#ff4757' : '#e1e1e1'
-                    }}
                   />
-                  {validationErrors.city && (
-                    <ErrorText>{validationErrors.city}</ErrorText>
+                  {(validationErrors.city || errors?.city) && (
+                    <ErrorText>{validationErrors.city || errors.city}</ErrorText>
                   )}
                 </InputGroup>
 
@@ -336,9 +340,6 @@ export default function Stage1BasicInfo({
                     name="province"
                     value={data.province || ''}
                     onChange={handleInputChange}
-                    style={{
-                      borderColor: validationErrors.province ? '#ff4757' : '#e1e1e1'
-                    }}
                   >
                     <option value="">Select Province</option>
                     <option value="AB">Alberta</option>
@@ -347,74 +348,63 @@ export default function Stage1BasicInfo({
                     <option value="NB">New Brunswick</option>
                     <option value="NL">Newfoundland and Labrador</option>
                     <option value="NS">Nova Scotia</option>
+                    <option value="NT">Northwest Territories</option>
+                    <option value="NU">Nunavut</option>
                     <option value="ON">Ontario</option>
                     <option value="PE">Prince Edward Island</option>
                     <option value="QC">Quebec</option>
                     <option value="SK">Saskatchewan</option>
-                    <option value="NT">Northwest Territories</option>
-                    <option value="NU">Nunavut</option>
                     <option value="YT">Yukon</option>
                   </Select>
-                  {validationErrors.province && (
-                    <ErrorText>{validationErrors.province}</ErrorText>
+                  {(validationErrors.province || errors?.province) && (
+                    <ErrorText>{validationErrors.province || errors.province}</ErrorText>
                   )}
                 </InputGroup>
               </InputRow>
 
-              <InputRow>
-                <InputGroup>
-                  <Label>Postal Code *</Label>
-                  <Input
-                    type="text"
-                    name="postalCode"
-                    value={data.postalCode || ''}
-                    onChange={handleInputChange}
-                    placeholder="A1A 1A1"
-                    style={{
-                      borderColor: validationErrors.postalCode ? '#ff4757' : '#e1e1e1'
-                    }}
-                  />
-                  {validationErrors.postalCode && (
-                    <ErrorText>{validationErrors.postalCode}</ErrorText>
-                  )}
-                </InputGroup>
+              <InputGroup>
+                <Label>Postal Code *</Label>
+                <Input
+                  type="text"
+                  name="postalCode"
+                  value={data.postalCode || ''}
+                  onChange={handleInputChange}
+                  placeholder="A1A 1A1"
+                  maxLength={7}
+                />
+                {(validationErrors.postalCode || errors?.postalCode) && (
+                  <ErrorText>{validationErrors.postalCode || errors.postalCode}</ErrorText>
+                )}
+              </InputGroup>
 
-                <InputGroup>
-                  <Label>Profile Photo URL</Label>
-                  <Input
-                    type="url"
-                    name="profilePhotoUrl"
-                    value={data.profilePhotoUrl || ''}
-                    onChange={handleInputChange}
-                    placeholder="https://example.com/photo.jpg (optional)"
-                    style={{
-                      borderColor: validationErrors.profilePhotoUrl ? '#ff4757' : '#e1e1e1'
-                    }}
-                  />
-                  {validationErrors.profilePhotoUrl && (
-                    <ErrorText>{validationErrors.profilePhotoUrl}</ErrorText>
-                  )}
-                </InputGroup>
-              </InputRow>
+              <InputGroup>
+                <Label>Profile Photo URL</Label>
+                <Input
+                  type="url"
+                  name="profilePhotoUrl"
+                  value={data.profilePhotoUrl || ''}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/photo.jpg (optional)"
+                />
+                {(validationErrors.profilePhotoUrl || errors?.profilePhotoUrl) && (
+                  <ErrorText>{validationErrors.profilePhotoUrl || errors.profilePhotoUrl}</ErrorText>
+                )}
+              </InputGroup>
             </>
           )}
 
           {userType === 'restaurant' && (
             <InputGroup>
-              <Label>Restaurant Owner Name *</Label>
+              <Label>Owner Name *</Label>
               <Input
                 type="text"
                 name="ownerName"
                 value={data.ownerName || ''}
                 onChange={handleInputChange}
-                placeholder="Enter owner name"
-                readOnly
-                style={{
-                  borderColor: validationErrors.ownerName ? '#ff4757' : '#e1e1e1'
-                }}
+                placeholder="Enter owner's full name"
               />
-              {validationErrors.ownerName && (
-                <ErrorText>{validationErrors.ownerName}</ErrorText>
+              {(validationErrors.ownerName || errors?.ownerName) && (
+                <ErrorText>{validationErrors.ownerName || errors.ownerName}</ErrorText>
               )}
             </InputGroup>
           )}
@@ -422,8 +412,9 @@ export default function Stage1BasicInfo({
           <SubmitButton 
             type="submit" 
             disabled={loading}
+            $loading={loading}
           >
-            {loading ? 'Saving...' : 'Continue to Next Step'}
+            {loading ? 'Saving...' : 'Save & Continue'}
           </SubmitButton>
         </Form>
       </StageCard>
@@ -435,172 +426,166 @@ export default function Stage1BasicInfo({
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
-  padding-top: 110px;
+  padding: 2rem;
 `;
 
 const StageCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 3rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 768px) {
-    padding: 2rem;
-  }
+  border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const CardHeader = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 `;
 
 const Title = styled.h2`
+  color: white;
   font-size: 2rem;
-  font-weight: 700;
-  color: #403E2D;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 `;
 
 const Description = styled.p`
+  color: #e0e0e0;
   font-size: 1.1rem;
-  color: #666;
-  margin: 0;
+  line-height: 1.6;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+`;
+
+const SectionTitle = styled.h3`
+  color: #f0f0f0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 `;
 
 const InputRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 1rem;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
   }
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
 `;
 
 const Label = styled.label`
-  font-size: 1rem;
-  font-weight: 600;
-  color: #403E2D;
-  margin-bottom: 0.5rem;
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
 `;
 
 const Input = styled.input`
-  padding: 1rem;
-  border: 2px solid #e1e1e1;
-  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
   font-size: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
   transition: all 0.3s ease;
-  background: ${props => props.readOnly ? '#f5f5f5' : 'white'};
-  color: #111;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
 
   &:focus {
     outline: none;
-    border-color: #ffc32b;
-    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
+    border-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
   }
 
-  &::placeholder {
-    color: #999;
+  &:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+  }
+`;
+
+const Select = styled.select`
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  option {
+    background: #2d2b1f;
+    color: white;
+  }
+`;
+
+const HelperText = styled.small`
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  font-style: italic;
+`;
+
+const ErrorText = styled.small`
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  font-weight: 500;
+`;
+
+const SubmitButton = styled.button<{ $loading: boolean }>`
+  padding: 1rem 2rem;
+  background: ${props => props.$loading ? '#666' : 'linear-gradient(135deg, #4CAF50, #45a049)'};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: ${props => props.$loading ? 'not-allowed' : 'pointer'};
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 `;
 
 const InfoNote = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  background: rgba(255, 195, 43, 0.1);
-  border: 1px solid rgba(255, 195, 43, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
 `;
 
 const InfoIcon = styled.span`
-  font-size: 1.5rem;
-  flex-shrink: 0;
+  margin-right: 0.5rem;
 `;
 
 const InfoText = styled.p`
-  color: #666;
-  font-size: 0.95rem;
-  margin: 0;
-  line-height: 1.5;
-`;
-
-const SubmitButton = styled.button`
-  background: linear-gradient(135deg, #ffc32b 0%, #f3b71e 100%);
-  color: #403E2D;
-  padding: 1.2rem 2rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  font-family: 'Space Grotesk', sans-serif;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  align-self: center;
-  min-width: 200px;
-
-  &:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(255, 195, 43, 0.3);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #403E2D;
-  margin: 2rem 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #f0f0f0;
-`;
-
-const Select = styled.select`
-  padding: 1rem;
-  border: 2px solid #e1e1e1;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: 'Space Grotesk', sans-serif;
-  transition: all 0.3s ease;
-  background: white;
-  color: #111;
-
-  &:focus {
-    outline: none;
-    border-color: #ffc32b;
-    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
-  }
-
-  option {
-    color: #111;
-    background: white;
-  }
-`;
-
-const ErrorText = styled.span`
-  color: #ff4757;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-  display: block;
-  font-weight: 500;
-`;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+`; 

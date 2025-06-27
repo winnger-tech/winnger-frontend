@@ -29,12 +29,8 @@ export default function RestaurantSignupPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      // Navigate immediately without delay
-      if (user.isRegistrationComplete) {
-        router.push('/restaurant-dashboard');
-      } else {
-        router.push('/restaurant-dashboard-staged');
-      }
+      // Always redirect to restaurant registration
+      router.push('/restaurant-registration');
     }
   }, [isAuthenticated, user, router]);
 

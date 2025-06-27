@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -50,7 +49,7 @@ function RestaurantRegistrationInner() {
     payload.append('phone', formData.phone);
     payload.append('identificationType', formData.identificationType);
     payload.append('restaurantName', formData.restaurantName);
-    payload.append('businessAddress', formData.businessAddress);
+    payload.append('restaurantAddress', formData.restaurantAddress);
     payload.append('city', formData.city);
     payload.append('province', formData.province);
     payload.append('postalCode', formData.postalCode);
@@ -113,7 +112,7 @@ function RestaurantRegistrationInner() {
       <input name="phone" onChange={handleChange} placeholder="Phone" required /><br />
       <input name="identificationType" onChange={handleChange} placeholder="Identification Type" required /><br />
       <input name="restaurantName" onChange={handleChange} placeholder="Restaurant Name" required /><br />
-      <input name="businessAddress" onChange={handleChange} placeholder="Business Address" required /><br />
+      <input name="restaurantAddress" onChange={handleChange} placeholder="Restaurant Address" required /><br />
       <input name="city" onChange={handleChange} placeholder="City" required /><br />
       <input name="province" onChange={handleChange} placeholder="Province" required /><br />
       <input name="postalCode" onChange={handleChange} placeholder="Postal Code" required /><br />

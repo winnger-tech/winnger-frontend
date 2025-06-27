@@ -52,7 +52,6 @@ export interface DocumentInfo {
   workEligibilityType: string;
   sinNumber: string;
   drivingAbstractDate: string;
-  criminalBackgroundCheckDate: string | null;
 }
 
 export interface PaymentInfo {
@@ -192,7 +191,6 @@ export interface DriverRegistrationState {
   driversLicense: File | null;
   vehicleInsurance: File | null;
   vehicleRegistration: File | null;
-  backgroundCheck: File | null;
   driverAbstract: File | null;
 
   // Banking Information
@@ -204,7 +202,6 @@ export interface DriverRegistrationState {
   // Consents
   termsConsent: boolean;
   privacyConsent: boolean;
-  backgroundCheckConsent: boolean;
   dataUsageConsent: boolean;
 }
 

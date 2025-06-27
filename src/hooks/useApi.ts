@@ -132,6 +132,17 @@ export const useDriverProfile = () => {
   );
 };
 
+export const useDriverRegistrationStatus = (driverId: string) => {
+  return useApiQuery(
+    ['driver', 'registration-status', driverId],
+    `/drivers/registration-status/${driverId}`,
+    {
+      enabled: !!driverId,
+      staleTime: 30 * 1000, // 30 seconds
+    }
+  );
+};
+
 export const useUpdateDriver = () => {
   let user = null;
   

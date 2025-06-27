@@ -41,37 +41,37 @@ interface DashboardActions {
 // Stage configurations for fallback
 const DRIVER_STAGES: Record<string, StageInfo> = {
   "1": {
-    title: "Basic Information",
+    title: "Personal Information",
     description: "Personal details and contact information",
-    fields: ["firstName", "lastName", "email", "password"],
+    fields: ["firstName", "lastName", "dateOfBirth", "cellNumber", "streetNameNumber", "city", "province", "postalCode"],
     completed: false,
     isCurrentStage: false
   },
   "2": {
-    title: "Personal Details",
-    description: "Address, emergency contact, and preferences",
-    fields: ["dateOfBirth", "cellNumber", "streetNameNumber", "city", "province", "postalCode"],
-    completed: false,
-    isCurrentStage: false
-  },
-  "3": {
     title: "Vehicle Information",
     description: "Vehicle details, insurance, and registration",
     fields: ["vehicleType", "make", "model", "year", "licensePlate"],
     completed: false,
     isCurrentStage: false
   },
-  "4": {
+  "3": {
     title: "Document Upload",
     description: "Driver's license, vehicle documents, and insurance",
     fields: ["driversLicense", "insurance", "registration", "backgroundCheck"],
     completed: false,
     isCurrentStage: false
   },
-  "5": {
+  "4": {
     title: "Banking & Consent",
     description: "Banking information and consent forms",
     fields: ["bankingInfo", "consent"],
+    completed: false,
+    isCurrentStage: false
+  },
+  "5": {
+    title: "Profile Review",
+    description: "Review complete registration information",
+    fields: ["profileReview", "finalSubmission"],
     completed: false,
     isCurrentStage: false
   }
@@ -88,7 +88,7 @@ const RESTAURANT_STAGES: Record<string, StageInfo> = {
   "2": {
     title: "Restaurant Details",
     description: "Business info, address, and contact details",
-    fields: ["businessAddress", "city", "province", "postalCode"],
+    fields: ["restaurantAddress", "city", "province", "postalCode"],
     completed: false,
     isCurrentStage: false
   },
@@ -155,19 +155,30 @@ export function DashboardProvider({
       console.log('📊 Dashboard response:', response);
 
       // Update state with real data
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        currentStage: response.currentStage || 1,
-        stages: response.stages || fallbackStages,
-        progress: response.progress || {
-          totalStages: Object.keys(fallbackStages).length,
-          completedStages: 0,
-          currentStage: 1,
-          percentage: 0
-        },
-        userData: response.userData || {}
-      }));
+      setState(prev => {
+        const newState = {
+          ...prev,
+          loading: false,
+          currentStage: response.currentStage || 1,
+          totalStages: Object.keys(response.stages || fallbackStages).length,
+          stages: response.stages || fallbackStages,
+          progress: response.progress || {
+            totalStages: Object.keys(response.stages || fallbackStages).length,
+            completedStages: 0,
+            currentStage: response.currentStage || 1,
+            percentage: 0
+          },
+          userData: response.userData || {}
+        };
+        
+        console.log('✅ Dashboard state updated:', {
+          currentStage: newState.currentStage,
+          totalStages: newState.totalStages,
+          progressTotalStages: newState.progress.totalStages
+        });
+        
+        return newState;
+      });
 
       console.log('✅ Dashboard initialized successfully');
     } catch (error) {
@@ -193,15 +204,31 @@ export function DashboardProvider({
       const updatedStages = { ...mockResponse.stages };
       updatedStages["1"].isCurrentStage = true;
 
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        currentStage: mockResponse.currentStage,
-        stages: updatedStages,
-        progress: mockResponse.progress,
-        userData: mockResponse.userData,
-        error: null // Clear any previous errors
-      }));
+      setState(prev => {
+        const newState = {
+          ...prev,
+          loading: false,
+          currentStage: mockResponse.currentStage,
+          totalStages: Object.keys(fallbackStages).length,
+          stages: updatedStages,
+          progress: {
+            totalStages: Object.keys(fallbackStages).length,
+            completedStages: 0,
+            currentStage: mockResponse.currentStage,
+            percentage: 0
+          },
+          userData: mockResponse.userData,
+          error: null // Clear any previous errors
+        };
+        
+        console.log('✅ Dashboard initialized with fallback data:', {
+          currentStage: newState.currentStage,
+          totalStages: newState.totalStages,
+          progressTotalStages: newState.progress.totalStages
+        });
+        
+        return newState;
+      });
 
       console.log('✅ Dashboard initialized with fallback data');
     }
