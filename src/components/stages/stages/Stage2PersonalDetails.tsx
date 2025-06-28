@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from '@/constants/ValidationConstants';
+// import stageService from '@/services/stageService';
+import { uploadFile } from '@/services/s3Service';
+
+
 
 interface Stage2Props {
   data: any;
@@ -17,15 +22,20 @@ interface ValidationErrors {
   [key: string]: string;
 }
 
-export default function Stage2PersonalDetails({ 
-  data, 
-  onChange, 
-  onSubmit, 
-  loading, 
+export default function Stage2PersonalDetails({
+  data,
+  onChange,
+  onSubmit,
+  loading,
   errors,
-  userType 
+  userType
 }: Stage2Props) {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+
+  console.log("BUCKET NAME")
+  console.log(process.env.NEXT_PUBLIC_AWS_S3_BUCKET_NAME);
 
   // Phone number formatting function
   const formatPhoneNumber = (value: string) => {
@@ -73,6 +83,14 @@ export default function Stage2PersonalDetails({
     return '';
   };
 
+  const validateUploadedFile = (file) => {
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      return "Invalid file type. Please upload a JPEG or PNG file.";
+    } else if (file.size > MAX_FILE_SIZE) {
+      return `File size exceeds the maximum limit of ${MAX_FILE_SIZE / 1024}KB.`;
+    }
+  }
+
   const validateDate = (date: string) => {
     if (!date) return 'Date of birth is required';
     const birthDate = new Date(date);
@@ -98,6 +116,7 @@ export default function Stage2PersonalDetails({
         break;
       case 'middleName':
         // Middle name is optional, so no validation needed
+        error = validateRequired(value, 'Middle name');
         break;
       case 'cellNumber':
         formattedValue = formatPhoneNumber(value);
@@ -119,14 +138,22 @@ export default function Stage2PersonalDetails({
       case 'city':
         error = validateRequired(value, 'City');
         break;
-      case 'profilePhotoUrl':
+      case 'profilePhoto':
         // Optional field - only validate if value is provided
-        if (value && value.trim() !== '') {
-          const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-          if (!urlRegex.test(value)) {
-            error = 'Please enter a valid URL';
-          }
+        // if (value && value.trim() !== '') {
+        //   const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+        //   if (!urlRegex.test(value)) {
+        //     error = 'Please enter a valid URL';
+        //   }
+        // }
+        error = handleFilesSelect(e.target.files || []);
+        setSelectedFile(e.target.files ? e.target.files[0] : null);
+        formattedValue = e.target.files[0].name;
+
+        if (!error) {
+          onChange({ profilePhotoUrl: "https://example.com/there" });
         }
+
         break;
       case 'ownerName':
         error = validateRequired(value, 'Owner name');
@@ -142,12 +169,22 @@ export default function Stage2PersonalDetails({
     onChange({ [name]: formattedValue });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFilesSelect = (fileList) => {
+    console.log("Handle files", fileList);
+    // const file = files[0];
+
+    for (const file of fileList) {
+      validateUploadedFile(file);
+    }
+  };
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all required fields before submit
     const newErrors: ValidationErrors = {};
-    
+
     if (userType === 'driver') {
       // Validate all required fields for drivers
       newErrors.firstName = validateRequired(data.firstName || '', 'First name');
@@ -158,6 +195,10 @@ export default function Stage2PersonalDetails({
       newErrors.city = validateRequired(data.city || '', 'City');
       newErrors.province = validateProvince(data.province || '');
       newErrors.postalCode = validatePostalCode(data.postalCode || '');
+
+      newErrors.middleName = validateRequired(data.middleName || '', 'Last name');
+      newErrors.profilePhoto = validateUploadedFile(selectedFile) || '';
+
     } else if (userType === 'restaurant') {
       // Validate required fields for restaurants
       newErrors.ownerName = validateRequired(data.ownerName || '', 'Owner name');
@@ -167,21 +208,46 @@ export default function Stage2PersonalDetails({
 
     // Check if there are any errors
     const hasErrors = Object.values(newErrors).some(error => error !== '');
-    
+
     console.log('🚀 Stage2 submission:', {
       hasErrors,
       newErrors,
       data,
       userType
     });
-    
+
     if (!hasErrors) {
       console.log('✅ Stage2 validation passed, calling onSubmit');
-      onSubmit(data);
+
+
+      const fileURL = await uploadFile(selectedFile);
+      onSubmit({...data, profilePhotoUrl: fileURL.url});
     } else {
       console.log('❌ Stage2 validation failed:', newErrors);
     }
   };
+
+  const uploadFile = async (file: File) => {
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/drivers/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+      return result;
+    } catch (e) {
+      throw new Error('Error uploading file');
+    }
+  }
 
   return (
     <Container
@@ -234,13 +300,13 @@ export default function Stage2PersonalDetails({
               </InputRow>
 
               <InputGroup>
-                <Label>Middle Name</Label>
+                <Label>Middle Name *</Label>
                 <Input
                   type="text"
                   name="middleName"
                   value={data.middleName || ''}
                   onChange={handleInputChange}
-                  placeholder="Enter your middle name (optional)"
+                  placeholder="Enter your middle name"
                 />
                 {(validationErrors.middleName || errors?.middleName) && (
                   <ErrorText>{validationErrors.middleName || errors.middleName}</ErrorText>
@@ -378,6 +444,28 @@ export default function Stage2PersonalDetails({
               </InputGroup>
 
               <InputGroup>
+                <Label htmlFor="profilePhoto">Select Profile Photo *</Label>
+                <UploadFileInput
+                  type="file"
+                  id="profilePhoto"
+                  name="profilePhoto"
+                  accept="image/*"
+                  onChange={handleInputChange}
+                />
+
+                {/* {selectedFile && (
+                  <ImagePreview>
+                    <img src={URL.createObjectURL(selectedFile)} alt="Preview" />
+                    <span>{selectedFile?.name}</span>
+                  </ImagePreview>
+                )} */}
+
+                {(validationErrors.profilePhoto || errors?.profilePhoto) && (
+                  <ErrorText>{validationErrors.profilePhoto || errors.profilePhoto}</ErrorText>
+                )}
+              </InputGroup>
+
+              {/* <InputGroup>
                 <Label>Profile Photo URL</Label>
                 <Input
                   type="url"
@@ -389,7 +477,7 @@ export default function Stage2PersonalDetails({
                 {(validationErrors.profilePhotoUrl || errors?.profilePhotoUrl) && (
                   <ErrorText>{validationErrors.profilePhotoUrl || errors.profilePhotoUrl}</ErrorText>
                 )}
-              </InputGroup>
+              </InputGroup> */}
             </>
           )}
 
@@ -409,8 +497,8 @@ export default function Stage2PersonalDetails({
             </InputGroup>
           )}
 
-          <SubmitButton 
-            type="submit" 
+          <SubmitButton
+            type="submit"
             disabled={loading}
             $loading={loading}
           >
@@ -538,6 +626,67 @@ const Select = styled.select`
     color: white;
   }
 `;
+
+const UploadFileInput = styled.input`
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &::file-selector-button {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  &:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+  }
+`;
+
+
+const ImagePreview = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+
+  img {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  span {
+    font-size: 0.9rem;
+    max-width: 200px;
+    word-break: break-word;
+  }
+`;
+
 
 const HelperText = styled.small`
   color: rgba(255, 255, 255, 0.6);
