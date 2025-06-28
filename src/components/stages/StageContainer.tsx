@@ -11,10 +11,14 @@ import { Toast } from '../Toast';
 
 // Import stage components
 import Stage1RestaurantInfo from './stages/Stage1RestaurantInfo';
-import Stage2RestaurantDetails from './stages/Stage2RestaurantDetails';
+import Stage2RestaurantBanking from './stages/Stage2RestaurantBanking';
+import Stage3RestaurantBusiness from './stages/Stage3RestaurantBusiness';
+import Stage3RestaurantDocuments from './stages/Stage3RestaurantDocuments';
+import Stage4RestaurantPlans from './stages/Stage4RestaurantPlans';
+import Stage4RestaurantReview from './stages/Stage4RestaurantReview';
+import Stage5RestaurantPayment from './stages/Stage5RestaurantPayment';
 import Stage2PersonalDetails from './stages/Stage2PersonalDetails';
 import Stage3VehicleInfo from './stages/Stage3VehicleInfo';
-import Stage3RestaurantDocuments from './stages/Stage3RestaurantDocuments';
 import Stage4DocumentUpload from './stages/Stage4DocumentUpload';
 import Stage4BackgroundCheck from './stages/Stage4BackgroundCheck';
 import Stage5ProfileReview from './stages/Stage5ProfileReview';
@@ -402,7 +406,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       case 2:
         if (userType === 'restaurant') {
           return (
-            <Stage2RestaurantDetails 
+            <Stage2RestaurantBanking 
               data={stageData}
               onChange={handleFormChange}
               onSave={handleSubmit}
@@ -423,23 +427,45 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
         }
       case 3:
         if (userType === 'restaurant') {
-          return <Stage3RestaurantDocuments />;
+          return (
+            <Stage3RestaurantDocuments 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
         } else {
           // Stage 3 is now Document Upload
           return <Stage4DocumentUpload />;
         }
       case 4:
-        if (userType === 'driver') {
+        if (userType === 'restaurant') {
+          return (
+            <Stage4RestaurantReview 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
+        } else if (userType === 'driver') {
           // Stage 4 is now Banking & Consent
           return <Stage4BackgroundCheck />;
         }
-        return <div>Stage 4 - Not available for restaurants</div>;
+        return <div>Stage 4 - Not available</div>;
       case 5:
-        if (userType === 'driver') {
+        if (userType === 'restaurant') {
+          return (
+            <Stage5RestaurantPayment 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
+        } else if (userType === 'driver') {
           // Stage 5 is Profile Review (after payment completion)
           return <Stage5ProfileReview />;
         }
-        return <div>Stage 5 - Not available for restaurants</div>;
+        return <div>Stage 5 - Not available</div>;
       default:
         return <div>Stage not found</div>;
     }

@@ -30,9 +30,12 @@ export default function RestaurantLoginPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      setRegistrationStage(user.registrationStage);
-      // Always redirect to restaurant registration
-      router.push('/restaurant-registration');
+      
+      // Redirect after short delay to show the success toast
+      setTimeout(() => {
+        // Always redirect to restaurant dashboard staged
+        router.push('/restaurant-dashboard-staged');
+      }, 1500);
     }
   }, [isAuthenticated, user, router]);
 

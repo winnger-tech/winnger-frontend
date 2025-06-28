@@ -129,7 +129,7 @@ export const loginRestaurant = createAsyncThunk(
     try {
       console.log('🏪 Restaurant login attempt:', credentials.email);
       
-      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants-staged/login`, {
+      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +184,7 @@ export const registerRestaurant = createAsyncThunk(
     try {
       console.log('🏪 Restaurant registration attempt:', credentials.email);
       
-      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants-staged/register`, {
+      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,235 +1,449 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import styled from 'styled-components';
+import { useTranslation } from '../../../utils/i18n';
 import { useDashboard } from '../../../context/DashboardContext';
-import { FileUpload } from '../../common/FileUpload';
+import { FileUploadWithLoader } from '../../common/FileUploadWithLoader';
+import { uploadFileToS3 } from '../../../utils/s3Upload';
 
-interface RestaurantDocumentsData {
-  businessLicense: File | null;
-  foodHandlersPermit: File | null;
-  liabilityInsurance: File | null;
-  menuImages: File[];
-  agreedToTerms: boolean;
-  consentToVerification: boolean;
+interface Stage3RestaurantDocumentsProps {
+  data: any;
+  onChange: (data: any) => void;
+  onSave: (data: any) => Promise<void>;
+  isReadOnly?: boolean;
 }
 
-const Stage3RestaurantDocuments: React.FC = () => {
-  const router = useRouter();
-  const { state, actions } = useDashboard();
-  const [data, setData] = useState<RestaurantDocumentsData>({
-    businessLicense: null,
-    foodHandlersPermit: null,
-    liabilityInsurance: null,
-    menuImages: [],
-    agreedToTerms: false,
-    consentToVerification: false
+interface FormData {
+  drivingLicenseUrl: string;
+  voidChequeUrl: string;
+  HSTdocumentUrl: string;
+  foodHandlingCertificateUrl: string;
+  articleofIncorporation: string;
+  articleofIncorporationExpiryDate: string;
+  foodSafetyCertificateExpiryDate: string;
+}
+
+export default function Stage3RestaurantDocuments({ 
+  data, 
+  onChange, 
+  onSave, 
+  isReadOnly = false 
+}: Stage3RestaurantDocumentsProps) {
+  const { t } = useTranslation();
+  const { state } = useDashboard();
+  
+  const [formData, setFormData] = useState<FormData>({
+    drivingLicenseUrl: data?.drivingLicenseUrl || '',
+    voidChequeUrl: data?.voidChequeUrl || '',
+    HSTdocumentUrl: data?.HSTdocumentUrl || '',
+    foodHandlingCertificateUrl: data?.foodHandlingCertificateUrl || '',
+    articleofIncorporation: data?.articleofIncorporation || '',
+    articleofIncorporationExpiryDate: data?.articleofIncorporationExpiryDate || '',
+    foodSafetyCertificateExpiryDate: data?.foodSafetyCertificateExpiryDate || '',
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [uploadingFiles, setUploadingFiles] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
-    // Load existing data
-    const existingData = state.userData?.[`stage3`];
-    if (existingData) {
-      setData(existingData);
+    if (data) {
+      setFormData({
+        drivingLicenseUrl: data.drivingLicenseUrl || '',
+        voidChequeUrl: data.voidChequeUrl || '',
+        HSTdocumentUrl: data.HSTdocumentUrl || '',
+        foodHandlingCertificateUrl: data.foodHandlingCertificateUrl || '',
+        articleofIncorporation: data.articleofIncorporation || '',
+        articleofIncorporationExpiryDate: data.articleofIncorporationExpiryDate || '',
+        foodSafetyCertificateExpiryDate: data.foodSafetyCertificateExpiryDate || '',
+      });
     }
-  }, [state.userData]);
+  }, [data]);
 
-  const handleFileChange = (fieldName: keyof Omit<RestaurantDocumentsData, 'menuImages' | 'agreedToTerms' | 'consentToVerification'>, file: File | null) => {
-    const updatedData = { ...data, [fieldName]: file };
-    setData(updatedData);
+  const validateField = (name: string, value: string) => {
+    switch (name) {
+      case 'drivingLicenseUrl':
+        return !value ? 'Driving license is required' : '';
+      case 'voidChequeUrl':
+        return !value ? 'Void cheque is required' : '';
+      case 'HSTdocumentUrl':
+        return !value ? 'HST document is required' : '';
+      case 'foodHandlingCertificateUrl':
+        return !value ? 'Food handling certificate is required' : '';
+      case 'articleofIncorporation':
+        return !value ? 'Article of incorporation is required' : '';
+      case 'articleofIncorporationExpiryDate':
+        if (!value) return 'Article of incorporation expiry date is required';
+        if (new Date(value) <= new Date()) return 'Expiry date must be in the future';
+        return '';
+      case 'foodSafetyCertificateExpiryDate':
+        if (!value) return 'Food safety certificate expiry date is required';
+        if (new Date(value) <= new Date()) return 'Expiry date must be in the future';
+        return '';
+      default:
+        return '';
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const newFormData = { ...formData, [name]: value };
+    setFormData(newFormData);
     
-    // Auto-save when file is uploaded
-    actions.autoSave(3, updatedData);
+    const error = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: error }));
+    
+    onChange(newFormData);
   };
 
-  const handleMenuImageAdd = (file: File) => {
-    const updatedImages = [...data.menuImages, file];
-    const updatedData = { ...data, menuImages: updatedImages };
-    setData(updatedData);
-    actions.autoSave(3, updatedData);
+  const handleFileUpload = async (fieldName: string, file: File) => {
+    setUploadingFiles(prev => ({ ...prev, [fieldName]: true }));
+    
+    try {
+      // Upload file to S3
+      const result = await uploadFileToS3(file, 'restaurant-documents');
+      
+      const newFormData = { ...formData, [fieldName]: result.url };
+      setFormData(newFormData);
+      
+      const error = validateField(fieldName, result.url);
+      setErrors(prev => ({ ...prev, [fieldName]: error }));
+      
+      onChange(newFormData);
+    } catch (error) {
+      console.error('File upload failed:', error);
+      setErrors(prev => ({ ...prev, [fieldName]: 'File upload failed. Please try again.' }));
+    } finally {
+      setUploadingFiles(prev => ({ ...prev, [fieldName]: false }));
+    }
   };
 
-  const handleCheckboxChange = (field: 'agreedToTerms' | 'consentToVerification', value: boolean) => {
-    const updatedData = { ...data, [field]: value };
-    setData(updatedData);
-    actions.autoSave(3, updatedData);
+  const handleFileRemove = (fieldName: string) => {
+    const newFormData = { ...formData, [fieldName]: '' };
+    setFormData(newFormData);
+    
+    const error = validateField(fieldName, '');
+    setErrors(prev => ({ ...prev, [fieldName]: error }));
+    
+    onChange(newFormData);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    Object.keys(formData).forEach(key => {
+      const error = validateField(key, formData[key as keyof FormData]);
+      if (error) {
+        newErrors[key] = error;
+      }
+    });
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (!validateForm()) {
+      return;
+    }
 
     try {
-      // Save current stage data
-      await actions.updateStageData(3, data);
-      
-      // Mark registration as complete for restaurants and redirect to success page
-      console.log('Restaurant registration completed successfully!');
-      router.push('/restaurant-registration-staged/success');
-      
+      await onSave(formData);
     } catch (error) {
-      console.error('Error completing restaurant registration:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Failed to save stage 3 data:', error);
     }
   };
 
-  const isValid = data.businessLicense && data.foodHandlersPermit && data.liabilityInsurance && 
-                  data.agreedToTerms && data.consentToVerification;
+  const isFormValid = () => {
+    return Object.values(formData).every(value => value && value.trim() !== '') &&
+           Object.keys(errors).length === 0;
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2">Documents & Verification</h2>
-        <p className="text-gray-300">
-          Upload required documents to complete your restaurant registration with Winnger.
-        </p>
-      </div>
+    <StageContainer>
+      <StageHeader>
+        <StageTitle>Business Documents</StageTitle>
+        <StageDescription>
+          Upload required business documents and set expiry dates for compliance
+        </StageDescription>
+      </StageHeader>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Required Documents */}
-        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-          <h3 className="text-lg font-semibold text-white">Required Documents</h3>
-          
-          <div className="space-y-4">
-            <FileUpload
-              label="Business License"
+      <Form>
+        <SectionTitle>Required Documents</SectionTitle>
+        
+        <FormRow>
+          <FormGroup>
+            <FileUploadWithLoader
+              label="Driving License"
+              onFileSelect={(file: File) => handleFileUpload('drivingLicenseUrl', file)}
+              error={errors.drivingLicenseUrl}
               required={true}
               accept=".pdf,.jpg,.jpeg,.png"
-              onFileSelect={(file) => handleFileChange('businessLicense', file)}
-              error={!data.businessLicense ? 'Business license is required' : undefined}
+              isUploading={uploadingFiles.drivingLicenseUrl}
+              uploadedUrl={formData.drivingLicenseUrl}
+              onRemove={() => handleFileRemove('drivingLicenseUrl')}
             />
+          </FormGroup>
 
-            <FileUpload
-              label="Food Handler's Permit"
+          <FormGroup>
+            <FileUploadWithLoader
+              label="Void Cheque"
+              onFileSelect={(file: File) => handleFileUpload('voidChequeUrl', file)}
+              error={errors.voidChequeUrl}
               required={true}
               accept=".pdf,.jpg,.jpeg,.png"
-              onFileSelect={(file) => handleFileChange('foodHandlersPermit', file)}
-              error={!data.foodHandlersPermit ? 'Food handler\'s permit is required' : undefined}
+              isUploading={uploadingFiles.voidChequeUrl}
+              uploadedUrl={formData.voidChequeUrl}
+              onRemove={() => handleFileRemove('voidChequeUrl')}
             />
+          </FormGroup>
+        </FormRow>
 
-            <FileUpload
-              label="Liability Insurance"
+        <FormRow>
+          <FormGroup>
+            <FileUploadWithLoader
+              label="HST Document"
+              onFileSelect={(file: File) => handleFileUpload('HSTdocumentUrl', file)}
+              error={errors.HSTdocumentUrl}
               required={true}
               accept=".pdf,.jpg,.jpeg,.png"
-              onFileSelect={(file) => handleFileChange('liabilityInsurance', file)}
-              error={!data.liabilityInsurance ? 'Liability insurance is required' : undefined}
+              isUploading={uploadingFiles.HSTdocumentUrl}
+              uploadedUrl={formData.HSTdocumentUrl}
+              onRemove={() => handleFileRemove('HSTdocumentUrl')}
             />
-          </div>
-        </div>
+          </FormGroup>
 
-        {/* Menu Images */}
-        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-          <h3 className="text-lg font-semibold text-white">Menu Images (Optional)</h3>
-          <p className="text-gray-400 text-sm">
-            Upload images of your menu to help customers discover your offerings.
-          </p>
-          
-          <FileUpload
-            label="Add Menu Image"
-            required={false}
-            accept=".jpg,.jpeg,.png"
-            onFileSelect={handleMenuImageAdd}
+          <FormGroup>
+            <FileUploadWithLoader
+              label="Food Handling Certificate"
+              onFileSelect={(file: File) => handleFileUpload('foodHandlingCertificateUrl', file)}
+              error={errors.foodHandlingCertificateUrl}
+              required={true}
+              accept=".pdf,.jpg,.jpeg,.png"
+              isUploading={uploadingFiles.foodHandlingCertificateUrl}
+              uploadedUrl={formData.foodHandlingCertificateUrl}
+              onRemove={() => handleFileRemove('foodHandlingCertificateUrl')}
+            />
+          </FormGroup>
+        </FormRow>
+
+        <FormGroup>
+          <FileUploadWithLoader
+            label="Article of Incorporation"
+            onFileSelect={(file: File) => handleFileUpload('articleofIncorporation', file)}
+            error={errors.articleofIncorporation}
+            required={true}
+            accept=".pdf,.jpg,.jpeg,.png"
+            isUploading={uploadingFiles.articleofIncorporation}
+            uploadedUrl={formData.articleofIncorporation}
+            onRemove={() => handleFileRemove('articleofIncorporation')}
           />
+        </FormGroup>
 
-          {data.menuImages.length > 0 && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-300 mb-2">
-                Uploaded menu images: {data.menuImages.length}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {data.menuImages.map((image, index) => (
-                  <div key={index} className="bg-gray-700 px-2 py-1 rounded text-xs text-gray-300">
-                    {image.name}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        <SectionTitle>Document Expiry Dates</SectionTitle>
+        
+        <FormRow>
+          <FormGroup>
+            <Label htmlFor="articleofIncorporationExpiryDate">
+              Article of Incorporation Expiry Date <Required>*</Required>
+            </Label>
+            <Input
+              id="articleofIncorporationExpiryDate"
+              name="articleofIncorporationExpiryDate"
+              type="date"
+              value={formData.articleofIncorporationExpiryDate}
+              onChange={handleInputChange}
+              readOnly={isReadOnly}
+              hasError={!!errors.articleofIncorporationExpiryDate}
+              min={new Date().toISOString().split('T')[0]}
+            />
+            {errors.articleofIncorporationExpiryDate && <ErrorMessage>{errors.articleofIncorporationExpiryDate}</ErrorMessage>}
+          </FormGroup>
 
-        {/* Verification & Agreement */}
-        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-          <h3 className="text-lg font-semibold text-white">Verification & Agreement</h3>
-          
-          <div className="space-y-3">
-            <label className="flex items-start space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.consentToVerification}
-                onChange={(e) => handleCheckboxChange('consentToVerification', e.target.checked)}
-                className="w-4 h-4 text-orange-500 bg-gray-700 border-gray-600 rounded focus:ring-orange-500 focus:ring-2 mt-1"
-              />
-              <span className="text-white text-sm">
-                I consent to verification of my business documents and understand that false information may result in account suspension.
-              </span>
-            </label>
+          <FormGroup>
+            <Label htmlFor="foodSafetyCertificateExpiryDate">
+              Food Safety Certificate Expiry Date <Required>*</Required>
+            </Label>
+            <Input
+              id="foodSafetyCertificateExpiryDate"
+              name="foodSafetyCertificateExpiryDate"
+              type="date"
+              value={formData.foodSafetyCertificateExpiryDate}
+              onChange={handleInputChange}
+              readOnly={isReadOnly}
+              hasError={!!errors.foodSafetyCertificateExpiryDate}
+              min={new Date().toISOString().split('T')[0]}
+            />
+            {errors.foodSafetyCertificateExpiryDate && <ErrorMessage>{errors.foodSafetyCertificateExpiryDate}</ErrorMessage>}
+          </FormGroup>
+        </FormRow>
 
-            <label className="flex items-start space-x-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={data.agreedToTerms}
-                onChange={(e) => handleCheckboxChange('agreedToTerms', e.target.checked)}
-                className="w-4 h-4 text-orange-500 bg-gray-700 border-gray-600 rounded focus:ring-orange-500 focus:ring-2 mt-1"
-              />
-              <span className="text-white text-sm">
-                I agree to the{' '}
-                <a href="/terms" className="text-orange-400 hover:text-orange-300 underline">
-                  Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" className="text-orange-400 hover:text-orange-300 underline">
-                  Privacy Policy
-                </a>
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Completion Status */}
-        <div className="bg-green-900 border border-green-600 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-400">
-                Ready to Launch!
-              </h3>
-              <div className="mt-2 text-sm text-green-300">
-                <p>
-                  Once you complete this final step, we'll review your restaurant and get you listed on Winnger within 24-48 hours.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-6">
-          <button
-            type="submit"
-            disabled={!isValid || isLoading}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-              isValid && !isLoading
-                ? 'bg-green-600 hover:bg-green-700 text-white'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {isLoading ? 'Completing Registration...' : 'Complete Restaurant Registration'}
-          </button>
-        </div>
-
-        {!isValid && (
-          <div className="text-sm text-orange-400 text-center">
-            Please upload all required documents and agree to the terms to complete registration.
-          </div>
+        {!isReadOnly && (
+          <SaveButtonContainer>
+            <SaveButton
+              type="button"
+              onClick={handleSave}
+              disabled={state.loading || !isFormValid() || Object.values(uploadingFiles).some(Boolean)}
+            >
+              {state.loading ? t('Saving...') : t('Save & Continue')}
+            </SaveButton>
+          </SaveButtonContainer>
         )}
-      </form>
-    </div>
-  );
-};
+      </Form>
 
-export default Stage3RestaurantDocuments;
+      {isReadOnly && (
+        <ReadOnlyNote>
+          <InfoIcon>ℹ️</InfoIcon>
+          {t('This information was provided during signup and cannot be edited at this stage.')}
+        </ReadOnlyNote>
+      )}
+    </StageContainer>
+  );
+}
+
+const StageContainer = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+`;
+
+const StageHeader = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const StageTitle = styled.h2`
+  font-size: 2rem;
+  color: #403E2D;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+`;
+
+const StageDescription = styled.p`
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const SectionTitle = styled.h3`
+  font-size: 1.25rem;
+  color: #403E2D;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #ffc32b;
+  padding-bottom: 0.5rem;
+`;
+
+const FormRow = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const Label = styled.label`
+  font-size: 0.875rem;
+  color: #403E2D;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const Required = styled.span`
+  color: #e74c3c;
+  font-weight: 600;
+`;
+
+const Input = styled.input<{ hasError?: boolean; readOnly?: boolean }>`
+  padding: 0.75rem 1rem;
+  border: 1px solid ${props => props.hasError ? '#e74c3c' : '#ddd'};
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: ${props => props.readOnly ? '#f5f5f5' : '#fff'};
+  color: #403E2D;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+`;
+
+const ErrorMessage = styled.span`
+  color: #e74c3c;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+`;
+
+const SaveButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+`;
+
+const SaveButton = styled.button`
+  background: linear-gradient(135deg, #ffc32b 0%, #f3b71e 100%);
+  color: #403E2D;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 195, 43, 0.3);
+  }
+  
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+const ReadOnlyNote = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #666;
+`;
+
+const InfoIcon = styled.span`
+  font-size: 1rem;
+`;

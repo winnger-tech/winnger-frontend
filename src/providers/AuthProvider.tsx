@@ -124,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/restaurants-staged/login`, {
+      const response = await fetch(`${API_BASE_URL}/restaurants/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

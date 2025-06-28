@@ -81,21 +81,35 @@ const RESTAURANT_STAGES: Record<string, StageInfo> = {
   "1": {
     title: "Restaurant Information",
     description: "Basic restaurant details and contact information",
-    fields: ["restaurantName", "ownerName", "email", "password"],
+    fields: ["restaurantName", "businessEmail", "businessPhone", "restaurantAddress", "city", "province", "postalCode", "businessType"],
     completed: false,
     isCurrentStage: false
   },
   "2": {
-    title: "Restaurant Details",
-    description: "Business info, address, and contact details",
-    fields: ["restaurantAddress", "city", "province", "postalCode"],
+    title: "Banking Information",
+    description: "Provide your banking details and HST number for payment processing",
+    fields: ["bankingInfo", "HSTNumber"],
     completed: false,
     isCurrentStage: false
   },
   "3": {
-    title: "Documents & Verification",
-    description: "Business license, permits, insurance and final verification",
-    fields: ["businessLicense", "foodHandlersPermit", "liabilityInsurance"],
+    title: "Business Documents",
+    description: "Upload required business documents and set expiry dates for compliance",
+    fields: ["drivingLicenseUrl", "voidChequeUrl", "HSTdocumentUrl", "foodHandlingCertificateUrl", "articleofIncorporation", "articleofIncorporationExpiryDate", "foodSafetyCertificateExpiryDate"],
+    completed: false,
+    isCurrentStage: false
+  },
+  "4": {
+    title: "Review & Confirmation",
+    description: "Review your information and confirm your registration details",
+    fields: ["agreedToTerms", "confirmationChecked", "additionalNotes"],
+    completed: false,
+    isCurrentStage: false
+  },
+  "5": {
+    title: "Payment Processing",
+    description: "Complete your registration fee payment to finalize your account",
+    fields: ["paymentIntentId", "stripePaymentMethodId", "paymentCompleted"],
     completed: false,
     isCurrentStage: false
   }
@@ -154,27 +168,94 @@ export function DashboardProvider({
       clearTimeout(loadingTimeout); // Clear timeout on success
       console.log('📊 Dashboard response:', response);
 
+      // Process stages and calculate completion status
+      const processedStages = { ...fallbackStages };
+      const userData = response.userData || response.data || {};
+      
+      // Update stages based on user data
+      Object.keys(processedStages).forEach(stageNum => {
+        const stageData = userData[`stage${stageNum}`] || {};
+        const stageFields = processedStages[stageNum].fields;
+        
+        // Check if stage is completed based on required fields
+        const isCompleted = stageFields.every(field => {
+          if (field === 'bankingInfo') {
+            return stageData.bankingInfo && 
+                   stageData.bankingInfo.transitNumber && 
+                   stageData.bankingInfo.institutionNumber && 
+                   stageData.bankingInfo.accountNumber;
+          }
+          // Handle document URL fields
+          if (field.endsWith('Url') || field === 'articleofIncorporation') {
+            return stageData[field] && stageData[field] !== '';
+          }
+          // Handle date fields
+          if (field.endsWith('ExpiryDate')) {
+            return stageData[field] && stageData[field] !== '';
+          }
+          // Handle stage 4 fields (Review & Confirmation)
+          if (field === 'agreedToTerms') {
+            return stageData[field] === true;
+          }
+          if (field === 'confirmationChecked') {
+            return stageData[field] === true;
+          }
+          if (field === 'additionalNotes') {
+            // Additional notes is optional, so always return true
+            return true;
+          }
+          // Handle stage 5 fields (Payment Processing)
+          if (field === 'paymentIntentId') {
+            return stageData[field] && stageData[field] !== '';
+          }
+          if (field === 'stripePaymentMethodId') {
+            return stageData[field] && stageData[field] !== '';
+          }
+          if (field === 'paymentCompleted') {
+            return stageData[field] === true;
+          }
+          // Handle legacy stage 4 fields (for backward compatibility)
+          if (field === 'selectedPlan') {
+            return stageData[field] && stageData[field] !== '';
+          }
+          return stageData[field] && stageData[field] !== '';
+        });
+        
+        processedStages[stageNum] = {
+          ...processedStages[stageNum],
+          completed: isCompleted,
+          isCurrentStage: parseInt(stageNum) === (response.currentStage || 1)
+        };
+      });
+
+      // Calculate progress
+      const totalStages = Object.keys(processedStages).length;
+      const completedStages = Object.values(processedStages).filter(stage => stage.completed).length;
+      const currentStage = response.currentStage || 1;
+      const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
       // Update state with real data
       setState(prev => {
         const newState = {
           ...prev,
           loading: false,
-          currentStage: response.currentStage || 1,
-          totalStages: Object.keys(response.stages || fallbackStages).length,
-          stages: response.stages || fallbackStages,
-          progress: response.progress || {
-            totalStages: Object.keys(response.stages || fallbackStages).length,
-            completedStages: 0,
-            currentStage: response.currentStage || 1,
-            percentage: 0
+          currentStage: currentStage,
+          totalStages: totalStages,
+          stages: processedStages,
+          progress: {
+            totalStages: totalStages,
+            completedStages: completedStages,
+            currentStage: currentStage,
+            percentage: percentage
           },
-          userData: response.userData || {}
+          userData: userData
         };
         
         console.log('✅ Dashboard state updated:', {
           currentStage: newState.currentStage,
           totalStages: newState.totalStages,
-          progressTotalStages: newState.progress.totalStages
+          completedStages: newState.progress.completedStages,
+          percentage: newState.progress.percentage
         });
         
         return newState;
@@ -188,43 +269,37 @@ export function DashboardProvider({
       // Fallback to mock data if API fails
       console.log('🔄 Falling back to mock data...');
       
-      const mockResponse = {
-        currentStage: 1,
-        stages: fallbackStages,
-        progress: {
-          totalStages: Object.keys(fallbackStages).length,
-          completedStages: 0,
-          currentStage: 1,
-          percentage: 0
-        },
-        userData: {}
-      };
-
       // Update stages with initial state
-      const updatedStages = { ...mockResponse.stages };
+      const updatedStages = { ...fallbackStages };
       updatedStages["1"].isCurrentStage = true;
+
+      const totalStages = Object.keys(updatedStages).length;
+      const completedStages = 0;
+      const currentStage = 1;
+      const percentage = 0;
 
       setState(prev => {
         const newState = {
           ...prev,
           loading: false,
-          currentStage: mockResponse.currentStage,
-          totalStages: Object.keys(fallbackStages).length,
+          currentStage: currentStage,
+          totalStages: totalStages,
           stages: updatedStages,
           progress: {
-            totalStages: Object.keys(fallbackStages).length,
-            completedStages: 0,
-            currentStage: mockResponse.currentStage,
-            percentage: 0
+            totalStages: totalStages,
+            completedStages: completedStages,
+            currentStage: currentStage,
+            percentage: percentage
           },
-          userData: mockResponse.userData,
+          userData: {},
           error: null // Clear any previous errors
         };
         
         console.log('✅ Dashboard initialized with fallback data:', {
           currentStage: newState.currentStage,
           totalStages: newState.totalStages,
-          progressTotalStages: newState.progress.totalStages
+          completedStages: newState.progress.completedStages,
+          percentage: newState.progress.percentage
         });
         
         return newState;
@@ -248,27 +323,163 @@ export function DashboardProvider({
       // Update stage data using StageService
       await StageService.updateStage(stage, data);
       
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        userData: {
+      // Update local state and recalculate progress
+      setState(prev => {
+        const updatedUserData = {
           ...prev.userData,
           [`stage${stage}`]: { ...prev.userData[`stage${stage}`], ...data }
-        }
-      }));
+        };
+
+        // Recalculate stage completion status
+        const updatedStages = { ...prev.stages };
+        const stageFields = updatedStages[stage.toString()]?.fields || [];
+        
+        // Check if stage is completed based on required fields
+        const isCompleted = stageFields.every(field => {
+          if (field === 'bankingInfo') {
+            return data.bankingInfo && 
+                   data.bankingInfo.transitNumber && 
+                   data.bankingInfo.institutionNumber && 
+                   data.bankingInfo.accountNumber;
+          }
+          // Handle document URL fields
+          if (field.endsWith('Url') || field === 'articleofIncorporation') {
+            return data[field] && data[field] !== '';
+          }
+          // Handle date fields
+          if (field.endsWith('ExpiryDate')) {
+            return data[field] && data[field] !== '';
+          }
+          // Handle stage 4 fields (Review & Confirmation)
+          if (field === 'agreedToTerms') {
+            return data[field] === true;
+          }
+          if (field === 'confirmationChecked') {
+            return data[field] === true;
+          }
+          if (field === 'additionalNotes') {
+            // Additional notes is optional, so always return true
+            return true;
+          }
+          // Handle stage 5 fields (Payment Processing)
+          if (field === 'paymentIntentId') {
+            return data[field] && data[field] !== '';
+          }
+          if (field === 'stripePaymentMethodId') {
+            return data[field] && data[field] !== '';
+          }
+          if (field === 'paymentCompleted') {
+            return data[field] === true;
+          }
+          // Handle legacy stage 4 fields (for backward compatibility)
+          if (field === 'selectedPlan') {
+            return data[field] && data[field] !== '';
+          }
+          return data[field] && data[field] !== '';
+        });
+        
+        updatedStages[stage.toString()] = {
+          ...updatedStages[stage.toString()],
+          completed: isCompleted
+        };
+
+        // Recalculate progress
+        const totalStages = Object.keys(updatedStages).length;
+        const completedStages = Object.values(updatedStages).filter(stage => stage.completed).length;
+        const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+        return {
+          ...prev,
+          userData: updatedUserData,
+          stages: updatedStages,
+          progress: {
+            ...prev.progress,
+            completedStages: completedStages,
+            percentage: percentage
+          }
+        };
+      });
 
       console.log('✅ Stage data updated successfully');
     } catch (error) {
       console.error('❌ Failed to update stage data:', error);
       
       // Still update local state even if server update fails
-      setState(prev => ({
-        ...prev,
-        userData: {
+      setState(prev => {
+        const updatedUserData = {
           ...prev.userData,
           [`stage${stage}`]: { ...prev.userData[`stage${stage}`], ...data }
-        }
-      }));
+        };
+
+        // Recalculate stage completion status
+        const updatedStages = { ...prev.stages };
+        const stageFields = updatedStages[stage.toString()]?.fields || [];
+        
+        // Check if stage is completed based on required fields
+        const isCompleted = stageFields.every(field => {
+          if (field === 'bankingInfo') {
+            return data.bankingInfo && 
+                   data.bankingInfo.transitNumber && 
+                   data.bankingInfo.institutionNumber && 
+                   data.bankingInfo.accountNumber;
+          }
+          // Handle document URL fields
+          if (field.endsWith('Url') || field === 'articleofIncorporation') {
+            return data[field] && data[field] !== '';
+          }
+          // Handle date fields
+          if (field.endsWith('ExpiryDate')) {
+            return data[field] && data[field] !== '';
+          }
+          // Handle stage 4 fields (Review & Confirmation)
+          if (field === 'agreedToTerms') {
+            return data[field] === true;
+          }
+          if (field === 'confirmationChecked') {
+            return data[field] === true;
+          }
+          if (field === 'additionalNotes') {
+            // Additional notes is optional, so always return true
+            return true;
+          }
+          // Handle stage 5 fields (Payment Processing)
+          if (field === 'paymentIntentId') {
+            return data[field] && data[field] !== '';
+          }
+          if (field === 'stripePaymentMethodId') {
+            return data[field] && data[field] !== '';
+          }
+          if (field === 'paymentCompleted') {
+            return data[field] === true;
+          }
+          // Handle legacy stage 4 fields (for backward compatibility)
+          if (field === 'selectedPlan') {
+            return data[field] && data[field] !== '';
+          }
+          return data[field] && data[field] !== '';
+        });
+        
+        updatedStages[stage.toString()] = {
+          ...updatedStages[stage.toString()],
+          completed: isCompleted
+        };
+
+        // Recalculate progress
+        const totalStages = Object.keys(updatedStages).length;
+        const completedStages = Object.values(updatedStages).filter(stage => stage.completed).length;
+        const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+        return {
+          ...prev,
+          userData: updatedUserData,
+          stages: updatedStages,
+          progress: {
+            ...prev.progress,
+            completedStages: completedStages,
+            percentage: percentage
+          }
+        };
+      });
       
       console.log('✅ Stage data updated locally (server update failed)');
       

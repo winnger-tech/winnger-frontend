@@ -39,6 +39,31 @@ export default function StageCard({
     return 'Pending';
   };
 
+  const getFieldDisplayName = (field: string) => {
+    const fieldMap: Record<string, string> = {
+      'restaurantName': 'Restaurant Name',
+      'businessEmail': 'Business Email',
+      'businessPhone': 'Business Phone',
+      'restaurantAddress': 'Restaurant Address',
+      'city': 'City',
+      'province': 'Province',
+      'postalCode': 'Postal Code',
+      'businessType': 'Business Type',
+      'bankingInfo': 'Banking Details',
+      'HSTNumber': 'HST Number',
+      'businessLicense': 'Business License',
+      'insuranceCertificate': 'Insurance Certificate',
+      'foodSafetyCertificate': 'Food Safety Certificate',
+      'phone': 'Phone Number',
+      'email': 'Email Address',
+      'ownerName': 'Owner Name',
+      'identificationType': 'ID Type',
+      'ownerAddress': 'Owner Address'
+    };
+    
+    return fieldMap[field] || field.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
+
   return (
     <Card
       as={motion.div}
@@ -69,7 +94,7 @@ export default function StageCard({
         <FieldsTitle>Required Fields:</FieldsTitle>
         <Fields>
           {stageInfo.fields.slice(0, 3).map((field, index) => (
-            <Field key={index}>{field}</Field>
+            <Field key={index}>{getFieldDisplayName(field)}</Field>
           ))}
           {stageInfo.fields.length > 3 && (
             <Field>+{stageInfo.fields.length - 3} more</Field>

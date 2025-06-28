@@ -68,7 +68,7 @@ const Navbar = () => {
 
   const handleDashboard = () => {
     if (user?.type === 'restaurant') {
-      router.push('/restaurant-registration');
+      router.push('/restaurant-dashboard-staged');
     } else if (user?.type === 'driver') {
       // Check if driver has started registration, redirect to appropriate stage
       if (user.registrationStage > 1) {

@@ -56,15 +56,36 @@ export default function Dashboard({ userType }: DashboardProps) {
     initializeWithTimeout();
   }, [userType, state.loading, state.stages]); // Add state dependencies to prevent unnecessary re-runs
 
-  // Enhanced dashboard data processing
-  const dashboardData = user?.dashboardData;
-  const currentStageInfo = dashboardData?.stages?.[dashboardData?.currentStage?.toString()];
-  const progress = dashboardData?.progress || state.progress;
+  // Calculate progress from stages data
+  const calculateProgress = () => {
+    if (!state.stages || Object.keys(state.stages).length === 0) {
+      return {
+        totalStages: 0,
+        completedStages: 0,
+        currentStage: 1,
+        percentage: 0
+      };
+    }
+
+    const totalStages = Object.keys(state.stages).length;
+    const completedStages = Object.values(state.stages).filter((stage: any) => stage.completed).length;
+    const currentStage = state.currentStage;
+    const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+    return {
+      totalStages,
+      completedStages,
+      currentStage,
+      percentage
+    };
+  };
+
+  const progress = calculateProgress();
 
   // Debug log to see what data we have
   console.log('Dashboard state:', state);
   console.log('User:', user);
-  console.log('Dashboard data from API:', dashboardData);
+  console.log('Calculated progress:', progress);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -132,7 +153,7 @@ export default function Dashboard({ userType }: DashboardProps) {
       >
         <WelcomeSection>
           <WelcomeTitle>
-            Welcome back, {user?.firstName || user?.ownerName}!
+            Welcome back, {user?.firstName || user?.ownerName || 'Restaurant Owner'}!
           </WelcomeTitle>
           <WelcomeSubtitle>
             {userType === 'driver' ? 'Driver' : 'Restaurant'} Registration Dashboard
@@ -185,16 +206,26 @@ export default function Dashboard({ userType }: DashboardProps) {
       >
         <StagesTitle>Registration Steps</StagesTitle>
         <StagesContainer>
-          {state.stages && Object.entries(state.stages).map(([stageNum, stageInfo]) => (
-            <StageCard
-              key={stageNum}
-              stageNumber={parseInt(stageNum)}
-              stageInfo={stageInfo as StageInfo}
-              onClick={() => handleStageClick(parseInt(stageNum))}
-              isCurrent={(stageInfo as StageInfo).isCurrentStage}
-              isCompleted={(stageInfo as StageInfo).completed}
-            />
-          ))}
+          {state.stages && Object.keys(state.stages).length > 0 ? (
+            Object.entries(state.stages).map(([stageNum, stageInfo]) => (
+              <StageCard
+                key={stageNum}
+                stageNumber={parseInt(stageNum)}
+                stageInfo={stageInfo as StageInfo}
+                onClick={() => handleStageClick(parseInt(stageNum))}
+                isCurrent={(stageInfo as StageInfo).isCurrentStage}
+                isCompleted={(stageInfo as StageInfo).completed}
+              />
+            ))
+          ) : (
+            <NoStagesMessage>
+              <NoStagesIcon>📋</NoStagesIcon>
+              <NoStagesTitle>No Registration Steps Available</NoStagesTitle>
+              <NoStagesDescription>
+                Please contact support if you believe this is an error.
+              </NoStagesDescription>
+            </NoStagesMessage>
+          )}
         </StagesContainer>
       </StagesGrid>
 
@@ -494,4 +525,37 @@ const ViewProfileButton = styled.button`
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(255, 195, 43, 0.3);
   }
+`;
+
+const NoStagesMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+`;
+
+const NoStagesIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1rem;
+`;
+
+const NoStagesTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+`;
+
+const NoStagesDescription = styled.p`
+  font-size: 1rem;
+  color: white;
+  opacity: 0.8;
+  margin: 0;
 `;
