@@ -6,6 +6,7 @@ import { QueryProvider } from "@/providers/QueryProvider";
 import { ReduxProvider } from "../providers/ReduxProvider";
 import LanguageSelector from "./component/LanguageSelector";
 import { LocaleProvider } from "../utils/LocaleContext";
+import { ToastProvider } from "../context/ToastContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +46,9 @@ export default function RootLayout({
           <LocaleProvider>
             <QueryProvider> 
               <StyledComponentsRegistry>
-                <main>{children}</main>
+                <ToastProvider>
+                  <main>{children}</main>
+                </ToastProvider>
               </StyledComponentsRegistry>
             </QueryProvider> 
           </LocaleProvider>

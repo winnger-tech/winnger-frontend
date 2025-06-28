@@ -107,6 +107,26 @@ const HomeButton = styled.button`
   }
 `;
 
+const LoginButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem auto 0;
+  padding: 0.75rem 1.5rem;
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #2563EB;
+  }
+`;
+
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 }
@@ -128,6 +148,10 @@ function RestaurantRegistrationSuccessInner() {
 
   const handleHomeClick = () => {
     router.push('/');
+  };
+
+  const handleLoginClick = () => {
+    router.push('/restaurantlogin');
   };
 
   return (
@@ -172,6 +196,10 @@ function RestaurantRegistrationSuccessInner() {
             <Home />
             Return to Home
           </HomeButton>
+
+          <LoginButton onClick={handleLoginClick}>
+            Login to Restaurant
+          </LoginButton>
         </SuccessContainer>
       </Container>
     </>

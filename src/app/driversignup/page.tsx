@@ -8,13 +8,14 @@ import Navbar from '../component/Navbar';
 import { useTranslation } from '../../utils/i18n';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { registerDriver, clearError } from '../../store/slices/authSlice';
-import { Toast } from '../../components/Toast';
+import { useToast } from '../../context/ToastContext';
 import Link from 'next/link';
 
 export default function DriverSignupPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
@@ -23,12 +24,19 @@ export default function DriverSignupPage() {
     email: '',
     password: ''
   });
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  // Show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      showError(error);
+      dispatch(clearError());
+    }
+  }, [error, showError, dispatch]);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      setShowSuccessToast(true);
+      showSuccess('Registration successful! Redirecting...');
       
       // Redirect after short delay to show the success toast
       setTimeout(() => {
@@ -37,14 +45,7 @@ export default function DriverSignupPage() {
         router.push('/driver-registration-staged/stage/2');
       }, 1500);
     }
-  }, [isAuthenticated, user, router]);
-
-  // Clear Redux error when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
+  }, [isAuthenticated, user, router, showSuccess]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,12 +73,6 @@ export default function DriverSignupPage() {
   return (
     <>
       <Navbar />
-      <Toast 
-        message="Registration successful! Redirecting..."
-        type="success"
-        isVisible={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-      />
       <Container>
         <ContentWrapper>
           <FormSection

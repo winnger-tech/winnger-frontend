@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -13,6 +13,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 
 interface DashboardProps {
   userType: 'driver' | 'restaurant';
+  initialData?: any;
 }
 
 interface StageInfo {
@@ -23,21 +24,38 @@ interface StageInfo {
   isCurrentStage: boolean;
 }
 
-export default function Dashboard({ userType }: DashboardProps) {
+export default function Dashboard({ userType, initialData }: DashboardProps) {
   const { state, actions } = useDashboard();
   const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const hasInitialized = useRef(false);
 
   // Initialize dashboard on mount - only run once
   useEffect(() => {
+    // Prevent multiple initializations
+    if (hasInitialized.current) {
+      return;
+    }
+
+    // If initialData is provided, initialize the dashboard context immediately
+    if (initialData) {
+      console.log('📊 Using initial data for dashboard:', initialData);
+      // Initialize the dashboard context with the provided data
+      actions.initializeDashboard(userType);
+      hasInitialized.current = true;
+      return;
+    }
+
     // Only initialize if not already loading and not already initialized
     if (state.loading || (state.stages && Object.keys(state.stages).length > 0)) {
       console.log('🔄 Dashboard already loading or initialized, skipping...');
+      hasInitialized.current = true;
       return;
     }
 
     console.log('🚀 Starting dashboard initialization...');
+    hasInitialized.current = true;
     
     const initializeWithTimeout = async () => {
       try {
@@ -54,17 +72,60 @@ export default function Dashboard({ userType }: DashboardProps) {
     };
 
     initializeWithTimeout();
-  }, [userType, state.loading, state.stages]); // Add state dependencies to prevent unnecessary re-runs
+  }, [userType, initialData]); // Simplified dependencies
 
-  // Enhanced dashboard data processing
-  const dashboardData = user?.dashboardData;
-  const currentStageInfo = dashboardData?.stages?.[dashboardData?.currentStage?.toString()];
-  const progress = dashboardData?.progress || state.progress;
+  // Refresh user data to get latest registration status - only if not using initial data
+  useEffect(() => {
+    // Don't set up refresh interval if initialData is provided
+    // The page will handle data fetching
+    if (initialData) {
+      console.log('📊 Skipping refresh interval - using initial data');
+      return;
+    }
 
-  // Debug log to see what data we have
-  console.log('Dashboard state:', state);
-  console.log('User:', user);
-  console.log('Dashboard data from API:', dashboardData);
+    // Don't set up refresh if dashboard is still loading
+    if (state.loading) {
+      return;
+    }
+
+    const refreshUserData = async () => {
+      try {
+        console.log('🔄 Refreshing user data to get latest registration status...');
+        await actions.initializeDashboard(userType);
+      } catch (error) {
+        console.error('Failed to refresh user data:', error);
+      }
+    };
+
+    // Refresh user data every 60 seconds instead of 30 to reduce calls
+    const interval = setInterval(refreshUserData, 60000);
+    
+    return () => clearInterval(interval);
+  }, [userType, initialData, state.loading]); // Add state.loading to prevent setting interval while loading
+
+  // Calculate progress from stages data - memoized to prevent recalculation on every render
+  const progress = useMemo(() => {
+    if (!state.stages || Object.keys(state.stages).length === 0) {
+      return {
+        totalStages: 0,
+        completedStages: 0,
+        currentStage: 1,
+        percentage: 0
+      };
+    }
+
+    const totalStages = Object.keys(state.stages).length;
+    const completedStages = Object.values(state.stages).filter((stage: any) => stage.completed).length;
+    const currentStage = state.currentStage;
+    const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+    return {
+      totalStages,
+      completedStages,
+      currentStage,
+      percentage
+    };
+  }, [state.stages, state.currentStage]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -132,7 +193,7 @@ export default function Dashboard({ userType }: DashboardProps) {
       >
         <WelcomeSection>
           <WelcomeTitle>
-            Welcome back, {user?.firstName || user?.ownerName}!
+            Welcome back, {user?.firstName || user?.ownerName || 'Restaurant Owner'}!
           </WelcomeTitle>
           <WelcomeSubtitle>
             {userType === 'driver' ? 'Driver' : 'Restaurant'} Registration Dashboard
@@ -185,16 +246,26 @@ export default function Dashboard({ userType }: DashboardProps) {
       >
         <StagesTitle>Registration Steps</StagesTitle>
         <StagesContainer>
-          {state.stages && Object.entries(state.stages).map(([stageNum, stageInfo]) => (
-            <StageCard
-              key={stageNum}
-              stageNumber={parseInt(stageNum)}
-              stageInfo={stageInfo as StageInfo}
-              onClick={() => handleStageClick(parseInt(stageNum))}
-              isCurrent={(stageInfo as StageInfo).isCurrentStage}
-              isCompleted={(stageInfo as StageInfo).completed}
-            />
-          ))}
+          {state.stages && Object.keys(state.stages).length > 0 ? (
+            Object.entries(state.stages).map(([stageNum, stageInfo]) => (
+              <StageCard
+                key={stageNum}
+                stageNumber={parseInt(stageNum)}
+                stageInfo={stageInfo as StageInfo}
+                onClick={() => handleStageClick(parseInt(stageNum))}
+                isCurrent={(stageInfo as StageInfo).isCurrentStage}
+                isCompleted={(stageInfo as StageInfo).completed}
+              />
+            ))
+          ) : (
+            <NoStagesMessage>
+              <NoStagesIcon>📋</NoStagesIcon>
+              <NoStagesTitle>No Registration Steps Available</NoStagesTitle>
+              <NoStagesDescription>
+                Please contact support if you believe this is an error.
+              </NoStagesDescription>
+            </NoStagesMessage>
+          )}
         </StagesContainer>
       </StagesGrid>
 
@@ -210,6 +281,26 @@ export default function Dashboard({ userType }: DashboardProps) {
             <CompletionTitle>Registration Complete!</CompletionTitle>
             <CompletionText>
               Your {userType} registration has been completed successfully. 
+              {state.userData?.status === 'pending_approval' && (
+                <span style={{ display: 'block', marginTop: '0.5rem', fontWeight: 'bold', color: '#ffc32b' }}>
+                  Status: Pending Approval
+                </span>
+              )}
+              {state.userData?.status === 'pending' && (
+                <span style={{ display: 'block', marginTop: '0.5rem', fontWeight: 'bold', color: '#ffc32b' }}>
+                  Status: Pending Review
+                </span>
+              )}
+              {state.userData?.status === 'approved' && (
+                <span style={{ display: 'block', marginTop: '0.5rem', fontWeight: 'bold', color: '#4CAF50' }}>
+                  Status: Approved
+                </span>
+              )}
+              {state.userData?.status === 'rejected' && (
+                <span style={{ display: 'block', marginTop: '0.5rem', fontWeight: 'bold', color: '#f44336' }}>
+                  Status: Rejected
+                </span>
+              )}
               You'll receive confirmation within 24-48 hours.
             </CompletionText>
             <ViewProfileButton onClick={() => router.push(`/${userType}-profile`)}>
@@ -494,4 +585,37 @@ const ViewProfileButton = styled.button`
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(255, 195, 43, 0.3);
   }
+`;
+
+const NoStagesMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+`;
+
+const NoStagesIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1rem;
+`;
+
+const NoStagesTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+`;
+
+const NoStagesDescription = styled.p`
+  font-size: 1rem;
+  color: white;
+  opacity: 0.8;
+  margin: 0;
 `;

@@ -5,16 +5,22 @@ import { useRouter, useParams } from 'next/navigation';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useDashboard } from '../../context/DashboardContext';
+import { useToast } from '../../context/ToastContext';
+import { handleApiError, handleApiSuccess } from '../../utils/apiErrorHandler';
 import StageService from '../../services/stageService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { Toast } from '../Toast';
 
 // Import stage components
 import Stage1RestaurantInfo from './stages/Stage1RestaurantInfo';
-import Stage2RestaurantDetails from './stages/Stage2RestaurantDetails';
+import Stage2RestaurantBanking from './stages/Stage2RestaurantBanking';
+import Stage3RestaurantBusiness from './stages/Stage3RestaurantBusiness';
+import Stage3RestaurantDocuments from './stages/Stage3RestaurantDocuments';
+import Stage4RestaurantPlans from './stages/Stage4RestaurantPlans';
+import Stage4RestaurantReview from './stages/Stage4RestaurantReview';
+import Stage5RestaurantPayment from './stages/Stage5RestaurantPayment';
 import Stage2PersonalDetails from './stages/Stage2PersonalDetails';
 import Stage3VehicleInfo from './stages/Stage3VehicleInfo';
-import Stage3RestaurantDocuments from './stages/Stage3RestaurantDocuments';
 import Stage4DocumentUpload from './stages/Stage4DocumentUpload';
 import Stage4BackgroundCheck from './stages/Stage4BackgroundCheck';
 import Stage5ProfileReview from './stages/Stage5ProfileReview';
@@ -28,6 +34,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
   const router = useRouter();
   const params = useParams();
   const { state, actions } = useDashboard();
+  const { showSuccess, showError, showInfo } = useToast();
   
   const [stageData, setStageData] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -60,11 +67,13 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     autoSaveTimeoutRef.current = setTimeout(async () => {
       try {
         await actions.autoSave(currentStage, data);
+        showInfo('Progress saved automatically');
       } catch (error) {
         console.warn('Auto-save failed:', error);
+        handleApiError(error, showError, 'Failed to save progress automatically');
       }
     }, 2000); // Auto-save after 2 seconds of inactivity
-  }, [currentStage, actions]);
+  }, [currentStage, actions, showInfo, showError]);
 
   // Fetch requiredFields from backend profile
   const fetchRequiredFields = useCallback(async () => {
@@ -75,10 +84,12 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       } else {
         setRequiredFields([]);
       }
-    } catch {
+    } catch (error) {
+      console.error('Failed to fetch required fields:', error);
+      handleApiError(error, showError, 'Failed to load form requirements');
       setRequiredFields([]);
     }
-  }, []);
+  }, [showError]);
 
   // Fetch requiredFields on mount and when currentStage changes
   useEffect(() => {
@@ -121,6 +132,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       setStageData(response.data.data || {});
     } catch (error) {
       console.warn('⚠️ Stage data load failed, using fallback:', error);
+      handleApiError(error, showError, 'Failed to load stage data. Using saved progress.');
       
       // If server fails, try to get draft data
       try {
@@ -141,7 +153,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     } finally {
       setLoading(false);
     }
-  }, [currentStage, userType]);
+  }, [currentStage, userType, showError]);
 
   useEffect(() => {
     loadStageData();
@@ -171,7 +183,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 
     try {
       await actions.updateStageData(currentStage, data);
-      setShowSaveToast(true);
+      handleApiSuccess('Stage completed successfully!', showSuccess);
       // Fetch latest profile to get new registrationStage and requiredFields
       await fetchRequiredFields();
       
@@ -402,7 +414,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       case 2:
         if (userType === 'restaurant') {
           return (
-            <Stage2RestaurantDetails 
+            <Stage2RestaurantBanking 
               data={stageData}
               onChange={handleFormChange}
               onSave={handleSubmit}
@@ -423,23 +435,45 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
         }
       case 3:
         if (userType === 'restaurant') {
-          return <Stage3RestaurantDocuments />;
+          return (
+            <Stage3RestaurantDocuments 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
         } else {
           // Stage 3 is now Document Upload
           return <Stage4DocumentUpload />;
         }
       case 4:
-        if (userType === 'driver') {
+        if (userType === 'restaurant') {
+          return (
+            <Stage4RestaurantReview 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
+        } else if (userType === 'driver') {
           // Stage 4 is now Banking & Consent
           return <Stage4BackgroundCheck />;
         }
-        return <div>Stage 4 - Not available for restaurants</div>;
+        return <div>Stage 4 - Not available</div>;
       case 5:
-        if (userType === 'driver') {
+        if (userType === 'restaurant') {
+          return (
+            <Stage5RestaurantPayment 
+              data={stageData}
+              onChange={handleFormChange}
+              onSave={handleSubmit}
+            />
+          );
+        } else if (userType === 'driver') {
           // Stage 5 is Profile Review (after payment completion)
           return <Stage5ProfileReview />;
         }
-        return <div>Stage 5 - Not available for restaurants</div>;
+        return <div>Stage 5 - Not available</div>;
       default:
         return <div>Stage not found</div>;
     }

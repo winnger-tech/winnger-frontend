@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { extractErrorMessage } from '../../utils/apiErrorHandler';
 
 // Token management utilities
 const TOKEN_STORAGE_KEY = 'winngr_auth_token';
@@ -8,10 +9,10 @@ const TOKEN_EXPIRY_KEY = 'winngr_token_expiry';
 
 // API base URLs - handle different ports for different endpoints
 const DRIVER_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-const RESTAURANT_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const RESTAURANT_API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 // Fallback to single API URL if environment variable is set
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 interface TokenData {
   token: string;
@@ -129,7 +130,7 @@ export const loginRestaurant = createAsyncThunk(
     try {
       console.log('🏪 Restaurant login attempt:', credentials.email);
       
-      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants-staged/login`, {
+      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +147,7 @@ export const loginRestaurant = createAsyncThunk(
 
       if (!result.success) {
         console.log('❌ Restaurant login failed:', result.message);
-        return rejectWithValue(result.message || 'Login failed');
+        return rejectWithValue(extractErrorMessage(result));
       }
 
       // Use the email from the response, not the request
@@ -173,7 +174,7 @@ export const loginRestaurant = createAsyncThunk(
       };
     } catch (error) {
       console.error('💥 Restaurant login error:', error);
-      return rejectWithValue('Network error. Please check your connection and try again.');
+      return rejectWithValue(extractErrorMessage(error));
     }
   }
 );
@@ -184,7 +185,7 @@ export const registerRestaurant = createAsyncThunk(
     try {
       console.log('🏪 Restaurant registration attempt:', credentials.email);
       
-      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants-staged/register`, {
+      const response = await fetch(`${RESTAURANT_API_BASE_URL}/restaurants/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +198,7 @@ export const registerRestaurant = createAsyncThunk(
 
       if (!result.success) {
         console.log('❌ Restaurant registration failed:', result.message);
-        return rejectWithValue(result.message || 'Registration failed');
+        return rejectWithValue(extractErrorMessage(result));
       }
 
       const user: User = { ...result.data.restaurant, type: 'restaurant' as const };
@@ -218,7 +219,7 @@ export const registerRestaurant = createAsyncThunk(
       };
     } catch (error) {
       console.error('💥 Restaurant registration error:', error);
-      return rejectWithValue('Network error. Please check your connection and try again.');
+      return rejectWithValue(extractErrorMessage(error));
     }
   }
 );
@@ -243,7 +244,7 @@ export const loginDriver = createAsyncThunk(
 
       if (!result.success) {
         console.log('❌ Driver login failed:', result.message);
-        return rejectWithValue(result.message || 'Login failed');
+        return rejectWithValue(extractErrorMessage(result));
       }
 
       const user: User = { ...result.data.driver, type: 'driver' as const };
@@ -264,7 +265,7 @@ export const loginDriver = createAsyncThunk(
       };
     } catch (error) {
       console.error('💥 Driver login error:', error);
-      return rejectWithValue('Network error. Please check your connection and try again.');
+      return rejectWithValue(extractErrorMessage(error));
     }
   }
 );
@@ -288,7 +289,7 @@ export const registerDriver = createAsyncThunk(
 
       if (!result.success) {
         console.log('❌ Driver registration failed:', result.message);
-        return rejectWithValue(result.message || 'Registration failed');
+        return rejectWithValue(extractErrorMessage(result));
       }
 
       const user: User = { ...result.data.driver, type: 'driver' as const };
@@ -309,7 +310,7 @@ export const registerDriver = createAsyncThunk(
       };
     } catch (error) {
       console.error('💥 Driver registration error:', error);
-      return rejectWithValue('Network error. Please check your connection and try again.');
+      return rejectWithValue(extractErrorMessage(error));
     }
   }
 );

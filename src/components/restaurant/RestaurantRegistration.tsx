@@ -110,7 +110,14 @@ function RestaurantRegistrationInner() {
       <input name="ownerName" onChange={handleChange} placeholder="Owner Name" required /><br />
       <input name="password" type="password" onChange={handleChange} placeholder="Password" required /><br />
       <input name="phone" onChange={handleChange} placeholder="Phone" required /><br />
-      <input name="identificationType" onChange={handleChange} placeholder="Identification Type" required /><br />
+      <select name="identificationType" onChange={handleChange} required>
+        <option value="">Select Identification Type</option>
+        <option value="licence">Driver's Licence</option>
+        <option value="pr_card">PR Card</option>
+        <option value="passport">Passport</option>
+        <option value="medical_card">Medical Card</option>
+        <option value="provincial_id">Provincial ID</option>
+      </select><br />
       <input name="restaurantName" onChange={handleChange} placeholder="Restaurant Name" required /><br />
       <input name="restaurantAddress" onChange={handleChange} placeholder="Restaurant Address" required /><br />
       <input name="city" onChange={handleChange} placeholder="City" required /><br />

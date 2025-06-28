@@ -2,7 +2,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 
 export const makeStore = () => {
-  return configureStore({
+  try {
+    console.log('🔧 Creating Redux store...');
+    
+    const store = configureStore({
     reducer: {
       auth: authReducer,
     },
@@ -19,6 +22,13 @@ export const makeStore = () => {
       }),
     devTools: process.env.NODE_ENV !== 'production',
   });
+    
+    console.log('✅ Redux store created successfully');
+    return store;
+  } catch (error) {
+    console.error('💥 Error creating Redux store:', error);
+    throw error;
+  }
 };
 
 export const store = makeStore();

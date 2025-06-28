@@ -8,13 +8,14 @@ import Navbar from '../component/Navbar';
 import { useTranslation } from '../../utils/i18n';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { registerRestaurant, clearError } from '../../store/slices/authSlice';
-import { Toast } from '../../components/Toast';
+import { useToast } from '../../context/ToastContext';
 import Link from 'next/link';
 
 export default function RestaurantSignupPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
@@ -23,23 +24,28 @@ export default function RestaurantSignupPage() {
     password: ''
   });
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+  // Show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      showError(error);
+      dispatch(clearError());
+    }
+  }, [error, showError, dispatch]);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      setShowSuccessToast(true);
-      // Always redirect to restaurant registration
-      router.push('/restaurant-registration');
+      showSuccess('Registration successful! Redirecting to login...');
+      // Add a longer delay to ensure authentication state is properly set
+      setTimeout(() => {
+        console.log('🔄 Redirecting to restaurant login after signup');
+        console.log('👤 User data:', user);
+        console.log('🔑 Auth state:', { isAuthenticated, userType: user?.type });
+        router.push('/restaurantlogin');
+      }, 3000); // 3 second delay to ensure auth state is properly set
     }
-  }, [isAuthenticated, user, router]);
-
-  // Clear Redux error when component unmounts
-  useEffect(() => {
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
+  }, [isAuthenticated, user, router, showSuccess]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -105,12 +111,6 @@ export default function RestaurantSignupPage() {
   return (
     <>
       <Navbar />
-      <Toast 
-        message="Registration successful! Redirecting to complete your registration..."
-        type="success"
-        isVisible={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-      />
       <Container>
         <ContentWrapper>
           <FormSection
