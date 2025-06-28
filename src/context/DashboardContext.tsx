@@ -584,7 +584,7 @@ export function DashboardProvider({
     
     try {
       // Use StageService auto-save functionality
-      await StageService.saveDraft(stage, data);
+      // await StageService.saveDraft(stage, data);
       
       console.log(`💾 Auto-saved stage ${stage} data`);
     } catch (error) {

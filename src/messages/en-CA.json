@@ -508,7 +508,8 @@
       "Top access to delivery partners",
       "Full analytics & performance tools"
     ]
-  },
+  }
+},
   "driverSignup": {
     "title": "Join as a Driver",
     "subtitle": "Start earning with flexible hours and instant payments",
@@ -571,6 +572,56 @@
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 8 characters"
     }
+  },
+  "restaurantLogin": {
+  "title": "Restaurant Sign In",
+  "subtitle": "Welcome back! Sign in to your restaurant account",
+  "toastSuccess": "Login successful! Redirecting...",
+  "stage": "Stage {{current}} of {{total}}",
+  "form": {
+    "email": "Email Address",
+    "password": "Password",
+    "emailPlaceholder": "Enter your email address",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot your password?",
+    "submitButton": "Sign In",
+    "submittingButton": "Signing In...",
+    "signupPrompt": "Don't have an account?",
+    "signupLink": "Sign Up"
+  },
+  "portal": {
+    "title": "Restaurant Portal",
+    "analytics": "View your analytics dashboard",
+    "menu": "Manage your menu items",
+    "orders": "Track delivery orders",
+    "earnings": "Monitor your earnings"
   }
+},
+"driverLogin": {
+    "title": "Driver Sign In",
+    "subtitle": "Welcome back! Sign in to your driver account",
+    "toastSuccess": "Login successful! Redirecting...",
+    "stage": "Stage {{current}} of {{total}}",
+    "form": {
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot your password?",
+      "submitButton": "Sign In",
+      "submittingButton": "Signing In...",
+      "loginPrompt": "Don't have an account?",
+      "loginLink": "Sign Up"
+    },
+    "info": {
+      "title": "Welcome Back!",
+      "benefit1": "Start earning immediately",
+      "benefit2": "Track your daily earnings",
+      "benefit3": "Manage your deliveries",
+      "benefit4": "View your ratings"
+    }
+  }
+
 }
-}
+
+

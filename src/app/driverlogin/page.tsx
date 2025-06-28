@@ -101,93 +101,88 @@ export default function DriverLoginPage() {
     <>
       <Navbar />
       <Toast 
-        message="Login successful! Redirecting..."
+        message={t('driverLogin.toastSuccess')}
         type="success"
         isVisible={showSuccessToast}
         onClose={() => setShowSuccessToast(false)}
       />
       <Container>
         <ContentWrapper>
-          <FormSection
-            as={motion.div}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <FormSection as={motion.div} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <FormHeader>
-              <Title>Driver Sign In</Title>
-              <Subtitle>Welcome back! Sign in to your driver account</Subtitle>
+
+              <Title>{t('driverLogin.title')}</Title>
+              <Subtitle>{t('driverLogin.subtitle')}</Subtitle>
+              {stageMessage && (
+                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">
+                  {stageMessage}
+                </div>
+              )}
+              {registrationStage && (
+                <div className="mb-2 text-sm text-gray-700">
+                  Stage {registrationStage} of {totalStages}
+                </div>
+              )}
+
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>
               <InputGroup>
-                <Label>
-                  Email Address
-                </Label>
+                <Label>{t('driverLogin.form.email')}</Label>
                 <Input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="Enter your email address"
+                  placeholder={t('driverLogin.form.emailPlaceholder')}
                 />
               </InputGroup>
 
               <InputGroup>
-                <Label>
-                  Password
-                </Label>
+                <Label>{t('driverLogin.form.password')}</Label>
                 <Input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  placeholder="Enter your password"
+                  placeholder={t('driverLogin.form.passwordPlaceholder')}
                 />
               </InputGroup>
 
               <ForgotPassword href="/forgot-password">
-                Forgot your password?
+                {t('driverLogin.form.forgotPassword')}
               </ForgotPassword>
 
-              <SubmitButton 
-                type="submit" 
-                disabled={isLoading}
-                $loading={isLoading}
-              >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+              <SubmitButton type="submit" disabled={isLoading} $loading={isLoading}>
+                {isLoading ? t('driverLogin.form.submittingButton') : t('driverLogin.form.submitButton')}
               </SubmitButton>
             </Form>
 
             <SignupPrompt>
-              Don't have an account? <SignupLink href="/driversignup">Sign Up</SignupLink>
+              {t('driverLogin.form.loginPrompt')}{' '}
+              <SignupLink href="/driversignup">{t('driverLogin.form.loginLink')}</SignupLink>
             </SignupPrompt>
           </FormSection>
 
-          <InfoSection
-            as={motion.div}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
+          <InfoSection as={motion.div} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
             <InfoCard>
-              <InfoTitle>Welcome Back!</InfoTitle>
+              <InfoTitle>{t('driverLogin.info.title')}</InfoTitle>
               <BenefitsList>
                 <BenefitItem>
                   <BenefitIcon>🚗</BenefitIcon>
-                  <BenefitText>Start earning immediately</BenefitText>
+                  <BenefitText>{t('driverLogin.info.benefit1')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>💰</BenefitIcon>
-                  <BenefitText>Track your daily earnings</BenefitText>
+                  <BenefitText>{t('driverLogin.info.benefit2')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>📱</BenefitIcon>
-                  <BenefitText>Manage your deliveries</BenefitText>
+                  <BenefitText>{t('driverLogin.info.benefit3')}</BenefitText>
                 </BenefitItem>
                 <BenefitItem>
                   <BenefitIcon>⭐</BenefitIcon>
-                  <BenefitText>View your ratings</BenefitText>
+                  <BenefitText>{t('driverLogin.info.benefit4')}</BenefitText>
                 </BenefitItem>
               </BenefitsList>
             </InfoCard>

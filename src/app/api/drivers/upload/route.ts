@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
       Key: fileName,
       Body: buffer,
       ContentType: contentType,
-      ACL: 'public-read',
+      // ACL: 'public-read',
     };
 
     const result = await s3.upload(params).promise();

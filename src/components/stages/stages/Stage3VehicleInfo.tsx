@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useDashboard } from '../../../context/DashboardContext';
+import { FileUpload } from '@/components/common/FileUpload';
+
+// import { uploadFile } from '@/services/s3Service';
 
 interface Stage3Props {
   data: any;
@@ -18,17 +21,17 @@ interface ValidationErrors {
   [key: string]: string;
 }
 
-export default function Stage3VehicleInfo({ 
-  data, 
-  onChange, 
-  onSubmit, 
-  loading, 
+export default function Stage3VehicleInfo({
+  data,
+  onChange,
+  onSubmit,
+  loading,
   errors,
-  userType 
+  userType
 }: Stage3Props) {
   const { state, actions } = useDashboard();
   const currentStageData = state.userData?.stage3 || {};
-  
+
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [formData, setFormData] = useState({
     vehicleType: data.vehicleType || '',
@@ -44,6 +47,9 @@ export default function Stage3VehicleInfo({
     ...data
   });
 
+  const [vehicleInsuranceFile, setVehicleInsuranceFile] = useState(null);
+  const [vehicleRegistrationFile, setVehicleRegistrationFile] = useState(null);
+
   // Real-time validation function
   const validateField = (name: string, value: any) => {
     switch (name) {
@@ -58,49 +64,49 @@ export default function Stage3VehicleInfo({
           }
         }
         return '';
-      
+
       case 'vehicleMake':
         if (!value?.toString().trim()) {
           return 'Vehicle make is required';
         }
         return '';
-      
+
       case 'vehicleModel':
         if (!value?.toString().trim()) {
           return 'Vehicle model is required';
         }
         return '';
-      
+
       case 'vehicleColor':
         if (!value?.toString().trim()) {
           return 'Vehicle color is required';
         }
         return '';
-      
+
       case 'vehicleLicensePlate':
         if (!value?.toString().trim()) {
           return 'License plate is required';
         }
         return '';
-      
+
       case 'vehicleType':
         if (!value?.toString().trim()) {
           return 'Vehicle type is required';
         }
         return '';
-      
+
       case 'deliveryType':
         if (!value?.toString().trim()) {
           return 'Delivery type is required';
         }
         return '';
-      
+
       case 'driversLicenseClass':
         if (!value?.toString().trim()) {
           return 'Driver license class is required';
         }
         return '';
-      
+
       default:
         return '';
     }
@@ -109,14 +115,14 @@ export default function Stage3VehicleInfo({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     const inputValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
-    
+
     setFormData((prev: any) => ({ ...prev, [name]: inputValue }));
-    
+
     // Real-time validation
     const fieldError = validateField(name, inputValue);
-    setValidationErrors(prev => ({ 
-      ...prev, 
-      [name]: fieldError 
+    setValidationErrors(prev => ({
+      ...prev,
+      [name]: fieldError
     }));
 
     // Call the parent onChange function
@@ -128,24 +134,35 @@ export default function Stage3VehicleInfo({
 
     // Validate all required fields
     const requiredFields = ['vehicleType', 'vehicleMake', 'vehicleModel', 'deliveryType', 'yearOfManufacture', 'vehicleColor', 'vehicleLicensePlate', 'driversLicenseClass'];
-    
+
     requiredFields.forEach(field => {
       const error = validateField(field, formData[field]);
       if (error) {
         newErrors[field] = error;
       }
     });
+    
 
     setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       console.log('✅ Stage3 validation passed, calling onSubmit');
-      onSubmit(formData);
+
+
+      const vehicleInsuranceFileDetails = await uploadFile(vehicleInsuranceFile);
+      const vehicleRegistrationFileDetails = await uploadFile(vehicleRegistrationFile);
+
+      onSubmit({
+        ...formData,
+        vehicleInsuranceUrl: vehicleInsuranceFileDetails.url || '',
+        vehicleRegistrationUrl: vehicleRegistrationFileDetails.url || '',
+      });
     } else {
       console.log('❌ Stage3 validation failed:', validationErrors);
     }
@@ -154,6 +171,29 @@ export default function Stage3VehicleInfo({
   const handlePrevious = () => {
     actions.updateStageData(3, formData);
   };
+
+
+  const uploadFile = async (file: File) => {
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/drivers/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+      return result;
+    } catch (e) {
+      throw new Error('Error uploading file');
+    }
+  }
 
   const vehicleTypes = [
     { value: '', label: 'Select Vehicle Type' },
@@ -329,7 +369,43 @@ export default function Stage3VehicleInfo({
 
           {/* Document Upload Section */}
           <SectionTitle>Document Upload</SectionTitle>
+
           <InputRow>
+            <InputGroup>
+              <Label>Vehicle Insurance URL *</Label>
+              <FileUpload
+                // label="Vehicle Insurance URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => setVehicleInsuranceFile(file)}
+                error={!data.vehicleInsuranceUrl ? 'Vehicle Insurance is required' : undefined}
+              />
+              {vehicleInsuranceFile && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(vehicleInsuranceFile)} alt="Preview" />
+                  <span>{vehicleInsuranceFile?.name}</span>
+                </ImagePreview>
+              )}
+            </InputGroup>
+
+            <InputGroup>
+              <Label>Vehicle Registration URL *</Label>
+              <FileUpload
+                // label="Vehicle Insurance URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => setVehicleRegistrationFile(file)}
+                error={!data.vehicleRegistrationUrl ? 'Vehicle Registration is required' : undefined}
+              />
+              {vehicleRegistrationFile && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(vehicleRegistrationFile)} alt="Preview" />
+                  <span>{vehicleRegistrationFile?.name}</span>
+                </ImagePreview>
+              )}
+            </InputGroup>
+          </InputRow>
+          {/* <InputRow>
             <InputGroup>
               <Label>Vehicle Insurance URL</Label>
               <Input
@@ -357,10 +433,10 @@ export default function Stage3VehicleInfo({
                 <ErrorText>{validationErrors.vehicleRegistrationUrl || errors.vehicleRegistrationUrl}</ErrorText>
               )}
             </InputGroup>
-          </InputRow>
+          </InputRow> */}
 
-          <SubmitButton 
-            type="submit" 
+          <SubmitButton
+            type="submit"
             disabled={loading}
             $loading={loading}
           >
@@ -508,5 +584,28 @@ const SubmitButton = styled.button<{ $loading: boolean }>`
 
   &:active:not(:disabled) {
     transform: translateY(0);
+  }
+`;
+
+
+const ImagePreview = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+
+  img {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  span {
+    font-size: 0.9rem;
+    max-width: 200px;
+    word-break: break-word;
   }
 `;

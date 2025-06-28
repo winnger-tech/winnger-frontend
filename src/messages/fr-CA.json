@@ -41,18 +41,126 @@
     }
   },
   "about": {
-    "title": "À Propos de Nous",
-    "description": "Nous avons pour mission de simplifier les livraisons locales. Notre plateforme connecte des chauffeurs passionnés et des restaurants dynamiques pour créer une expérience de livraison fluide pour tous.",
-    "mission": "Notre Mission",
-    "missionText": "Que vous cherchiez à gagner plus ou à développer votre entreprise, nous sommes là pour vous soutenir à chaque étape.",
-    "vision": "Notre Vision",
+    "title": "À propos de nous",
+    "description": "Nous avons pour mission de simplifier les livraisons locales. Notre plateforme connecte des chauffeurs passionnés et des restaurants dynamiques pour une expérience de livraison fluide pour tous.",
+    "mission": "Notre mission",
+    "missionText": "Que vous souhaitiez gagner plus ou développer votre entreprise, nous vous soutenons à chaque kilomètre.",
+    "vision": "Notre vision",
     "visionText": "Devenir la plateforme la plus fiable pour les livraisons locales, soutenant les communautés et les entreprises.",
     "driver": {
       "title": "Comment ça marche pour les chauffeurs",
-      "earn": "Gagnez à Votre Rythme – Horaires flexibles et paiements rapides.",
-      "setup": "Configuration Unique – Un petit frais et vous êtes prêt à partir."
+      "earn": "Gagnez selon vos conditions – horaires flexibles et paiements rapides.",
+      "setup": "Installation unique – juste un petit frais et vous êtes prêt.",
+      "support": "Support partenaire – nous vous accompagnons à chaque étape."
+    },
+    "restaurant": {
+      "title": "Comment ça marche pour les restaurants",
+      "expand": "Étendez votre portée – livrez à plus de clients dans votre secteur.",
+      "onboarding": "Intégration rapide – formulaire simple et envoi de documents.",
+      "grow": "Grandissez avec nous – profitez de notre réseau logistique et marketing."
     }
   },
+  "whyWinggur": {
+    "title": "Pourquoi choisir Winngur ?",
+    "features": {
+      "flexibility": "Horaires flexibles",
+      "instantPay": "Gains instantanés",
+      "community": "Communauté de chauffeurs",
+      "support": "Support 24h/24 pour chauffeurs",
+      "tips": "Gardez 100 % de vos pourboires",
+      "noExperience": "Aucune expérience requise"
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "description": "Commencez en 3 étapes simples. Que vous soyez chauffeur ou restaurant, rejoindre notre plateforme est rapide, sécurisé et sans tracas.",
+    "step1": {
+      "title": "Étape 1 : Remplissez un formulaire simple",
+      "description": "Fournissez vos coordonnées et les documents nécessaires"
+    },
+    "step2": {
+      "title": "Étape 2 : Installation unique",
+      "description": "Permet de vérifier votre inscription"
+    },
+    "step3": {
+      "title": "Étape 3 : Approbation par l’administration",
+      "description": "Une fois approuvé, vous recevrez une confirmation d’intégration sous 24–48 h"
+    },
+    "cta": {
+      "title": "Prêt à démarrer ?",
+      "description": "Rejoignez des centaines de chauffeurs et de restaurants en pré-inscription dès aujourd'hui."
+    }
+  },
+  "faq": {
+    "title": "Foire aux questions",
+    "question1": "Qui peut s’inscrire sur cette plateforme ?",
+    "answer1": "Notre plateforme est conçue pour les chauffeurs souhaitant gagner de manière flexible et les restaurants visant à étendre leur portée de livraison.",
+    "question2": "Quels documents dois-je télécharger lors de l’inscription ?",
+    "answer2": "Les chauffeurs doivent généralement fournir une pièce d’identité, un permis de conduire et les détails du véhicule. Les restaurants peuvent avoir besoin d’une licence professionnelle et des informations du menu.",
+    "question3": "Y a-t-il des frais d’inscription ?",
+    "answer3": "Oui, un frais d’installation unique est requis pour vérifier vos informations et vous intégrer en toute sécurité. Aucun frais caché par la suite !",
+    "question4": "Combien de temps dure le processus d’approbation ?",
+    "answer4": "Une fois le formulaire et le paiement soumis, notre équipe d’administration examinera et approuvera votre inscription sous 24–48 heures.",
+    "question5": "Je possède plusieurs restaurants. Puis-je tous les inscrire ?",
+    "answer5": "Absolument ! Vous pouvez inscrire chaque établissement individuellement ou contacter notre équipe de support pour l’intégration en masse.",
+    "question6": "Quel type de support offrez-vous après l’intégration ?",
+    "answer6": "Nous proposons un support partenaire, incluant aide marketing, intégration logistique et assistance continue par téléphone et email."
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "description": "Des questions ? Contactez-nous ! Nous sommes là pour vous aider. Remplissez le formulaire ci-dessous et nous vous répondrons rapidement.",
+    "name": "Nom",
+    "namePlaceholder": "Nom",
+    "email": "Email*",
+    "emailPlaceholder": "Email",
+    "message": "Message*",
+    "messagePlaceholder": "Message",
+    "sendMessage": "Envoyer"
+  },
+ "plans": {
+  "heading": "Formules d'abonnement pour les restaurants",
+  "subheading": "Choisissez une formule adaptée à votre activité et à vos objectifs de visibilité.",
+  "lite": {
+    "title": "Winngur Lite",
+    "price": "Commission de 10 % à 18 %",
+    "description": "Inscription de base, visibilité limitée, sans promotions",
+    "features": [
+      "Inscription de base sur l'application Winngur Meals",
+      "Commission de 18 % pour les livraisons, frais de 10 % pour les retraits",
+      "Visibilité sans amélioration de placement",
+      "Paiements hebdomadaires",
+      "Accès au tableau de bord marchand",
+      "Aucun soutien marketing ou publicitaire"
+    ]
+  },
+  "pro": {
+    "title": "Winngur Pro",
+    "price": "Commission de 10 % à 24 %",
+    "description": "Visibilité accrue, accès au marketing Winngur",
+    "features": [
+      "Classement plus élevé que Lite",
+      "Commission de 24 % pour les livraisons, frais de 10 % pour les retraits",
+      "Outils marketing : promotions in-app, offres BOGO",
+      "Mise en avant dans « Populaires près de chez vous »",
+      "Participation au programme de fidélité",
+      "Accès aux partenaires de livraison Winngur",
+      "Analyses et statistiques des commandes"
+    ]
+  },
+  "proPlus": {
+    "title": "Winngur Pro Plus",
+    "price": "Commission de 10 % à 27 %",
+    "description": "Placement prioritaire, outils de promotion complets",
+    "features": [
+      "Toujours placé en tête des listes",
+      "Commission de 27 % pour les livraisons, frais de 10 % pour les retraits",
+      "Outils marketing et promotionnels complets",
+      "Toutes les fonctionnalités du programme de fidélité",
+      "Accès prioritaire aux partenaires de livraison",
+      "Outils complets d’analyse et de performance"
+    ]
+  }
+},
   "driverSignup": {
     "title": "Devenir Chauffeur",
     "subtitle": "Commencez à gagner avec des horaires flexibles et des paiements instantanés",
@@ -114,6 +222,59 @@
       "emailInvalid": "Veuillez entrer une adresse courriel valide",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères"
+    }
+  },
+  "restaurantLogin": {
+  "title": "Connexion Restaurant",
+  "subtitle": "Bon retour! Connectez-vous à votre compte restaurant",
+  "toastSuccess": "Connexion réussie! Redirection...",
+  "form": {
+    "email": "Adresse courriel",
+    "emailPlaceholder": "Entrez votre adresse courriel",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Entrez votre mot de passe",
+    "forgotPassword": "Mot de passe oublié?",
+    "submitButton": "Se connecter",
+    "submittingButton": "Connexion en cours...",
+    "signupPrompt": "Vous n'avez pas de compte?",
+    "signupLink": "S'inscrire"
+  },
+  "validation": {
+    "emailRequired": "L'adresse courriel est requise",
+    "emailInvalid": "Veuillez entrer une adresse courriel valide",
+    "passwordRequired": "Le mot de passe est requis"
+  },
+  "stage": "Étape {{current}} sur {{total}}",
+  "portal": {
+    "title": "Portail Restaurant",
+    "analytics": "Voir votre tableau de bord analytique",
+    "menu": "Gérer vos éléments de menu",
+    "orders": "Suivre les commandes de livraison",
+    "earnings": "Suivre vos revenus"
+  }
+},
+ "driverLogin": {
+    "title": "Connexion Chauffeur",
+    "subtitle": "Bon retour ! Connectez-vous à votre compte chauffeur",
+    "toastSuccess": "Connexion réussie ! Redirection...",
+    "stage": "Étape {{current}} sur {{total}}",
+    "form": {
+      "email": "Adresse courriel",
+      "emailPlaceholder": "Entrez votre adresse courriel",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submitButton": "Se connecter",
+      "submittingButton": "Connexion en cours...",
+      "loginPrompt": "Vous n'avez pas de compte ?",
+      "loginLink": "Créer un compte"
+    },
+    "info": {
+      "title": "Bon retour !",
+      "benefit1": "Commencez à gagner immédiatement",
+      "benefit2": "Suivez vos gains quotidiens",
+      "benefit3": "Gérez vos livraisons",
+      "benefit4": "Consultez vos évaluations"
     }
   }
 }

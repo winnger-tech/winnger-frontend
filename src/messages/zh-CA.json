@@ -42,17 +42,125 @@
   },
   "about": {
     "title": "关于我们",
-    "description": "我们的使命是简化本地配送。我们的平台连接热情的司机和蓬勃发展的餐厅，为每个人创造无缝的配送体验。",
+    "description": "我们的使命是简化本地配送。我们的平台连接充满热情的司机和蓬勃发展的餐厅，为所有人打造顺畅的配送体验。",
     "mission": "我们的使命",
-    "missionText": "无论您是想赚更多钱还是发展业务，我们都会在每一步为您提供支持。",
+    "missionText": "无论您是想多赚些还是拓展生意，我们都将伴您每一公里。",
     "vision": "我们的愿景",
-    "visionText": "成为最受信任的本地配送平台，支持社区和企业发展。",
+    "visionText": "成为本地配送中最值得信赖的平台，支持社区与商户共同发展。",
     "driver": {
-      "title": "司机如何使用平台",
-      "earn": "按您的条件赚钱 – 灵活的工作时间和快速付款。",
-      "setup": "一次性设置 – 只需小额费用，您就可以开始。"
+      "title": "司机如何使用",
+      "earn": "按您计划赚取——灵活上班、快速结算。",
+      "setup": "一次性设置——只需小额费用即可启用。",
+      "support": "合作支持——我们一路相伴。"
+    },
+    "restaurant": {
+      "title": "餐厅如何使用",
+      "expand": "扩展覆盖范围——将配送送到更多客户手中。",
+      "onboarding": "快速注册——填写表单上传资料即可。",
+      "grow": "与我们共成长——享受我们的营销与物流网络。"
     }
   },
+  "whyWinggur": {
+    "title": "为何选择 Winngur？",
+    "features": {
+      "flexibility": "灵活工作时间",
+      "instantPay": "即时收益",
+      "community": "司机社区",
+      "support": "24/7 司机支持",
+      "tips": "保留100%小费",
+      "noExperience": "无需经验"
+    }
+  },
+  "howItWorks": {
+    "title": "如何运作",
+    "description": "只需 3 步即可开始。无论您是司机还是餐厅，加入我们的平台快速、安全、无压力。",
+    "step1": {
+      "title": "步骤一：填写简单表格",
+      "description": "提供您的信息和必要文件"
+    },
+    "step2": {
+      "title": "步骤二：一次性设置",
+      "description": "确保验证码通过"
+    },
+    "step3": {
+      "title": "步骤三：管理员审批",
+      "description": "审批通过后，您将在24–48小时内收到入驻确认"
+    },
+    "cta": {
+      "title": "准备开始了吗？",
+      "description": "今天就加入数百位注册中的司机和餐厅。"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "question1": "谁可以在此平台注册？",
+    "answer1": "我们的平台面向希望灵活赚钱的司机和希望扩展配送覆盖的餐厅。",
+    "question2": "注册时需要上传哪些文件？",
+    "answer2": "司机通常需要提供身份证、驾驶执照和车辆信息。餐厅可能需要营业执照和菜单资料。",
+    "question3": "注册有费用吗？",
+    "answer3": "是的，有一次性设置费用，以帮助我们验证您的信息并安全入驻。之后没有隐藏费用！",
+    "question4": "审批流程需要多久？",
+    "answer4": "提交表格和支付后，我们的管理员团队将在24–48小时内审核并审批您的注册。",
+    "question5": "我有多家餐厅，可否全部注册？",
+    "answer5": "当然可以！您可以单独注册每一家分店，也可联系支持团队批量注册。",
+    "question6": "入驻后提供什么支持？",
+    "answer6": "我们提供合作伙伴支持，包括市场推广、物流整合，以及电话和邮箱持续服务。"
+  },
+  "contact": {
+    "title": "联系我们",
+    "description": "有问题？联系我们！我们乐意帮助您。请填写下方表格，我们会尽快回复。",
+    "name": "姓名",
+    "namePlaceholder": "姓名",
+    "email": "邮箱*",
+    "emailPlaceholder": "邮箱",
+    "message": "留言*",
+    "messagePlaceholder": "留言",
+    "sendMessage": "发送"
+  },
+  "plans": {
+  "heading": "餐厅订阅计划",
+  "subheading": "选择适合您业务和曝光目标的计划。",
+  "lite": {
+    "title": "Winngur Lite",
+    "price": "10% – 18% 佣金",
+    "description": "基础上架，曝光有限，无推广支持",
+    "features": [
+      "Winngur Meals 应用中的基础上架",
+      "配送佣金 18%，自取手续费 10%",
+      "有曝光但无排名提升",
+      "每周结算",
+      "访问商户仪表盘",
+      "无市场营销或广告支持"
+    ]
+  },
+  "pro": {
+    "title": "Winngur Pro",
+    "price": "10% – 24% 佣金",
+    "description": "提升曝光，享受 Winngur 营销支持",
+    "features": [
+      "排名高于 Lite 计划",
+      "配送佣金 24%，自取手续费 10%",
+      "营销工具：应用内促销、买一送一",
+      "出现在“您附近的热门”中",
+      "参与忠诚度促销计划",
+      "接入 Winngur 配送合作伙伴",
+      "订单洞察和分析数据"
+    ]
+  },
+  "proPlus": {
+    "title": "Winngur Pro Plus",
+    "price": "10% – 27% 佣金",
+    "description": "最高排名，完整推广工具",
+    "features": [
+      "始终位列顶部推荐",
+      "配送佣金 27%，自取手续费 10%",
+      "完整的市场营销与推广工具",
+      "所有忠诚计划功能",
+      "优先接入配送合作伙伴",
+      "完整的数据分析与性能工具"
+    ]
+  }
+},
   "driverSignup": {
     "title": "加入成为司机",
     "subtitle": "灵活工作时间，即时收入",
@@ -114,6 +222,59 @@
       "emailInvalid": "请输入有效的电子邮箱",
       "passwordRequired": "请输入密码",
       "passwordMinLength": "密码至少需要8个字符"
+    }
+  },
+  "restaurantLogin": {
+  "title": "餐厅登录",
+  "subtitle": "欢迎回来！登录您的餐厅账户",
+  "toastSuccess": "登录成功！正在重定向...",
+  "form": {
+    "email": "电子邮件地址",
+    "emailPlaceholder": "输入您的电子邮件地址",
+    "password": "密码",
+    "passwordPlaceholder": "输入您的密码",
+    "forgotPassword": "忘记密码？",
+    "submitButton": "登录",
+    "submittingButton": "登录中...",
+    "signupPrompt": "还没有账户？",
+    "signupLink": "注册"
+  },
+  "validation": {
+    "emailRequired": "电子邮件是必填项",
+    "emailInvalid": "请输入有效的电子邮件",
+    "passwordRequired": "密码是必填项"
+  },
+  "stage": "第 {{current}} 步，共 {{total}} 步",
+  "portal": {
+    "title": "餐厅门户",
+    "analytics": "查看您的分析仪表板",
+    "menu": "管理您的菜单项目",
+    "orders": "追踪配送订单",
+    "earnings": "监控您的收入"
+  }
+},
+  "driverLogin": {
+    "title": "司机登录",
+    "subtitle": "欢迎回来！登录您的司机账户",
+    "toastSuccess": "登录成功！正在跳转...",
+    "stage": "第 {{current}} 步，共 {{total}} 步",
+    "form": {
+      "email": "电子邮件地址",
+      "emailPlaceholder": "请输入您的电子邮件地址",
+      "password": "密码",
+      "passwordPlaceholder": "请输入您的密码",
+      "forgotPassword": "忘记密码？",
+      "submitButton": "登录",
+      "submittingButton": "正在登录...",
+      "loginPrompt": "还没有账户？",
+      "loginLink": "注册"
+    },
+    "info": {
+      "title": "欢迎回来！",
+      "benefit1": "立即开始赚钱",
+      "benefit2": "跟踪您的每日收入",
+      "benefit3": "管理您的送货",
+      "benefit4": "查看您的评分"
     }
   }
 }

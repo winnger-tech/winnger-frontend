@@ -3,27 +3,29 @@
 import React, { useState, useEffect } from 'react';
 import { useDashboard } from '../../../context/DashboardContext';
 import StageService from '../../../services/stageService';
+import { FileUpload } from '@/components/common/FileUpload';
+import styled from 'styled-components';
 
 interface DocumentUploadData {
   // Driver's License
   driversLicenseFrontUrl: string;
   driversLicenseBackUrl: string;
   driversLicenseClass: string;
-  
+
   // Vehicle Documents
   vehicleRegistrationUrl: string;
   vehicleInsuranceUrl: string;
-  
+
   // Additional Documents
   drivingAbstractUrl: string;
   workEligibilityUrl: string;
   sinCardUrl: string;
-  
+
   // Additional Information
   sinCardNumber: string;
   drivingAbstractDate: string;
   workEligibilityType: string;
-  
+
   // Optional
   backgroundCheck: string;
 }
@@ -44,6 +46,16 @@ const Stage4DocumentUpload: React.FC = () => {
     workEligibilityType: 'passport',
     backgroundCheck: ''
   });
+
+  const [fileFormData, setFileFormData] = useState({
+    driversLicenseFront: null,
+    driversLicenseBack: null,
+    driversAbstract: null,
+    driversWorkEligibility: null,
+    driverSinCard: null,
+    driverBackgroundCheck: null
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingProfile, setIsFetchingProfile] = useState(false);
   const [profileData, setProfileData] = useState<any>(null);
@@ -67,14 +79,20 @@ const Stage4DocumentUpload: React.FC = () => {
   const handleInputChange = (fieldName: keyof DocumentUploadData, value: string) => {
     const updatedData = { ...data, [fieldName]: value };
     setData(updatedData);
-    
+
     // Debug: Log when workEligibilityType is changed
     if (fieldName === 'workEligibilityType') {
       console.log('🔍 workEligibilityType changed to:', value);
     }
-    
+
     actions.autoSave(3, updatedData);
   };
+
+  const handleFileInputChange = (name, file) => {
+    setFileFormData(state => {
+      return { ...state, [name]: file }
+    });
+  }
 
   const handleFetchProfile = async () => {
     setIsFetchingProfile(true);
@@ -82,7 +100,7 @@ const Stage4DocumentUpload: React.FC = () => {
       console.log('🔍 Fetching profile data...');
       const response = await StageService.getProfile();
       console.log('🔍 Profile response:', response);
-      
+
       if (response?.data) {
         setProfileData(response.data);
         setShowProfile(true);
@@ -95,16 +113,72 @@ const Stage4DocumentUpload: React.FC = () => {
     }
   };
 
+  const uploadDocuments = async () => {
+    try {
+      const [
+        driversLicenseFrontDetails,
+        driversLicenseBackDetails,
+        driversAbstractDetails,
+        driversWorkEligibilityDetails,
+        driverSinCardDetails,
+        driverBackgroundCheckDetails,
+      ] = await Promise.all([
+        uploadFile(fileFormData.driversLicenseFront),
+        uploadFile(fileFormData.driversLicenseBack),
+        uploadFile(fileFormData.driversAbstract),
+        uploadFile(fileFormData.driversWorkEligibility),
+        uploadFile(fileFormData.driverSinCard),
+        uploadFile(fileFormData.driverBackgroundCheck),
+      ]);
+
+      return {
+        driversLicenseFrontUrl: driversLicenseFrontDetails?.url || '',
+        driversLicenseBackUrl: driversLicenseBackDetails?.url || '',
+        drivingAbstractUrl: driversAbstractDetails?.url || '',
+        workEligibilityUrl: driversWorkEligibilityDetails?.url || '',
+        sinCardUrl: driverSinCardDetails?.url || '',
+        backgroundCheck: driverBackgroundCheckDetails?.url || '',
+      };
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  
+  const uploadFile = async (file: File) => {
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/drivers/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+      return result;
+    } catch (e) {
+      throw new Error('Error uploading file');
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Debug: Log the data being submitted
     console.log('🔍 Submitting Stage 3 data:', data);
     console.log('🔍 workEligibilityType value:', data.workEligibilityType);
-    
+
+    const fileUrls = await uploadDocuments();
+    console.log({...data, fileUrls})
     try {
-      await actions.updateStageData(3, data);
+      await actions.updateStageData(3, {...data, ...fileUrls});
       actions.navigateToStage(4);
     } catch (error) {
       console.error('Error saving Stage 3 data:', error);
@@ -113,17 +187,22 @@ const Stage4DocumentUpload: React.FC = () => {
     }
   };
 
-  const isValid = data.driversLicenseFrontUrl && 
-                  data.driversLicenseBackUrl && 
-                  data.driversLicenseClass &&
-                  data.vehicleRegistrationUrl && 
-                  data.vehicleInsuranceUrl &&
-                  data.drivingAbstractUrl &&
-                  data.workEligibilityUrl &&
-                  data.sinCardUrl &&
-                  data.sinCardNumber &&
-                  data.drivingAbstractDate &&
-                  data.workEligibilityType;
+  const isValid = data.driversLicenseClass &&
+  // data.driversLicenseFrontUrl &&
+    // data.driversLicenseBackUrl &&
+    data.vehicleRegistrationUrl &&
+    data.vehicleInsuranceUrl &&
+    // data.drivingAbstractUrl &&
+    // data.workEligibilityUrl &&
+    // data.sinCardUrl &&
+    data.sinCardNumber &&
+    data.drivingAbstractDate &&
+    data.workEligibilityType &&
+    fileFormData.driversLicenseFront &&
+    fileFormData.driversLicenseBack &&
+    fileFormData.driversAbstract &&
+    fileFormData.driversWorkEligibility &&
+    fileFormData.driverSinCard;
 
   return (
     <div className="space-y-6 pt-28">
@@ -144,11 +223,10 @@ const Stage4DocumentUpload: React.FC = () => {
           <button
             onClick={handleFetchProfile}
             disabled={isFetchingProfile}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-              isFetchingProfile
-                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isFetchingProfile
+              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
           >
             {isFetchingProfile ? 'Fetching...' : 'Fetch Profile Details'}
           </button>
@@ -159,7 +237,7 @@ const Stage4DocumentUpload: React.FC = () => {
       {showProfile && profileData && (
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Your Profile Details</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Personal Information */}
             <div className="space-y-3">
@@ -239,37 +317,43 @@ const Stage4DocumentUpload: React.FC = () => {
         {/* Driver's License Section */}
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Driver's License</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">
-                Driver's License Front URL *
-              </label>
-              <input
-                type="url"
-                value={data.driversLicenseFrontUrl}
-                onChange={(e) => handleInputChange('driversLicenseFrontUrl', e.target.value)}
-                placeholder="https://example.com/license-front.jpg"
-                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                required
+              <FileUpload
+                label="Driver's License Front URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversLicenseFront", file)}
+                error={!fileFormData.driversLicenseFront ? 'Drivers License Front is required' : undefined}
               />
+
+              {fileFormData.driversLicenseFront && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversLicenseFront)} alt="Preview" />
+                  <span>{fileFormData.driversLicenseFront?.name}</span>
+                </ImagePreview>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">
-                Driver's License Back URL *
-              </label>
-              <input
-                type="url"
-                value={data.driversLicenseBackUrl}
-                onChange={(e) => handleInputChange('driversLicenseBackUrl', e.target.value)}
-                placeholder="https://example.com/license-back.jpg"
-                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                required
+              <FileUpload
+                label="Driver's License Back URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversLicenseBack", file)}
+                error={!fileFormData.driversLicenseBack ? 'Driver License Back is required' : undefined}
               />
+
+              {fileFormData.driversLicenseBack && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversLicenseBack)} alt="Preview" />
+                  <span>{fileFormData.driversLicenseBack?.name}</span>
+                </ImagePreview>
+              )}
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="block text-sm font-medium text-white">
               Driver's License Class *
@@ -295,7 +379,7 @@ const Stage4DocumentUpload: React.FC = () => {
         {/* Vehicle Documents Section */}
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Vehicle Documents</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
@@ -310,7 +394,7 @@ const Stage4DocumentUpload: React.FC = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Vehicle Insurance URL *
@@ -330,10 +414,25 @@ const Stage4DocumentUpload: React.FC = () => {
         {/* Additional Documents Section */}
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Additional Documents</h3>
-          
+
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">
+              <FileUpload
+                label="Driving Abstract URL *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversAbstract", file)}
+                error={!fileFormData.driversAbstract ? 'Drivers Abstract is required' : undefined}
+              />
+
+              {fileFormData.driversAbstract && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversAbstract)} alt="Preview" />
+                  <span>{fileFormData.driversAbstract?.name}</span>
+                </ImagePreview>
+              )}
+
+              {/* <label className="block text-sm font-medium text-white">
                 Driving Abstract URL *
               </label>
               <input
@@ -343,11 +442,25 @@ const Stage4DocumentUpload: React.FC = () => {
                 placeholder="https://example.com/driving-abstract.pdf"
                 className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 required
-              />
+              /> */}
             </div>
-            
+
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">
+              <FileUpload
+                label="Driving Work Eligibility Document *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversWorkEligibility", file)}
+                error={!fileFormData.driversWorkEligibility ? 'Drivers Work Eligibility is required' : undefined}
+              />
+
+              {fileFormData.driversWorkEligibility && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversWorkEligibility)} alt="Preview" />
+                  <span>{fileFormData.driversWorkEligibility?.name}</span>
+                </ImagePreview>
+              )}
+              {/* <label className="block text-sm font-medium text-white">
                 Work Eligibility Document URL *
               </label>
               <input
@@ -357,11 +470,25 @@ const Stage4DocumentUpload: React.FC = () => {
                 placeholder="https://example.com/work-eligibility.pdf"
                 className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 required
-              />
+              /> */}
             </div>
-            
+
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-white">
+              <FileUpload
+                label="SIN Card Document *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driverSinCard", file)}
+                error={!fileFormData.driverSinCard ? 'Drivers SIN CARD is required' : undefined}
+              />
+
+              {fileFormData.driverSinCard && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driverSinCard)} alt="Preview" />
+                  <span>{fileFormData.driverSinCard?.name}</span>
+                </ImagePreview>
+              )}
+              {/* <label className="block text-sm font-medium text-white">
                 SIN Card URL *
               </label>
               <input
@@ -371,7 +498,7 @@ const Stage4DocumentUpload: React.FC = () => {
                 placeholder="https://example.com/sin-card.jpg"
                 className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 required
-              />
+              /> */}
             </div>
           </div>
         </div>
@@ -379,7 +506,7 @@ const Stage4DocumentUpload: React.FC = () => {
         {/* Additional Information Section */}
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Additional Information</h3>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
@@ -394,7 +521,7 @@ const Stage4DocumentUpload: React.FC = () => {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <label className="block text-sm font-medium text-white">
                 Driving Abstract Date *
@@ -408,7 +535,7 @@ const Stage4DocumentUpload: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="block text-sm font-medium text-white">
               Work Eligibility Type *
@@ -433,9 +560,23 @@ const Stage4DocumentUpload: React.FC = () => {
         {/* Background Check (Optional) */}
         <div className="bg-gray-800 p-6 rounded-lg space-y-4">
           <h3 className="text-lg font-semibold text-white">Background Check (Optional)</h3>
-          
+
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-white">
+            <FileUpload
+              label="Background Check Document"
+              required={true}
+              accept=".pdf,.jpg,.jpeg,.png"
+              onFileSelect={(file) => handleFileInputChange("driverBackgroundCheck", file)}
+              error={!fileFormData.driverBackgroundCheck ? 'Drivers background check is required' : undefined}
+            />
+
+            {fileFormData.driverBackgroundCheck && (
+              <ImagePreview>
+                <img src={URL.createObjectURL(fileFormData.driverBackgroundCheck)} alt="Preview" />
+                <span>{fileFormData.driverBackgroundCheck?.name}</span>
+              </ImagePreview>
+            )}
+            {/* <label className="block text-sm font-medium text-white">
               Background Check URL
             </label>
             <input
@@ -444,27 +585,26 @@ const Stage4DocumentUpload: React.FC = () => {
               onChange={(e) => handleInputChange('backgroundCheck', e.target.value)}
               placeholder="https://example.com/background-check.pdf"
               className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
+            /> */}
             <p className="text-sm text-gray-400">
               If you don't have a background check, we can help you obtain one in the next step.
             </p>
           </div>
         </div>
-        
+
         <div className="pt-6">
           <button
             type="submit"
             disabled={!isValid || isLoading}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-              isValid && !isLoading
-                ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${isValid && !isLoading
+              ? 'bg-orange-500 hover:bg-orange-600 text-white'
+              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              }`}
           >
             {isLoading ? 'Saving...' : 'Continue to Final Step'}
           </button>
         </div>
-        
+
         {!isValid && (
           <div className="text-sm text-orange-400 text-center">
             Please provide all required information to continue.
@@ -476,3 +616,27 @@ const Stage4DocumentUpload: React.FC = () => {
 };
 
 export default Stage4DocumentUpload;
+
+
+
+const ImagePreview = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+
+  img {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  span {
+    font-size: 0.9rem;
+    max-width: 200px;
+    word-break: break-word;
+  }
+`;
