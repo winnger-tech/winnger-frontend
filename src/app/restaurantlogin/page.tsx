@@ -105,17 +105,9 @@ export default function RestaurantLoginPage() {
     }
   };
 
- return (
+  return (
     <>
       <Navbar />
-
-      <Toast
-        message={t('restaurantLogin.toastSuccess')}
-        type="success"
-        isVisible={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-      />
-
       <Container>
         <ContentWrapper>
           <FormSection
@@ -125,20 +117,13 @@ export default function RestaurantLoginPage() {
             transition={{ duration: 0.8 }}
           >
             <FormHeader>
-
               <Title>{t('restaurantLogin.title')}</Title>
               <Subtitle>{t('restaurantLogin.subtitle')}</Subtitle>
-              {stageMessage && (
-                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">
-                  {stageMessage}
-                </div>
-              )}
               {registrationStage && (
                 <div className="mb-2 text-sm text-gray-700">
                   {(t as any)('restaurantLogin.stage', { current: registrationStage, total: totalStages })}
                 </div>
               )}
-
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>
@@ -171,10 +156,6 @@ export default function RestaurantLoginPage() {
                 />
                 {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
               </InputGroup>
-
-
-              {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
-
 
               <ForgotPassword href="/forgot-password">
                 {t('restaurantLogin.form.forgotPassword')}

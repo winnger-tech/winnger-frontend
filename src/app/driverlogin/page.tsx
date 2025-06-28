@@ -8,20 +8,20 @@ import Navbar from '../component/Navbar';
 import { useTranslation } from '../../utils/i18n';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { loginDriver, clearError } from '../../store/slices/authSlice';
-import { Toast } from '../../components/Toast';
+import { useToast } from '../../context/ToastContext';
 import Link from 'next/link';
 
 export default function DriverLoginPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [registrationStage, setRegistrationStage] = useState<number | null>(null);
   const totalStages = 4;
 
@@ -40,10 +40,18 @@ export default function DriverLoginPage() {
     }
   }, []);
 
+  // Show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      showError(error);
+      dispatch(clearError());
+    }
+  }, [error, showError, dispatch]);
+
   // Redirect to appropriate dashboard or stage after successful login
   useEffect(() => {
     if (isAuthenticated && user) {
-      setShowSuccessToast(true);
+      showSuccess('Login successful! Redirecting...');
       setRegistrationStage(user.registrationStage);
       
       // Redirect after short delay to show the success toast
@@ -65,7 +73,7 @@ export default function DriverLoginPage() {
         }
       }, 1500);
     }
-  }, [isAuthenticated, user, router, redirectPath]);
+  }, [isAuthenticated, user, router, redirectPath, showSuccess]);
 
   // Clear error when component unmounts
   useEffect(() => {
@@ -100,30 +108,17 @@ export default function DriverLoginPage() {
   return (
     <>
       <Navbar />
-      <Toast 
-        message={t('driverLogin.toastSuccess')}
-        type="success"
-        isVisible={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-      />
       <Container>
         <ContentWrapper>
           <FormSection as={motion.div} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <FormHeader>
-
               <Title>{t('driverLogin.title')}</Title>
               <Subtitle>{t('driverLogin.subtitle')}</Subtitle>
-              {stageMessage && (
-                <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-blue-800">
-                  {stageMessage}
-                </div>
-              )}
               {registrationStage && (
                 <div className="mb-2 text-sm text-gray-700">
                   Stage {registrationStage} of {totalStages}
                 </div>
               )}
-
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>

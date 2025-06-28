@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import styled from 'styled-components';
 import Navbar from '../../component/Navbar';
 import { useTranslation } from '../../../utils/i18n';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
@@ -14,9 +14,9 @@ export default function PaymentSuccessPage() {
 
   useEffect(() => {
     // Get payment details from URL parameters
-    const sessionId = searchParams.get('session_id');
-    const paymentStatus = searchParams.get('payment_status');
-    const paymentIntent = searchParams.get('payment_intent');
+    const sessionId = searchParams?.get('session_id');
+    const paymentStatus = searchParams?.get('payment_status');
+    const paymentIntent = searchParams?.get('payment_intent');
     
     if (sessionId || paymentIntent) {
       setPaymentDetails({
@@ -36,74 +36,85 @@ export default function PaymentSuccessPage() {
 
   if (isLoading) {
     return (
-      <>
-        <Navbar />
+      <PageContainer>
+        <ContentWrapper>
+          <LoadingMessage>Loading payment details...</LoadingMessage>
+        </ContentWrapper>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer>
+      <ContentWrapper>
+        <SuccessIcon>
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="#4CAF50" strokeWidth="2" fill="none"/>
+            <path d="M9 12l2 2 4-4" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </SuccessIcon>
+        
+        <PageTitle>Payment Successful!</PageTitle>
+        <PageDescription>
+          Your driver registration payment has been processed successfully.
+        </PageDescription>
+        
+        <PaymentDetails>
+          <DetailItem>
+            <Label>Payment Status:</Label>
+            <Value className="success">Completed</Value>
+          </DetailItem>
+          <DetailItem>
+            <Label>Amount Paid:</Label>
+            <Value>$25.00 CAD</Value>
+          </DetailItem>
+          <DetailItem>
+            <Label>Registration Fee:</Label>
+            <Value>Driver Registration</Value>
+          </DetailItem>
+          {paymentDetails?.sessionId && (
+            <DetailItem>
+              <Label>Transaction ID:</Label>
+              <Value className="small">{paymentDetails.sessionId}</Value>
+            </DetailItem>
+          )}
+          <DetailItem>
+            <Label>Date:</Label>
+            <Value>{paymentDetails?.timestamp || new Date().toLocaleString()}</Value>
+          </DetailItem>
+        </PaymentDetails>
+
+        <NextSteps>
+          <h3>What's Next?</h3>
+          <ul>
+            <li>Your registration will be reviewed by our team</li>
+            <li>You'll receive an email confirmation within 24 hours</li>
+            <li>Once approved, you can start accepting delivery requests</li>
+            <li>Download the Winnger driver app to get started</li>
+          </ul>
+        </NextSteps>
+
+        <Button onClick={handleContinue}>
+          Continue to Dashboard
+        </Button>
+      </ContentWrapper>
+    </PageContainer>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <>
+      <Navbar />
+      <Suspense fallback={
         <PageContainer>
           <ContentWrapper>
             <LoadingMessage>Loading payment details...</LoadingMessage>
           </ContentWrapper>
         </PageContainer>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Navbar />
-      <PageContainer>
-        <ContentWrapper>
-          <SuccessIcon>
-            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="#4CAF50" strokeWidth="2" fill="none"/>
-              <path d="M9 12l2 2 4-4" stroke="#4CAF50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </SuccessIcon>
-          
-          <PageTitle>Payment Successful!</PageTitle>
-          <PageDescription>
-            Your driver registration payment has been processed successfully.
-          </PageDescription>
-          
-          <PaymentDetails>
-            <DetailItem>
-              <Label>Payment Status:</Label>
-              <Value className="success">Completed</Value>
-            </DetailItem>
-            <DetailItem>
-              <Label>Amount Paid:</Label>
-              <Value>$25.00 CAD</Value>
-            </DetailItem>
-            <DetailItem>
-              <Label>Registration Fee:</Label>
-              <Value>Driver Registration</Value>
-            </DetailItem>
-            {paymentDetails?.sessionId && (
-              <DetailItem>
-                <Label>Transaction ID:</Label>
-                <Value className="small">{paymentDetails.sessionId}</Value>
-              </DetailItem>
-            )}
-            <DetailItem>
-              <Label>Date:</Label>
-              <Value>{paymentDetails?.timestamp || new Date().toLocaleString()}</Value>
-            </DetailItem>
-          </PaymentDetails>
-
-          <NextSteps>
-            <h3>What's Next?</h3>
-            <ul>
-              <li>Your registration will be reviewed by our team</li>
-              <li>You'll receive an email confirmation within 24 hours</li>
-              <li>Once approved, you can start accepting delivery requests</li>
-              <li>Download the Winnger driver app to get started</li>
-            </ul>
-          </NextSteps>
-
-          <Button onClick={handleContinue}>
-            Continue to Dashboard
-          </Button>
-        </ContentWrapper>
-      </PageContainer>
+      }>
+        <PaymentSuccessContent />
+      </Suspense>
     </>
   );
 }

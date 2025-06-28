@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useDashboard } from '../../../context/DashboardContext';
+import { useToast } from '../../../context/ToastContext';
 import { FileUpload } from '@/components/common/FileUpload';
 
 // import { uploadFile } from '@/services/s3Service';
@@ -30,6 +31,7 @@ export default function Stage3VehicleInfo({
   userType
 }: Stage3Props) {
   const { state, actions } = useDashboard();
+  const { showSuccess, showError } = useToast();
   const currentStageData = state.userData?.stage3 || {};
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -47,8 +49,10 @@ export default function Stage3VehicleInfo({
     ...data
   });
 
-  const [vehicleInsuranceFile, setVehicleInsuranceFile] = useState(null);
-  const [vehicleRegistrationFile, setVehicleRegistrationFile] = useState(null);
+  const [vehicleInsuranceFile, setVehicleInsuranceFile] = useState<File | null>(null);
+  const [vehicleRegistrationFile, setVehicleRegistrationFile] = useState<File | null>(null);
+  const [uploadingInsurance, setUploadingInsurance] = useState(false);
+  const [uploadingRegistration, setUploadingRegistration] = useState(false);
 
   // Real-time validation function
   const validateField = (name: string, value: any) => {
@@ -107,6 +111,18 @@ export default function Stage3VehicleInfo({
         }
         return '';
 
+      case 'vehicleInsuranceUrl':
+        if (!value?.toString().trim()) {
+          return 'Vehicle Insurance document is required';
+        }
+        return '';
+
+      case 'vehicleRegistrationUrl':
+        if (!value?.toString().trim()) {
+          return 'Vehicle Registration document is required';
+        }
+        return '';
+
       default:
         return '';
     }
@@ -133,7 +149,18 @@ export default function Stage3VehicleInfo({
     const newErrors: Record<string, string> = {};
 
     // Validate all required fields
-    const requiredFields = ['vehicleType', 'vehicleMake', 'vehicleModel', 'deliveryType', 'yearOfManufacture', 'vehicleColor', 'vehicleLicensePlate', 'driversLicenseClass'];
+    const requiredFields = [
+      'vehicleType', 
+      'vehicleMake', 
+      'vehicleModel', 
+      'deliveryType', 
+      'yearOfManufacture', 
+      'vehicleColor', 
+      'vehicleLicensePlate', 
+      'driversLicenseClass',
+      'vehicleInsuranceUrl',
+      'vehicleRegistrationUrl'
+    ];
 
     requiredFields.forEach(field => {
       const error = validateField(field, formData[field]);
@@ -141,59 +168,93 @@ export default function Stage3VehicleInfo({
         newErrors[field] = error;
       }
     });
-    
 
     setValidationErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const uploadFileToS3 = async (file: File, fileType: 'insurance' | 'registration'): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/drivers/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const result = await response.json();
+      showSuccess(`${fileType === 'insurance' ? 'Vehicle Insurance' : 'Vehicle Registration'} uploaded successfully!`);
+      return result.url;
+    } catch (error) {
+      console.error(`Error uploading ${fileType}:`, error);
+      showError(`Failed to upload ${fileType === 'insurance' ? 'Vehicle Insurance' : 'Vehicle Registration'}. Please try again.`);
+      throw error;
+    }
+  };
+
+  const handleInsuranceFileSelect = async (file: File | null) => {
+    if (!file) {
+      setVehicleInsuranceFile(null);
+      setFormData(prev => ({ ...prev, vehicleInsuranceUrl: '' }));
+      return;
+    }
+
+    setVehicleInsuranceFile(file);
+    setUploadingInsurance(true);
+
+    try {
+      const url = await uploadFileToS3(file, 'insurance');
+      setFormData(prev => ({ ...prev, vehicleInsuranceUrl: url }));
+      onChange({ vehicleInsuranceUrl: url });
+    } catch (error) {
+      setVehicleInsuranceFile(null);
+    } finally {
+      setUploadingInsurance(false);
+    }
+  };
+
+  const handleRegistrationFileSelect = async (file: File | null) => {
+    if (!file) {
+      setVehicleRegistrationFile(null);
+      setFormData(prev => ({ ...prev, vehicleRegistrationUrl: '' }));
+      return;
+    }
+
+    setVehicleRegistrationFile(file);
+    setUploadingRegistration(true);
+
+    try {
+      const url = await uploadFileToS3(file, 'registration');
+      setFormData(prev => ({ ...prev, vehicleRegistrationUrl: url }));
+      onChange({ vehicleRegistrationUrl: url });
+    } catch (error) {
+      setVehicleRegistrationFile(null);
+    } finally {
+      setUploadingRegistration(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (validateForm()) {
       console.log('✅ Stage3 validation passed, calling onSubmit');
-
-
-      const vehicleInsuranceFileDetails = await uploadFile(vehicleInsuranceFile);
-      const vehicleRegistrationFileDetails = await uploadFile(vehicleRegistrationFile);
-
-      onSubmit({
-        ...formData,
-        vehicleInsuranceUrl: vehicleInsuranceFileDetails.url || '',
-        vehicleRegistrationUrl: vehicleRegistrationFileDetails.url || '',
-      });
+      onSubmit(formData);
     } else {
       console.log('❌ Stage3 validation failed:', validationErrors);
+      showError('Please fix the validation errors before continuing.');
     }
   };
 
   const handlePrevious = () => {
     actions.updateStageData(3, formData);
   };
-
-
-  const uploadFile = async (file: File) => {
-    try {
-      if (!file) return;
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await fetch(`/api/drivers/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('File upload failed');
-      }
-
-      const result = await response.json();
-      console.log('File uploaded successfully:', result);
-      return result;
-    } catch (e) {
-      throw new Error('Error uploading file');
-    }
-  }
 
   const vehicleTypes = [
     { value: '', label: 'Select Vehicle Type' },
@@ -244,7 +305,7 @@ export default function Stage3VehicleInfo({
                 <option value="Other">Other</option>
               </Select>
               {(validationErrors.vehicleType || errors?.vehicleType) && (
-                <ErrorText>{validationErrors.vehicleType || errors.vehicleType}</ErrorText>
+                <ErrorText>{validationErrors.vehicleType || errors?.vehicleType}</ErrorText>
               )}
             </InputGroup>
 
@@ -262,7 +323,7 @@ export default function Stage3VehicleInfo({
                 <option value="Other">Other</option>
               </Select>
               {(validationErrors.deliveryType || errors?.deliveryType) && (
-                <ErrorText>{validationErrors.deliveryType || errors.deliveryType}</ErrorText>
+                <ErrorText>{validationErrors.deliveryType || errors?.deliveryType}</ErrorText>
               )}
             </InputGroup>
           </InputRow>
@@ -278,7 +339,7 @@ export default function Stage3VehicleInfo({
                 placeholder="e.g., Toyota, Honda, Ford"
               />
               {(validationErrors.vehicleMake || errors?.vehicleMake) && (
-                <ErrorText>{validationErrors.vehicleMake || errors.vehicleMake}</ErrorText>
+                <ErrorText>{validationErrors.vehicleMake || errors?.vehicleMake}</ErrorText>
               )}
             </InputGroup>
 
@@ -292,7 +353,7 @@ export default function Stage3VehicleInfo({
                 placeholder="e.g., Camry, Civic, F-150"
               />
               {(validationErrors.vehicleModel || errors?.vehicleModel) && (
-                <ErrorText>{validationErrors.vehicleModel || errors.vehicleModel}</ErrorText>
+                <ErrorText>{validationErrors.vehicleModel || errors?.vehicleModel}</ErrorText>
               )}
             </InputGroup>
           </InputRow>
@@ -311,7 +372,7 @@ export default function Stage3VehicleInfo({
                 ))}
               </Select>
               {(validationErrors.yearOfManufacture || errors?.yearOfManufacture) && (
-                <ErrorText>{validationErrors.yearOfManufacture || errors.yearOfManufacture}</ErrorText>
+                <ErrorText>{validationErrors.yearOfManufacture || errors?.yearOfManufacture}</ErrorText>
               )}
             </InputGroup>
 
@@ -325,7 +386,7 @@ export default function Stage3VehicleInfo({
                 placeholder="e.g., Red, Blue, Silver"
               />
               {(validationErrors.vehicleColor || errors?.vehicleColor) && (
-                <ErrorText>{validationErrors.vehicleColor || errors.vehicleColor}</ErrorText>
+                <ErrorText>{validationErrors.vehicleColor || errors?.vehicleColor}</ErrorText>
               )}
             </InputGroup>
           </InputRow>
@@ -341,7 +402,7 @@ export default function Stage3VehicleInfo({
                 placeholder="ABC-123"
               />
               {(validationErrors.vehicleLicensePlate || errors?.vehicleLicensePlate) && (
-                <ErrorText>{validationErrors.vehicleLicensePlate || errors.vehicleLicensePlate}</ErrorText>
+                <ErrorText>{validationErrors.vehicleLicensePlate || errors?.vehicleLicensePlate}</ErrorText>
               )}
             </InputGroup>
 
@@ -362,7 +423,7 @@ export default function Stage3VehicleInfo({
                 <option value="Other">Other</option>
               </Select>
               {(validationErrors.driversLicenseClass || errors?.driversLicenseClass) && (
-                <ErrorText>{validationErrors.driversLicenseClass || errors.driversLicenseClass}</ErrorText>
+                <ErrorText>{validationErrors.driversLicenseClass || errors?.driversLicenseClass}</ErrorText>
               )}
             </InputGroup>
           </InputRow>
@@ -372,75 +433,62 @@ export default function Stage3VehicleInfo({
 
           <InputRow>
             <InputGroup>
-              <Label>Vehicle Insurance URL *</Label>
+              <Label>Vehicle Insurance Document *</Label>
               <FileUpload
-                // label="Vehicle Insurance URL"
                 required={true}
                 accept=".pdf,.jpg,.jpeg,.png"
-                onFileSelect={(file) => setVehicleInsuranceFile(file)}
-                error={!data.vehicleInsuranceUrl ? 'Vehicle Insurance is required' : undefined}
+                onFileSelect={handleInsuranceFileSelect}
+                loading={uploadingInsurance}
+                error={validationErrors.vehicleInsuranceUrl}
               />
               {vehicleInsuranceFile && (
                 <ImagePreview>
-                  <img src={URL.createObjectURL(vehicleInsuranceFile)} alt="Preview" />
+                  <img src={URL.createObjectURL(vehicleInsuranceFile)} alt="Insurance Preview" />
                   <span>{vehicleInsuranceFile?.name}</span>
                 </ImagePreview>
               )}
+              {formData.vehicleInsuranceUrl && !vehicleInsuranceFile && (
+                <DocumentPreview>
+                  <span>✅ Insurance document uploaded</span>
+                  <a href={formData.vehicleInsuranceUrl} target="_blank" rel="noopener noreferrer">
+                    View Document
+                  </a>
+                </DocumentPreview>
+              )}
             </InputGroup>
 
             <InputGroup>
-              <Label>Vehicle Registration URL *</Label>
+              <Label>Vehicle Registration Document *</Label>
               <FileUpload
-                // label="Vehicle Insurance URL"
                 required={true}
                 accept=".pdf,.jpg,.jpeg,.png"
-                onFileSelect={(file) => setVehicleRegistrationFile(file)}
-                error={!data.vehicleRegistrationUrl ? 'Vehicle Registration is required' : undefined}
+                onFileSelect={handleRegistrationFileSelect}
+                loading={uploadingRegistration}
+                error={validationErrors.vehicleRegistrationUrl}
               />
               {vehicleRegistrationFile && (
                 <ImagePreview>
-                  <img src={URL.createObjectURL(vehicleRegistrationFile)} alt="Preview" />
+                  <img src={URL.createObjectURL(vehicleRegistrationFile)} alt="Registration Preview" />
                   <span>{vehicleRegistrationFile?.name}</span>
                 </ImagePreview>
               )}
+              {formData.vehicleRegistrationUrl && !vehicleRegistrationFile && (
+                <DocumentPreview>
+                  <span>✅ Registration document uploaded</span>
+                  <a href={formData.vehicleRegistrationUrl} target="_blank" rel="noopener noreferrer">
+                    View Document
+                  </a>
+                </DocumentPreview>
+              )}
             </InputGroup>
           </InputRow>
-          {/* <InputRow>
-            <InputGroup>
-              <Label>Vehicle Insurance URL</Label>
-              <Input
-                type="url"
-                name="vehicleInsuranceUrl"
-                value={formData.vehicleInsuranceUrl}
-                onChange={handleInputChange}
-                placeholder="https://example.com/insurance.pdf"
-              />
-              {(validationErrors.vehicleInsuranceUrl || errors?.vehicleInsuranceUrl) && (
-                <ErrorText>{validationErrors.vehicleInsuranceUrl || errors.vehicleInsuranceUrl}</ErrorText>
-              )}
-            </InputGroup>
-
-            <InputGroup>
-              <Label>Vehicle Registration URL</Label>
-              <Input
-                type="url"
-                name="vehicleRegistrationUrl"
-                value={formData.vehicleRegistrationUrl}
-                onChange={handleInputChange}
-                placeholder="https://example.com/registration.pdf"
-              />
-              {(validationErrors.vehicleRegistrationUrl || errors?.vehicleRegistrationUrl) && (
-                <ErrorText>{validationErrors.vehicleRegistrationUrl || errors.vehicleRegistrationUrl}</ErrorText>
-              )}
-            </InputGroup>
-          </InputRow> */}
 
           <SubmitButton
             type="submit"
-            disabled={loading}
-            $loading={loading}
+            disabled={loading || uploadingInsurance || uploadingRegistration}
+            $loading={loading || uploadingInsurance || uploadingRegistration}
           >
-            {loading ? 'Saving...' : 'Save & Continue'}
+            {loading || uploadingInsurance || uploadingRegistration ? 'Saving...' : 'Save & Continue'}
           </SubmitButton>
         </Form>
       </StageCard>
@@ -587,7 +635,6 @@ const SubmitButton = styled.button<{ $loading: boolean }>`
   }
 `;
 
-
 const ImagePreview = styled.div`
   margin-top: 0.5rem;
   display: flex;
@@ -607,5 +654,29 @@ const ImagePreview = styled.div`
     font-size: 0.9rem;
     max-width: 200px;
     word-break: break-word;
+  }
+`;
+
+const DocumentPreview = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+
+  span {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  a {
+    color: #4CAF50;
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
