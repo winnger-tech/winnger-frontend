@@ -23,21 +23,16 @@ export default function RestaurantLoginPage() {
   });
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [stageMessage, setStageMessage] = useState<string | null>(null);
   const [registrationStage, setRegistrationStage] = useState<number | null>(null);
-  const totalStages = 5;
+  const totalStages = 4;
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
       setRegistrationStage(user.registrationStage);
-      setStageMessage(user.stageMessage);
-      if (user.isRegistrationComplete) {
-        router.push('/restaurant-dashboard');
-      } else if (user.registrationStage) {
-        router.push(`/restaurant-registration-staged/stage/${user.registrationStage}`);
-      }
+      // Always redirect to restaurant registration
+      router.push('/restaurant-registration');
     }
   }, [isAuthenticated, user, router]);
 
@@ -121,6 +116,7 @@ export default function RestaurantLoginPage() {
             transition={{ duration: 0.8 }}
           >
             <FormHeader>
+
               <Title>{t('restaurantLogin.title')}</Title>
               <Subtitle>{t('restaurantLogin.subtitle')}</Subtitle>
               {stageMessage && (
@@ -133,6 +129,7 @@ export default function RestaurantLoginPage() {
                   {(t as any)('restaurantLogin.stage', { current: registrationStage, total: totalStages })}
                 </div>
               )}
+
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>

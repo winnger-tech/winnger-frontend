@@ -1,232 +1,380 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useDashboard } from '../../../context/DashboardContext';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { motion } from 'framer-motion';
 
-interface Stage2DriverDetailsProps {
-  onNext: () => void;
-  onPrevious: () => void;
+interface Stage2Props {
+  data: any;
+  onChange: (data: any) => void;
+  onSubmit: (data: any) => void;
+  loading: boolean;
+  errors: any;
+  userType: 'driver' | 'restaurant';
 }
 
-export default function Stage2DriverDetails({ onNext, onPrevious }: Stage2DriverDetailsProps) {
-  const { state, actions } = useDashboard();
-  const currentStageData = state.userData?.stage2 || {};
-  
-  const [formData, setFormData] = useState({
-    phoneNumber: currentStageData.phoneNumber || '',
-    dateOfBirth: currentStageData.dateOfBirth || '',
-    address: currentStageData.address || '',
-    city: currentStageData.city || '',
-    province: currentStageData.province || '',
-    postalCode: currentStageData.postalCode || '',
-    emergencyContactName: currentStageData.emergencyContactName || '',
-    emergencyContactPhone: currentStageData.emergencyContactPhone || '',
-    ...currentStageData
-  });
+interface ValidationErrors {
+  [key: string]: string;
+}
+
+export default function Stage2DriverDetails({ 
+  data, 
+  onChange, 
+  onSubmit, 
+  loading, 
+  errors,
+  userType 
+}: Stage2Props) {
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+
+  // Validation functions
+  const validateRequired = (value: string, fieldName: string) => {
+    if (!value || value.trim() === '') return `${fieldName} is required`;
+    return '';
+  };
+
+  const validatePhoneNumber = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, '');
+    if (!phone) return 'Phone number is required';
+    if (cleaned.length !== 10) return 'Phone number must be 10 digits';
+    return '';
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+    let error = '';
+
+    // Apply validation based on field
+    switch (name) {
+      case 'emergencyContactName':
+        error = validateRequired(value, 'Emergency contact name');
+        break;
+      case 'emergencyContactPhone':
+        error = validatePhoneNumber(value);
+        break;
+      case 'emergencyContactRelationship':
+        error = validateRequired(value, 'Emergency contact relationship');
+        break;
+    }
+
+    // Update validation errors
+    setValidationErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+
+    onChange({ [name]: value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Auto-save after a short delay
-    setTimeout(() => {
-      actions.autoSave(2, { ...formData, [name]: value });
-    }, 1000);
+    // Validate all required fields before submit
+    const newErrors: ValidationErrors = {};
+    
+    // Validate required fields for driver stage 2
+    newErrors.emergencyContactName = validateRequired(data.emergencyContactName || '', 'Emergency contact name');
+    newErrors.emergencyContactPhone = validatePhoneNumber(data.emergencyContactPhone || '');
+    newErrors.emergencyContactRelationship = validateRequired(data.emergencyContactRelationship || '', 'Emergency contact relationship');
+
+    setValidationErrors(newErrors);
+
+    // Check if there are any errors
+    const hasErrors = Object.values(newErrors).some(error => error !== '');
+    
+    if (!hasErrors) {
+      onSubmit(data);
+    }
   };
 
-  const handleNext = () => {
-    actions.updateStageData(2, formData);
-    onNext();
-  };
-
-  const handlePrevious = () => {
-    actions.updateStageData(2, formData);
-    onPrevious();
-  };
-
-  const provinces = [
-    { value: '', label: 'Select Province' },
-    { value: 'AB', label: 'Alberta' },
-    { value: 'BC', label: 'British Columbia' },
-    { value: 'MB', label: 'Manitoba' },
-    { value: 'NB', label: 'New Brunswick' },
-    { value: 'NL', label: 'Newfoundland and Labrador' },
-    { value: 'NS', label: 'Nova Scotia' },
-    { value: 'ON', label: 'Ontario' },
-    { value: 'PE', label: 'Prince Edward Island' },
-    { value: 'QC', label: 'Quebec' },
-    { value: 'SK', label: 'Saskatchewan' },
-    { value: 'NT', label: 'Northwest Territories' },
-    { value: 'NU', label: 'Nunavut' },
-    { value: 'YT', label: 'Yukon' }
+  const relationshipOptions = [
+    { value: '', label: 'Select Relationship' },
+    { value: 'parent', label: 'Parent' },
+    { value: 'spouse', label: 'Spouse/Partner' },
+    { value: 'sibling', label: 'Sibling' },
+    { value: 'child', label: 'Child' },
+    { value: 'friend', label: 'Friend' },
+    { value: 'other', label: 'Other' }
   ];
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg pt-28">
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Personal Details</h2>
-        <p className="text-gray-600">Please provide your personal information and emergency contact details.</p>
-      </div>
+    <Container
+      as={motion.div}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <StageCard>
+        <CardHeader>
+          <Title>Emergency Contact Information</Title>
+          <Description>
+            Please provide emergency contact details for safety purposes
+          </Description>
+        </CardHeader>
 
-      <div className="space-y-6">
-        {/* Contact Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number *
-            </label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleInputChange}
-              placeholder="(xxx) xxx-xxxx"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
-              Date of Birth *
-            </label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleInputChange}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-            />
-          </div>
-        </div>
-
-        {/* Address Information */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Address Information</h3>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Street Address *
-              </label>
-              <input
+        <Form onSubmit={handleSubmit}>
+          <SectionTitle>Emergency Contact Details</SectionTitle>
+          
+          <InputRow>
+            <InputGroup>
+              <Label>Emergency Contact Name *</Label>
+              <Input
                 type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="123 Main Street"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
-                  City *
-                </label>
-                <input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  placeholder="Toronto"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="province" className="block text-sm font-medium text-gray-700 mb-1">
-                  Province *
-                </label>
-                <select
-                  id="province"
-                  name="province"
-                  value={formData.province}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-                >
-                  {provinces.map(province => (
-                    <option key={province.value} value={province.value}>
-                      {province.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
-                  Postal Code *
-                </label>
-                <input
-                  type="text"
-                  id="postalCode"
-                  name="postalCode"
-                  value={formData.postalCode}
-                  onChange={handleInputChange}
-                  placeholder="A1A 1A1"
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Emergency Contact */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Emergency Contact</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="emergencyContactName" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="emergencyContactName"
                 name="emergencyContactName"
-                value={formData.emergencyContactName}
+                value={data.emergencyContactName || ''}
                 onChange={handleInputChange}
-                placeholder="John Doe"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
+                placeholder="Full name of emergency contact"
+                style={{
+                  borderColor: validationErrors.emergencyContactName ? '#ff4757' : '#e1e1e1'
+                }}
               />
-            </div>
+              {validationErrors.emergencyContactName && (
+                <ErrorText>{validationErrors.emergencyContactName}</ErrorText>
+              )}
+            </InputGroup>
 
-            <div>
-              <label htmlFor="emergencyContactPhone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number *
-              </label>
-              <input
+            <InputGroup>
+              <Label>Emergency Contact Phone *</Label>
+              <Input
                 type="tel"
-                id="emergencyContactPhone"
                 name="emergencyContactPhone"
-                value={formData.emergencyContactPhone}
+                value={data.emergencyContactPhone || ''}
                 onChange={handleInputChange}
-                placeholder="(xxx) xxx-xxxx"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
+                placeholder="(123) 456-7890"
+                style={{
+                  borderColor: validationErrors.emergencyContactPhone ? '#ff4757' : '#e1e1e1'
+                }}
               />
-            </div>
-          </div>
-        </div>
+              {validationErrors.emergencyContactPhone && (
+                <ErrorText>{validationErrors.emergencyContactPhone}</ErrorText>
+              )}
+            </InputGroup>
+          </InputRow>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-6 border-t">
-          <button
-            type="button"
-            onClick={handlePrevious}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <InputRow>
+            <InputGroup>
+              <Label>Relationship to You *</Label>
+              <Select
+                name="emergencyContactRelationship"
+                value={data.emergencyContactRelationship || ''}
+                onChange={handleInputChange}
+                style={{
+                  borderColor: validationErrors.emergencyContactRelationship ? '#ff4757' : '#e1e1e1'
+                }}
+              >
+                {relationshipOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              {validationErrors.emergencyContactRelationship && (
+                <ErrorText>{validationErrors.emergencyContactRelationship}</ErrorText>
+              )}
+            </InputGroup>
+
+            <InputGroup>
+              <Label>Emergency Contact Email</Label>
+              <Input
+                type="email"
+                name="emergencyContactEmail"
+                value={data.emergencyContactEmail || ''}
+                onChange={handleInputChange}
+                placeholder="email@example.com (optional)"
+              />
+            </InputGroup>
+          </InputRow>
+
+          <InfoNote>
+            <InfoIcon>ℹ️</InfoIcon>
+            <InfoText>
+              This information will only be used in case of emergency while you're working. 
+              We will never contact your emergency contact for any other reason.
+            </InfoText>
+          </InfoNote>
+
+          <SubmitButton 
+            type="submit" 
+            disabled={loading}
           >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={handleNext}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Next Step
-          </button>
-        </div>
-      </div>
-    </div>
+            {loading ? 'Saving...' : 'Continue to Next Step'}
+          </SubmitButton>
+        </Form>
+      </StageCard>
+    </Container>
   );
 }
+
+// Styled Components (reusing from Stage1 for consistency)
+const Container = styled.div`
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 110px;
+`;
+
+const StageCard = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    padding: 2rem;
+  }
+`;
+
+const CardHeader = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+`;
+
+const Title = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  color: #403E2D;
+  margin-bottom: 1rem;
+`;
+
+const Description = styled.p`
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+`;
+
+const InputRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Label = styled.label`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #403E2D;
+  margin-bottom: 0.5rem;
+`;
+
+const Input = styled.input`
+  padding: 1rem;
+  border: 2px solid #e1e1e1;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+  background: white;
+  color: #111;
+
+  &:focus {
+    outline: none;
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
+  }
+
+  &::placeholder {
+    color: #999;
+  }
+`;
+
+const Select = styled.select`
+  padding: 1rem;
+  border: 2px solid #e1e1e1;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all 0.3s ease;
+  background: white;
+  color: #111;
+
+  &:focus {
+    outline: none;
+    border-color: #ffc32b;
+    box-shadow: 0 0 0 3px rgba(255, 195, 43, 0.1);
+  }
+
+  option {
+    color: #111;
+    background: white;
+  }
+`;
+
+const InfoNote = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: rgba(255, 195, 43, 0.1);
+  border: 1px solid rgba(255, 195, 43, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+`;
+
+const InfoIcon = styled.span`
+  font-size: 1.5rem;
+  flex-shrink: 0;
+`;
+
+const InfoText = styled.p`
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+`;
+
+const SubmitButton = styled.button`
+  background: linear-gradient(135deg, #ffc32b 0%, #f3b71e 100%);
+  color: #403E2D;
+  padding: 1.2rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'Space Grotesk', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: center;
+  min-width: 200px;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 195, 43, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const SectionTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #403E2D;
+  margin: 2rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
+`;
+
+const ErrorText = styled.span`
+  color: #ff4757;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
+  font-weight: 500;
+`;

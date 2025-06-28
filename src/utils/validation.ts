@@ -56,16 +56,68 @@ export const isValidDriversLicenseClass = (licenseClass: string, province: Provi
 
 // Document Validation
 export const isValidDrivingAbstractDate = (date: string): boolean => {
+  if (!date) return false;
+  
+  const selectedDate = new Date(date);
+  const today = new Date();
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-  return new Date(date) >= threeMonthsAgo;
+  
+  // Reset time to compare only dates
+  selectedDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  threeMonthsAgo.setHours(0, 0, 0, 0);
+  
+  // Check if date is valid and not in the future
+  if (isNaN(selectedDate.getTime())) return false;
+  if (selectedDate > today) return false;
+  
+  // Check if date is not older than 3 months
+  return selectedDate >= threeMonthsAgo;
 };
 
-export const isValidBackgroundCheckDate = (date: string | null): boolean => {
-  if (!date) return true; // Optional field
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  return new Date(date) >= sixMonthsAgo;
+export const getDrivingAbstractDateValidation = (date: string): { isValid: boolean; error?: string } => {
+  if (!date) {
+    return { isValid: false, error: 'driverRegistration.errors.drivingAbstractDateRequired' };
+  }
+  
+  const selectedDate = new Date(date);
+  const today = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  
+  // Reset time to compare only dates
+  selectedDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  threeMonthsAgo.setHours(0, 0, 0, 0);
+  
+  // Check if date is valid
+  if (isNaN(selectedDate.getTime())) {
+    return { isValid: false, error: 'driverRegistration.errors.drivingAbstractDateInvalid' };
+  }
+  
+  // Check if date is not in the future
+  if (selectedDate > today) {
+    return { isValid: false, error: 'driverRegistration.errors.drivingAbstractDateFuture' };
+  }
+  
+  // Check if date is not older than 3 months
+  if (selectedDate < threeMonthsAgo) {
+    return { isValid: false, error: 'driverRegistration.errors.drivingAbstractDateRecency' };
+  }
+  
+  return { isValid: true };
+};
+
+export const getDrivingAbstractDateConstraints = () => {
+  const today = new Date();
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  
+  return {
+    maxDate: today.toISOString().split('T')[0],
+    minDate: threeMonthsAgo.toISOString().split('T')[0]
+  };
 };
 
 export const isValidSINNumber = (sin: string): boolean => {
@@ -153,9 +205,6 @@ export const validateDriverForm = (data: {
   if (data.documentInfo.drivingAbstractDate && !isValidDrivingAbstractDate(data.documentInfo.drivingAbstractDate)) {
     errors.drivingAbstractDate = 'Driving abstract must be from the last 3 months';
   }
-  if (data.documentInfo.criminalBackgroundCheckDate && !isValidBackgroundCheckDate(data.documentInfo.criminalBackgroundCheckDate)) {
-    errors.criminalBackgroundCheckDate = 'Criminal background check must be from the last 6 months';
-  }
 
   // Payment Info Validation
   if (!isValidTransitNumber(data.paymentInfo.transitNumber)) {
@@ -211,7 +260,6 @@ interface DocumentInfo {
   driversLicenseFile: File | null;
   insuranceFile: File | null;
   vehicleRegistrationFile: File | null;
-  backgroundCheckConsent: File | null;
 }
 
 interface BankingInfo {
@@ -225,7 +273,6 @@ interface BankingInfo {
 interface Consents {
   termsAndConditions: boolean;
   privacyPolicy: boolean;
-  backgroundCheck: boolean;
   dataCollection: boolean;
 }
 
@@ -343,10 +390,6 @@ export const validateDocumentInfo = (info: DocumentInfo): ValidationResult => {
     errors.vehicleRegistrationFile = 'Vehicle registration file is required';
   }
 
-  if (!info.backgroundCheckConsent) {
-    errors.backgroundCheckConsent = 'Background check consent form is required';
-  }
-
   return errors;
 };
 
@@ -391,10 +434,6 @@ export const validateConsents = (consents: Consents): ValidationResult => {
 
   if (!consents.privacyPolicy) {
     errors.privacyPolicy = 'You must agree to the privacy policy';
-  }
-
-  if (!consents.backgroundCheck) {
-    errors.backgroundCheck = 'You must consent to the background check';
   }
 
   if (!consents.dataCollection) {
@@ -460,7 +499,6 @@ export const validateDriverRegistration = (data: DriverRegistrationState) => {
   if (!data.driversLicense) errors.driversLicense = 'Driver\'s license document is required';
   if (!data.vehicleInsurance) errors.vehicleInsurance = 'Vehicle insurance document is required';
   if (!data.vehicleRegistration) errors.vehicleRegistration = 'Vehicle registration document is required';
-  if (!data.backgroundCheck) errors.backgroundCheck = 'Background check document is required';
   if (!data.driverAbstract) errors.driverAbstract = 'Driver abstract document is required';
 
   // Banking Information Validation
@@ -481,7 +519,6 @@ export const validateDriverRegistration = (data: DriverRegistrationState) => {
   // Consent Validation
   if (!data.termsConsent) errors.termsConsent = 'You must agree to the Terms and Conditions';
   if (!data.privacyConsent) errors.privacyConsent = 'You must agree to the Privacy Policy';
-  if (!data.backgroundCheckConsent) errors.backgroundCheckConsent = 'You must consent to a background check';
   if (!data.dataUsageConsent) errors.dataUsageConsent = 'You must consent to data collection and usage';
 
   return errors;
@@ -491,27 +528,29 @@ export const validateRestaurantRegistration = (info: RestaurantInfo): { [key: st
   const errors: { [key: string]: string } = {};
 
   // Owner Information
-  if (!info.ownerName) {
-    errors.ownerName = 'Owner name is required';
+  if (!info.firstName) {
+    errors.firstName = 'First name is required';
   }
-  if (!info.ownerPhone) {
-    errors.ownerPhone = 'Owner phone is required';
-  } else if (!/^\+1-\d{3}-\d{3}-\d{4}$/.test(info.ownerPhone)) {
-    errors.ownerPhone = 'Phone number must be in format: +1-XXX-XXX-XXXX';
+  if (!info.lastName) {
+    errors.lastName = 'Last name is required';
+  }
+  if (!info.email) {
+    errors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) {
+    errors.email = 'Invalid email format';
+  }
+  if (!info.phone) {
+    errors.phone = 'Phone is required';
+  } else if (!/^\+1-\d{3}-\d{3}-\d{4}$/.test(info.phone)) {
+    errors.phone = 'Phone number must be in format: +1-XXX-XXX-XXXX';
+  }
+  if (!info.dateOfBirth) {
+    errors.dateOfBirth = 'Date of birth is required';
   }
 
   // Business Information
-  if (!info.identificationType) {
-    errors.identificationType = 'Identification type is required';
-  }
   if (!info.businessName) {
     errors.businessName = 'Business name is required';
-  }
-  if (!info.businessLicenseUrl) {
-    errors.businessLicenseUrl = 'Business license is required';
-  }
-  if (!info.businessAddress) {
-    errors.businessAddress = 'Business address is required';
   }
   if (!info.businessPhone) {
     errors.businessPhone = 'Business phone is required';
@@ -524,76 +563,54 @@ export const validateRestaurantRegistration = (info: RestaurantInfo): { [key: st
     errors.businessEmail = 'Invalid email format';
   }
 
-  // Required Documents
-  if (!info.fssaiCertificateUrl) {
-    errors.fssaiCertificateUrl = 'FSSAI certificate is required';
+  // Address Information
+  if (!info.address.street) {
+    errors.street = 'Street address is required';
   }
-  if (!info.gstCertificateUrl) {
-    errors.gstCertificateUrl = 'GST certificate is required';
+  if (!info.address.city) {
+    errors.city = 'City is required';
   }
-  if (!info.panCardUrl) {
-    errors.panCardUrl = 'PAN card is required';
+  if (!info.address.province) {
+    errors.province = 'Province is required';
+  }
+  if (!info.address.postalCode) {
+    errors.postalCode = 'Postal code is required';
+  } else if (!/^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(info.address.postalCode)) {
+    errors.postalCode = 'Invalid postal code format';
   }
 
-  // Banking Information
-  if (!info.bankingInfo.transitNumber) {
-    errors.transitNumber = 'Transit number is required';
-  } else if (!/^\d{3}$/.test(info.bankingInfo.transitNumber)) {
-    errors.transitNumber = 'Transit number must be exactly 3 digits';
+  // Required Documents
+  if (!info.businessLicense) {
+    errors.businessLicense = 'Business license is required';
   }
-  if (!info.bankingInfo.institutionNumber) {
-    errors.institutionNumber = 'Institution number is required';
-  } else if (!/^\d{5}$/.test(info.bankingInfo.institutionNumber)) {
-    errors.institutionNumber = 'Institution number must be exactly 5 digits';
+  if (!info.fssaiCertificate) {
+    errors.fssaiCertificate = 'FSSAI certificate is required';
   }
-  if (!info.bankingInfo.accountNumber) {
-    errors.accountNumber = 'Account number is required';
-  } else if (!/^\d{7,12}$/.test(info.bankingInfo.accountNumber)) {
-    errors.accountNumber = 'Account number must be 7-12 digits';
+  if (!info.gstCertificate) {
+    errors.gstCertificate = 'GST certificate is required';
   }
-  if (!info.bankingInfo.voidChequeUrl) {
+  if (!info.panCard) {
+    errors.panCard = 'PAN card is required';
+  }
+  if (!info.voidCheque) {
     errors.voidCheque = 'Void cheque is required';
   }
 
-  // Tax Information based on province
-  const province = info.businessAddress.split(', ')[2]?.trim().substring(0, 2);
-  
-  if (province) {
-    // GST Provinces
-    if (['AB', 'BC', 'MB', 'QC', 'SK', 'NT', 'YT', 'NU'].includes(province)) {
-      if (!info.taxInfo.gstNumber) {
-        errors.gstNumber = 'GST number is required for your province';
-      } else if (!/^\d{9}RT\d{4}$/.test(info.taxInfo.gstNumber)) {
-        errors.gstNumber = 'Invalid GST number format';
-      }
-    }
-
-    // HST Provinces
-    if (['NB', 'NL', 'NS', 'ON', 'PE'].includes(province)) {
-      if (!info.taxInfo.hstNumber) {
-        errors.hstNumber = 'HST number is required for your province';
-      } else if (!/^\d{9}RT\d{4}$/.test(info.taxInfo.hstNumber)) {
-        errors.hstNumber = 'Invalid HST number format';
-      }
-    }
-
-    // QST for Quebec
-    if (province === 'QC') {
-      if (!info.taxInfo.qstNumber) {
-        errors.qstNumber = 'QST number is required for Quebec';
-      } else if (!/^\d{10}TQ\d{4}$/.test(info.taxInfo.qstNumber)) {
-        errors.qstNumber = 'Invalid QST number format';
-      }
-    }
-
-    // PST Provinces
-    if (['BC', 'MB', 'SK'].includes(province)) {
-      if (!info.taxInfo.pstNumber) {
-        errors.pstNumber = 'PST number is required for your province';
-      } else if (!/^\d{7}$/.test(info.taxInfo.pstNumber)) {
-        errors.pstNumber = 'Invalid PST number format';
-      }
-    }
+  // Tax Information
+  if (!info.taxInfo.gstNumber) {
+    errors.gstNumber = 'GST number is required';
+  } else if (!/^\d{9}RT\d{4}$/.test(info.taxInfo.gstNumber)) {
+    errors.gstNumber = 'Invalid GST number format';
+  }
+  if (!info.taxInfo.pstNumber) {
+    errors.pstNumber = 'PST number is required';
+  } else if (!/^\d{7}$/.test(info.taxInfo.pstNumber)) {
+    errors.pstNumber = 'Invalid PST number format';
+  }
+  if (!info.taxInfo.businessNumber) {
+    errors.businessNumber = 'Business number is required';
+  } else if (!/^\d{9}$/.test(info.taxInfo.businessNumber)) {
+    errors.businessNumber = 'Invalid business number format';
   }
 
   // Menu Details

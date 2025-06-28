@@ -167,7 +167,7 @@ export function useDashboard() {
       const newUserData = { ...prev.userData, [`stage${stage}`]: data };
       
       // Save to localStorage
-      const userType = Object.keys(prev.stages).length === 5 ? 'driver' : 'restaurant';
+      const userType = Object.keys(prev.stages).length === 4 ? 'driver' : 'restaurant';
       const savedDataKey = `${userType}_registration_data`;
       localStorage.setItem(savedDataKey, JSON.stringify(newUserData));
 

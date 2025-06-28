@@ -2,151 +2,612 @@
 
 import React, { useState, useEffect } from 'react';
 import { useDashboard } from '../../../context/DashboardContext';
-import { FileUpload } from '../../common/FileUpload';
+import StageService from '../../../services/stageService';
+import { FileUpload } from '@/components/common/FileUpload';
+import styled from 'styled-components';
 
 interface DocumentUploadData {
-  driversLicense: string | null;
-  insurance: string | null;
-  registration: string | null;
-  backgroundCheck: string | null;
-}
+  // Driver's License
+  driversLicenseFrontUrl: string;
+  driversLicenseBackUrl: string;
+  driversLicenseClass: string;
 
-const uploadToS3 = async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append('file', file);
-  const res = await fetch('/api/drivers/upload', {
-    method: 'POST',
-    body: formData,
-  });
-  if (!res.ok) throw new Error('Failed to upload file');
-  const data = await res.json();
-  return data.url;
-};
+  // Vehicle Documents
+  vehicleRegistrationUrl: string;
+  vehicleInsuranceUrl: string;
+
+  // Additional Documents
+  drivingAbstractUrl: string;
+  workEligibilityUrl: string;
+  sinCardUrl: string;
+
+  // Additional Information
+  sinCardNumber: string;
+  drivingAbstractDate: string;
+  workEligibilityType: string;
+
+  // Optional
+  backgroundCheck: string;
+}
 
 const Stage4DocumentUpload: React.FC = () => {
   const { state, actions } = useDashboard();
   const [data, setData] = useState<DocumentUploadData>({
-    driversLicense: null,
-    insurance: null,
-    registration: null,
-    backgroundCheck: null
+    driversLicenseFrontUrl: '',
+    driversLicenseBackUrl: '',
+    driversLicenseClass: '',
+    vehicleRegistrationUrl: '',
+    vehicleInsuranceUrl: '',
+    drivingAbstractUrl: '',
+    workEligibilityUrl: '',
+    sinCardUrl: '',
+    sinCardNumber: '',
+    drivingAbstractDate: '',
+    workEligibilityType: 'passport',
+    backgroundCheck: ''
   });
+
+  const [fileFormData, setFileFormData] = useState({
+    driversLicenseFront: null,
+    driversLicenseBack: null,
+    driversAbstract: null,
+    driversWorkEligibility: null,
+    driverSinCard: null,
+    driverBackgroundCheck: null
+  });
+
   const [isLoading, setIsLoading] = useState(false);
-  const [uploading, setUploading] = useState<{[k in keyof DocumentUploadData]?: boolean}>({});
+  const [isFetchingProfile, setIsFetchingProfile] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     // Load existing data
-    const existingData = state.userData?.[`stage4`];
+    const existingData = state.userData?.[`stage3`];
+    console.log('🔍 Loading existing stage 3 data:', existingData);
     if (existingData) {
       setData(existingData);
+    } else {
+      // Ensure workEligibilityType has a default value if no existing data
+      setData(prev => ({
+        ...prev,
+        workEligibilityType: prev.workEligibilityType || 'passport'
+      }));
     }
   }, [state.userData]);
 
-  const handleFileChange = async (fieldName: keyof DocumentUploadData, file: File | null) => {
-    if (!file) return;
-    setUploading((prev) => ({ ...prev, [fieldName]: true }));
+  const handleInputChange = (fieldName: keyof DocumentUploadData, value: string) => {
+    const updatedData = { ...data, [fieldName]: value };
+    setData(updatedData);
+
+    // Debug: Log when workEligibilityType is changed
+    if (fieldName === 'workEligibilityType') {
+      console.log('🔍 workEligibilityType changed to:', value);
+    }
+
+    actions.autoSave(3, updatedData);
+  };
+
+  const handleFileInputChange = (name, file) => {
+    setFileFormData(state => {
+      return { ...state, [name]: file }
+    });
+  }
+
+  const handleFetchProfile = async () => {
+    setIsFetchingProfile(true);
     try {
-      const url = await uploadToS3(file);
-      const updatedData = { ...data, [fieldName]: url };
-      setData(updatedData);
-      actions.autoSave(4, updatedData);
-    } catch (err) {
-      alert('Failed to upload file.');
+      console.log('🔍 Fetching profile data...');
+      const response = await StageService.getProfile();
+      console.log('🔍 Profile response:', response);
+
+      if (response?.data) {
+        setProfileData(response.data);
+        setShowProfile(true);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching profile:', error);
+      alert('Failed to fetch profile data. Please try again.');
     } finally {
-      setUploading((prev) => ({ ...prev, [fieldName]: false }));
+      setIsFetchingProfile(false);
     }
   };
+
+  const uploadDocuments = async () => {
+    try {
+      const [
+        driversLicenseFrontDetails,
+        driversLicenseBackDetails,
+        driversAbstractDetails,
+        driversWorkEligibilityDetails,
+        driverSinCardDetails,
+        driverBackgroundCheckDetails,
+      ] = await Promise.all([
+        uploadFile(fileFormData.driversLicenseFront),
+        uploadFile(fileFormData.driversLicenseBack),
+        uploadFile(fileFormData.driversAbstract),
+        uploadFile(fileFormData.driversWorkEligibility),
+        uploadFile(fileFormData.driverSinCard),
+        uploadFile(fileFormData.driverBackgroundCheck),
+      ]);
+
+      return {
+        driversLicenseFrontUrl: driversLicenseFrontDetails?.url || '',
+        driversLicenseBackUrl: driversLicenseBackDetails?.url || '',
+        drivingAbstractUrl: driversAbstractDetails?.url || '',
+        workEligibilityUrl: driversWorkEligibilityDetails?.url || '',
+        sinCardUrl: driverSinCardDetails?.url || '',
+        backgroundCheck: driverBackgroundCheckDetails?.url || '',
+      };
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  
+  const uploadFile = async (file: File) => {
+    try {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch(`/api/drivers/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('File upload failed');
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result);
+      return result;
+    } catch (e) {
+      throw new Error('Error uploading file');
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Debug: Log the data being submitted
+    console.log('🔍 Submitting Stage 3 data:', data);
+    console.log('🔍 workEligibilityType value:', data.workEligibilityType);
+
+    const fileUrls = await uploadDocuments();
+    console.log({...data, fileUrls})
     try {
-      await actions.updateStageData(4, data);
-      actions.navigateToStage(5);
+      await actions.updateStageData(3, {...data, ...fileUrls});
+      actions.navigateToStage(4);
     } catch (error) {
-      console.error('Error saving Stage 4 data:', error);
+      console.error('Error saving Stage 3 data:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isValid = data.driversLicense && data.insurance && data.registration;
+  const isValid = data.driversLicenseClass &&
+  // data.driversLicenseFrontUrl &&
+    // data.driversLicenseBackUrl &&
+    data.vehicleRegistrationUrl &&
+    data.vehicleInsuranceUrl &&
+    // data.drivingAbstractUrl &&
+    // data.workEligibilityUrl &&
+    // data.sinCardUrl &&
+    data.sinCardNumber &&
+    data.drivingAbstractDate &&
+    data.workEligibilityType &&
+    fileFormData.driversLicenseFront &&
+    fileFormData.driversLicenseBack &&
+    fileFormData.driversAbstract &&
+    fileFormData.driversWorkEligibility &&
+    fileFormData.driverSinCard;
 
   return (
     <div className="space-y-6 pt-28">
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">Document Upload</h2>
         <p className="text-gray-300">
-          Upload the required documents to verify your eligibility as a driver.
+          Provide URLs for the required documents to verify your eligibility as a driver.
         </p>
       </div>
+
+      {/* Fetch Profile Button */}
+      <div className="bg-gray-800 p-4 rounded-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Profile Information</h3>
+            <p className="text-sm text-gray-400">View your current profile details</p>
+          </div>
+          <button
+            onClick={handleFetchProfile}
+            disabled={isFetchingProfile}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${isFetchingProfile
+              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+          >
+            {isFetchingProfile ? 'Fetching...' : 'Fetch Profile Details'}
+          </button>
+        </div>
+      </div>
+
+      {/* Profile Display */}
+      {showProfile && profileData && (
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Your Profile Details</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Personal Information */}
+            <div className="space-y-3">
+              <h4 className="text-md font-medium text-orange-400">Personal Information</h4>
+              {profileData.driver && (
+                <>
+                  <div className="text-sm">
+                    <span className="text-gray-400">Name:</span>
+                    <span className="text-white ml-2">
+                      {profileData.driver.firstName} {profileData.driver.lastName}
+                    </span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-gray-400">Email:</span>
+                    <span className="text-white ml-2">{profileData.driver.email}</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-gray-400">Phone:</span>
+                    <span className="text-white ml-2">{profileData.driver.cellNumber}</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-gray-400">Registration Stage:</span>
+                    <span className="text-white ml-2">{profileData.driver.registrationStage}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Registration Status */}
+            <div className="space-y-3">
+              <h4 className="text-md font-medium text-orange-400">Registration Status</h4>
+              <div className="text-sm">
+                <span className="text-gray-400">Current Stage:</span>
+                <span className="text-white ml-2">{profileData.currentStage || 'Not set'}</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-gray-400">Total Stages:</span>
+                <span className="text-white ml-2">{profileData.totalStages || 'Not set'}</span>
+              </div>
+              <div className="text-sm">
+                <span className="text-gray-400">Completed:</span>
+                <span className="text-white ml-2">
+                  {profileData.isRegistrationComplete ? 'Yes' : 'No'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Stage Data */}
+          {profileData.stages && (
+            <div className="space-y-3">
+              <h4 className="text-md font-medium text-orange-400">Stage Progress</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {Object.entries(profileData.stages).map(([stageNum, stageData]: [string, any]) => (
+                  <div key={stageNum} className="text-sm bg-gray-700 p-2 rounded">
+                    <div className="text-gray-400">Stage {stageNum}</div>
+                    <div className="text-white">{stageData.title}</div>
+                    <div className={`text-xs ${stageData.completed ? 'text-green-400' : 'text-yellow-400'}`}>
+                      {stageData.completed ? '✓ Completed' : '○ Pending'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={() => setShowProfile(false)}
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            Hide Profile Details
+          </button>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Driver's License */}
-        <div className="space-y-2">
-          <FileUpload
-            label="Driver's License"
-            required={true}
-            accept=".pdf,.jpg,.jpeg,.png"
-            onFileSelect={(file) => handleFileChange('driversLicense', file)}
-            error={!data.driversLicense ? 'Driver\'s license is required' : undefined}
-          />
-          {uploading.driversLicense && <p className="text-xs text-blue-400">Uploading...</p>}
-          {data.driversLicense && <a href={data.driversLicense} target="_blank" rel="noopener noreferrer" className="text-xs text-green-400">View Uploaded</a>}
+        {/* Driver's License Section */}
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Driver's License</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <FileUpload
+                label="Driver's License Front URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversLicenseFront", file)}
+                error={!fileFormData.driversLicenseFront ? 'Drivers License Front is required' : undefined}
+              />
+
+              {fileFormData.driversLicenseFront && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversLicenseFront)} alt="Preview" />
+                  <span>{fileFormData.driversLicenseFront?.name}</span>
+                </ImagePreview>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <FileUpload
+                label="Driver's License Back URL"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversLicenseBack", file)}
+                error={!fileFormData.driversLicenseBack ? 'Driver License Back is required' : undefined}
+              />
+
+              {fileFormData.driversLicenseBack && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversLicenseBack)} alt="Preview" />
+                  <span>{fileFormData.driversLicenseBack?.name}</span>
+                </ImagePreview>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white">
+              Driver's License Class *
+            </label>
+            <select
+              value={data.driversLicenseClass}
+              onChange={(e) => handleInputChange('driversLicenseClass', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+            >
+              <option value="">Select License Class</option>
+              <option value="G">G (Car)</option>
+              <option value="G1">G1 (Learner)</option>
+              <option value="G2">G2 (Novice)</option>
+              <option value="M">M (Motorcycle)</option>
+              <option value="M1">M1 (Motorcycle Learner)</option>
+              <option value="M2">M2 (Motorcycle Novice)</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
-        {/* Insurance */}
-        <div className="space-y-2">
-          <FileUpload
-            label="Vehicle Insurance"
-            required={true}
-            accept=".pdf,.jpg,.jpeg,.png"
-            onFileSelect={(file) => handleFileChange('insurance', file)}
-            error={!data.insurance ? 'Vehicle insurance is required' : undefined}
-          />
-          {uploading.insurance && <p className="text-xs text-blue-400">Uploading...</p>}
-          {data.insurance && <a href={data.insurance} target="_blank" rel="noopener noreferrer" className="text-xs text-green-400">View Uploaded</a>}
+
+        {/* Vehicle Documents Section */}
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Vehicle Documents</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white">
+                Vehicle Registration URL *
+              </label>
+              <input
+                type="url"
+                value={data.vehicleRegistrationUrl}
+                onChange={(e) => handleInputChange('vehicleRegistrationUrl', e.target.value)}
+                placeholder="https://example.com/registration.pdf"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white">
+                Vehicle Insurance URL *
+              </label>
+              <input
+                type="url"
+                value={data.vehicleInsuranceUrl}
+                onChange={(e) => handleInputChange('vehicleInsuranceUrl', e.target.value)}
+                placeholder="https://example.com/insurance.pdf"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+          </div>
         </div>
-        {/* Vehicle Registration */}
-        <div className="space-y-2">
-          <FileUpload
-            label="Vehicle Registration"
-            required={true}
-            accept=".pdf,.jpg,.jpeg,.png"
-            onFileSelect={(file) => handleFileChange('registration', file)}
-            error={!data.registration ? 'Vehicle registration is required' : undefined}
-          />
-          {uploading.registration && <p className="text-xs text-blue-400">Uploading...</p>}
-          {data.registration && <a href={data.registration} target="_blank" rel="noopener noreferrer" className="text-xs text-green-400">View Uploaded</a>}
+
+        {/* Additional Documents Section */}
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Additional Documents</h3>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <FileUpload
+                label="Driving Abstract URL *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversAbstract", file)}
+                error={!fileFormData.driversAbstract ? 'Drivers Abstract is required' : undefined}
+              />
+
+              {fileFormData.driversAbstract && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversAbstract)} alt="Preview" />
+                  <span>{fileFormData.driversAbstract?.name}</span>
+                </ImagePreview>
+              )}
+
+              {/* <label className="block text-sm font-medium text-white">
+                Driving Abstract URL *
+              </label>
+              <input
+                type="url"
+                value={data.drivingAbstractUrl}
+                onChange={(e) => handleInputChange('drivingAbstractUrl', e.target.value)}
+                placeholder="https://example.com/driving-abstract.pdf"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              /> */}
+            </div>
+
+            <div className="space-y-2">
+              <FileUpload
+                label="Driving Work Eligibility Document *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driversWorkEligibility", file)}
+                error={!fileFormData.driversWorkEligibility ? 'Drivers Work Eligibility is required' : undefined}
+              />
+
+              {fileFormData.driversWorkEligibility && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driversWorkEligibility)} alt="Preview" />
+                  <span>{fileFormData.driversWorkEligibility?.name}</span>
+                </ImagePreview>
+              )}
+              {/* <label className="block text-sm font-medium text-white">
+                Work Eligibility Document URL *
+              </label>
+              <input
+                type="url"
+                value={data.workEligibilityUrl}
+                onChange={(e) => handleInputChange('workEligibilityUrl', e.target.value)}
+                placeholder="https://example.com/work-eligibility.pdf"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              /> */}
+            </div>
+
+            <div className="space-y-2">
+              <FileUpload
+                label="SIN Card Document *"
+                required={true}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onFileSelect={(file) => handleFileInputChange("driverSinCard", file)}
+                error={!fileFormData.driverSinCard ? 'Drivers SIN CARD is required' : undefined}
+              />
+
+              {fileFormData.driverSinCard && (
+                <ImagePreview>
+                  <img src={URL.createObjectURL(fileFormData.driverSinCard)} alt="Preview" />
+                  <span>{fileFormData.driverSinCard?.name}</span>
+                </ImagePreview>
+              )}
+              {/* <label className="block text-sm font-medium text-white">
+                SIN Card URL *
+              </label>
+              <input
+                type="url"
+                value={data.sinCardUrl}
+                onChange={(e) => handleInputChange('sinCardUrl', e.target.value)}
+                placeholder="https://example.com/sin-card.jpg"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              /> */}
+            </div>
+          </div>
         </div>
+
+        {/* Additional Information Section */}
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Additional Information</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white">
+                SIN Card Number *
+              </label>
+              <input
+                type="text"
+                value={data.sinCardNumber}
+                onChange={(e) => handleInputChange('sinCardNumber', e.target.value)}
+                placeholder="123-456-789"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-white">
+                Driving Abstract Date *
+              </label>
+              <input
+                type="date"
+                value={data.drivingAbstractDate}
+                onChange={(e) => handleInputChange('drivingAbstractDate', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-white">
+              Work Eligibility Type *
+            </label>
+            <select
+              value={data.workEligibilityType}
+              onChange={(e) => handleInputChange('workEligibilityType', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+            >
+              <option value="">Select Work Eligibility Type</option>
+              <option value="passport">Passport</option>
+              <option value="permanent_resident">Permanent Resident Card</option>
+              <option value="work_permit">Work Permit</option>
+              <option value="student_permit">Student Permit</option>
+              <option value="visitor_permit">Visitor Permit</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
         {/* Background Check (Optional) */}
-        <div className="space-y-2">
-          <FileUpload
-            label="Background Check (Optional)"
-            required={false}
-            accept=".pdf,.jpg,.jpeg,.png"
-            onFileSelect={(file) => handleFileChange('backgroundCheck', file)}
-          />
-          {uploading.backgroundCheck && <p className="text-xs text-blue-400">Uploading...</p>}
-          {data.backgroundCheck && <a href={data.backgroundCheck} target="_blank" rel="noopener noreferrer" className="text-xs text-green-400">View Uploaded</a>}
-          <p className="text-sm text-gray-400">
-            If you don't have a background check, we can help you obtain one in the next step.
-          </p>
+        <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+          <h3 className="text-lg font-semibold text-white">Background Check (Optional)</h3>
+
+          <div className="space-y-2">
+            <FileUpload
+              label="Background Check Document"
+              required={true}
+              accept=".pdf,.jpg,.jpeg,.png"
+              onFileSelect={(file) => handleFileInputChange("driverBackgroundCheck", file)}
+              error={!fileFormData.driverBackgroundCheck ? 'Drivers background check is required' : undefined}
+            />
+
+            {fileFormData.driverBackgroundCheck && (
+              <ImagePreview>
+                <img src={URL.createObjectURL(fileFormData.driverBackgroundCheck)} alt="Preview" />
+                <span>{fileFormData.driverBackgroundCheck?.name}</span>
+              </ImagePreview>
+            )}
+            {/* <label className="block text-sm font-medium text-white">
+              Background Check URL
+            </label>
+            <input
+              type="url"
+              value={data.backgroundCheck}
+              onChange={(e) => handleInputChange('backgroundCheck', e.target.value)}
+              placeholder="https://example.com/background-check.pdf"
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            /> */}
+            <p className="text-sm text-gray-400">
+              If you don't have a background check, we can help you obtain one in the next step.
+            </p>
+          </div>
         </div>
+
         <div className="pt-6">
           <button
             type="submit"
             disabled={!isValid || isLoading}
-            className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-              isValid && !isLoading
-                ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-            }`}
+            className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${isValid && !isLoading
+              ? 'bg-orange-500 hover:bg-orange-600 text-white'
+              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              }`}
           >
             {isLoading ? 'Saving...' : 'Continue to Final Step'}
           </button>
         </div>
+
         {!isValid && (
           <div className="text-sm text-orange-400 text-center">
-            Please upload all required documents to continue.
+            Please provide all required information to continue.
           </div>
         )}
       </form>
@@ -155,3 +616,27 @@ const Stage4DocumentUpload: React.FC = () => {
 };
 
 export default Stage4DocumentUpload;
+
+
+
+const ImagePreview = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+
+  img {
+    height: 60px;
+    width: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  span {
+    font-size: 0.9rem;
+    max-width: 200px;
+    word-break: break-word;
+  }
+`;

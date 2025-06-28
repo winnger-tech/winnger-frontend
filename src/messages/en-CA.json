@@ -32,7 +32,7 @@
         "Winngur - A Canadian delivery app for the Canadians. Now available all over Canada.",
         "Winngur - Your Canadian App that Values your Canadian dollars.",
         "Winngur - Your favourite meal is just a click away.",
-        "Delivering Delicious - That’s The Winngur Way.",
+        "Delivering Delicious - That's The Winngur Way.",
         "Winngur - Winning at Delivery with every order."
       ],
       "description": "Be part of our growing network. Whether you're a driver or a restaurant, we're excited to have you onboard.",
@@ -154,10 +154,18 @@
         "driversLicense": "Driver's License",
         "vehicleRegistration": "Vehicle Registration",
         "vehicleInsurance": "Vehicle Insurance",
+        "driversLicenseFront": "Driver's License (Front)",
+        "driversLicenseBack": "Driver's License (Back)",
+        "driversLicenseClass": "Driver's License Class",
+        "drivingAbstractDate": "Driving Abstract Date",
         "drivingAbstract": "Driving Abstract",
-        "backgroundCheck": "Criminal Background Check",
         "workEligibility": "Work Eligibility Document",
-        "sinCard": "SIN Card"
+        "workEligibilityType": "Work Eligibility Type",
+        "sinNumber": "SIN Number",
+        "sinCard": "SIN Card (Optional)",
+        "transitNumber": "Transit Number",
+        "institutionNumber": "Institution Number",
+        "accountNumber": "Account Number"
       },
       "banking": {
         "title": "Banking Information",
@@ -203,15 +211,19 @@
         "ownerName": "Owner Name",
         "email": "Owner Email",
         "phone": "Owner Phone",
-        "identificationType": "Identification Type"
+        "identificationType": "Identification Type",
+        "ownerAddress": "Owner Address"
       },
       "businessInfo": {
         "title": "Business Details",
         "restaurantName": "Restaurant Name",
-        "businessAddress": "Business Address",
+        "restaurantAddress": "Restaurant Address",
         "city": "City",
         "province": "Province",
-        "postalCode": "Postal Code"
+        "postalCode": "Postal Code",
+        "businessType": "Business Type",
+        "businessEmail": "Business Email",
+        "businessPhone": "Business Phone"
       },
       "bankingInfo": {
         "title": "Banking Information",
@@ -234,7 +246,12 @@
         "gst": "GST Certificate",
         "pan": "PAN Card",
         "businessLicense": "Business License",
-        "voidCheque": "Void Cheque"
+        "voidCheque": "Void Cheque",
+        "hstDocument": "HST Document",
+        "articleOfIncorporation": "Article of Incorporation",
+        "foodHandlingCertificate": "Food Handling Certificate",
+        "articleOfIncorporationExpiryDate": "Article of Incorporation Expiry Date",
+        "foodHandlingCertificateExpiryDate": "Food Handling Certificate Expiry Date"
       },
       "menu": {
         "title": "Menu Setup",
@@ -262,7 +279,7 @@
         "emailRequired": "Owner's email is required",
         "phoneRequired": "Phone number is required",
         "restaurantNameRequired": "Restaurant name is required",
-        "businessAddressRequired": "Business address is required",
+        "restaurantAddressRequired": "Restaurant address is required",
         "cityRequired": "City is required",
         "postalCodeRequired": "Postal code is required",
         "transitNumberRequired": "Transit number is required",
@@ -281,7 +298,7 @@
         "email": "Enter owner's email address",
         "phone": "Enter owner's phone number",
         "restaurantName": "Enter restaurant name",
-        "businessAddress": "Enter business address",
+        "restaurantAddress": "Enter restaurant address",
         "city": "Enter city name",
         "postalCode": "Enter postal code (e.g., A1A 1A1)"
       },
@@ -293,6 +310,10 @@
         "provincial_id": "Province ID",
         "driverLicence": "Driver's License",
         "healthCard": "Health Card"
+      },
+      "businessTypes": {
+        "solo_proprietor": "Solo Proprietor",
+        "corporate": "Corporate"
       },
       "buttons": {
         "nextStep": "Next Step",
@@ -340,11 +361,10 @@
       "driversLicenseClass": "Driver's License Class",
       "drivingAbstractDate": "Driving Abstract Date",
       "drivingAbstract": "Driving Abstract",
-      "criminalBackgroundCheck": "Criminal Background Check",
       "workEligibility": "Work Eligibility Document",
       "workEligibilityType": "Work Eligibility Type",
       "sinNumber": "SIN Number",
-      "sinCard": "SIN Card",
+      "sinCard": "SIN Card (Optional)",
       "transitNumber": "Transit Number",
       "institutionNumber": "Institution Number",
       "accountNumber": "Account Number"
@@ -429,8 +449,9 @@
       "otherProvinceLicenseClass": "License must be Class 5",
       "drivingAbstractDateRequired": "Driving abstract date is required",
       "drivingAbstractDateRecency": "Driving abstract must be less than 3 months old",
+      "drivingAbstractDateFuture": "Date cannot be in the future",
+      "drivingAbstractDateInvalid": "Invalid date format",
       "drivingAbstractRequired": "Driving abstract is required",
-      "criminalBackgroundCheckRequired": "Criminal background check is required",
       "workEligibilityRequired": "Work eligibility document is required",
       "workEligibilityTypeRequired": "Work eligibility type is required",
       "sinNumberRequired": "SIN number is required",

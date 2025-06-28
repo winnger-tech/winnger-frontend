@@ -50,6 +50,11 @@ const IDENTIFICATION_TYPES = [
   { value: "provincial_id", label: "Provincial ID" },
 ];
 
+const BUSINESS_TYPES = [
+  { value: "solo_proprietor", label: "Solo Proprietor" },
+  { value: "corporate", label: "Corporate" },
+];
+
 const WEEKDAYS = [
   "Monday",
   "Tuesday",
@@ -59,678 +64,6 @@ const WEEKDAYS = [
   "Saturday",
   "Sunday",
 ];
-
-interface MenuItem {
-  name: string;
-  price: string;
-  description: string;
-  image: File | null;
-}
-
-interface OperatingHours {
-  day: string;
-  openTime: string;
-  closeTime: string;
-  isClosed: boolean;
-}
-
-interface FormData {
-  // Owner Information
-  ownerName: string;
-  email: string;
-  phone: string;
-  identificationType: string;
-
-  // Business Information
-  restaurantName: string;
-  businessEmail: string;
-  businessPhone: string;
-  businessAddress: string;
-  city: string;
-  province: string;
-  postalCode: string;
-
-  // Banking Information
-  transitNumber: string;
-  institutionNumber: string;
-  accountNumber: string;
-
-  // Tax Information
-  gstNumber: string;
-  hstNumber: string;
-  pstNumber: string;
-  qstNumber: string;
-
-  // Documents
-  businessDocument: File | null;
-  fssai: File | null;
-  gst: File | null;
-  pan: File | null;
-  businessLicense: File | null;
-  voidCheque: File | null;
-
-  // Menu & Hours
-  menuItems: MenuItem[];
-  operatingHours: OperatingHours[];
-}
-
-// Payment Form Component
-function PaymentForm({
-  onSuccess,
-}: {
-  onSuccess: (paymentIntentId: string) => void;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [error, setError] = useState<string | null>(null);
-  const [processing, setProcessing] = useState(false);
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!stripe || !elements) return;
-
-    setProcessing(true);
-    setError(null);
-
-    try {
-      // Create payment intent on the server
-      const response = await fetch("/api/restaurants/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: 5000 }), // $50.00 USD
-      });
-
-      const { clientSecret } = await response.json();
-
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: elements.getElement(CardElement)!,
-        },
-      });
-
-      if (result.error) {
-        setError(result.error.message || "Payment failed");
-      } else {
-        if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-          onSuccess(result.paymentIntent.id);
-        }
-      }
-    } catch (err) {
-      setError("Payment processing failed. Please try again.");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  return (
-    <PaymentContainer>
-      <SectionTitle>Complete Your Registration</SectionTitle>
-      <p>A one-time registration fee is required to activate your partner account.</p>
-      <h3>Registration Fee: $65.00 USD</h3>
-      <form onSubmit={handleSubmit}>
-        <CardElementContainer>
-          <CardElement options={{style: {base: {fontSize: '16px'}}}}/>
-        </CardElementContainer>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-        <PayButton type="submit" disabled={!stripe || processing}>
-          {processing ? "Processing..." : "Pay $50.00 and Submit"}
-        </PayButton>
-      </form>
-    </PaymentContainer>
-  );
-}
-
-// Main Registration Component - RENAMED FOR CLARITY
-export default function RestaurantRegistrationPage() {
-  const { t } = useTranslation();
-  const [step, setStep] = useState(1);
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
-
-  const [formData, setFormData] = useState<FormData>({
-    ownerName: "",
-    email: "",
-    phone: "",
-    identificationType: "licence",
-    restaurantName: "",
-    businessEmail: "",
-    businessPhone: "",
-    businessAddress: "",
-    city: "",
-    province: "ON",
-    postalCode: "",
-    transitNumber: "",
-    institutionNumber: "",
-    accountNumber: "",
-    gstNumber: "",
-    hstNumber: "",
-    pstNumber: "",
-    qstNumber: "",
-    businessDocument: null,
-    fssai: null,
-    gst: null,
-    pan: null,
-    businessLicense: null,
-    voidCheque: null,
-    menuItems: [{ name: "", price: "", description: "", image: null }],
-    operatingHours: WEEKDAYS.map((day) => ({
-      day,
-      openTime: "09:00",
-      closeTime: "22:00",
-      isClosed: false,
-    })),
-  });
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const getRequiredTaxFields = (province: string) => {
-    const provinceData = PROVINCES.find((p) => p.value === province);
-    return provinceData?.taxes || [];
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = e.target;
-    if (files && files[0]) {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
-      if (errors[name]) {
-        setErrors((prev) => ({ ...prev, [name]: "" }));
-      }
-    }
-  };
-
-  const handleMenuItemChange = (
-    index: number,
-    field: keyof MenuItem,
-    value: string | File
-  ) => {
-    const updatedMenuItems = [...formData.menuItems];
-    (updatedMenuItems[index] as any)[field] = value;
-    setFormData((prev) => ({ ...prev, menuItems: updatedMenuItems }));
-  };
-
-  const addMenuItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      menuItems: [
-        ...prev.menuItems,
-        { name: "", price: "", description: "", image: null },
-      ],
-    }));
-  };
-
-  const removeMenuItem = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      menuItems: prev.menuItems.filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleHoursChange = (
-    index: number,
-    field: keyof OperatingHours,
-    value: string | boolean
-  ) => {
-    const updatedHours = [...formData.operatingHours];
-    (updatedHours[index] as any)[field] = value;
-    setFormData((prev) => ({ ...prev, operatingHours: updatedHours }));
-  };
-
-  const validateStep = (stepNumber: number): boolean => {
-    const newErrors: { [key: string]: string } = {};
-
-    switch (stepNumber) {
-      case 1: // Owner & Business Info
-        if (!formData.ownerName.trim()) newErrors.ownerName = "Owner name is required";
-        if (!formData.email.trim()) newErrors.email = "Email is required";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
-          newErrors.email = "Invalid email format";
-        if (!formData.phone.trim()) newErrors.phone = "Phone is required";
-        else if (!/^\+?1?\d{10,14}$/.test(formData.phone.replace(/[\s-()]/g, "")))
-          newErrors.phone = "Invalid phone format";
-        if (!formData.restaurantName.trim()) newErrors.restaurantName = "Restaurant name is required";
-        if (!formData.businessAddress.trim()) newErrors.businessAddress = "Business address is required";
-        if (!formData.city.trim()) newErrors.city = "City is required";
-        if (!formData.postalCode.trim()) newErrors.postalCode = "Postal code is required";
-        break;
-
-      case 2: // Banking & Tax Info
-        if (!formData.transitNumber.trim()) newErrors.transitNumber = "Transit number is required";
-        else if (!/^\d{5}$/.test(formData.transitNumber))
-          newErrors.transitNumber = "Transit number must be 5 digits";
-
-        if (!formData.institutionNumber.trim()) newErrors.institutionNumber = "Institution number is required";
-        else if (!/^\d{3}$/.test(formData.institutionNumber))
-          newErrors.institutionNumber = "Institution number must be 3 digits";
-
-        if (!formData.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
-        else if (!/^\d{7,12}$/.test(formData.accountNumber))
-          newErrors.accountNumber = "Account number must be 7-12 digits";
-
-        const requiredTaxes = getRequiredTaxFields(formData.province);
-        if (requiredTaxes.includes("GST") && !formData.gstNumber.trim())
-          newErrors.gstNumber = "GST number is required for your province";
-        if (requiredTaxes.includes("HST") && !formData.hstNumber.trim())
-          newErrors.hstNumber = "HST number is required for your province";
-        if (requiredTaxes.includes("PST") && !formData.pstNumber.trim())
-          newErrors.pstNumber = "PST number is required for your province";
-        if (requiredTaxes.includes("QST") && !formData.qstNumber.trim())
-          newErrors.qstNumber = "QST number is required for your province";
-        break;
-
-      case 3: // Documents
-        if (!formData.businessDocument) newErrors.businessDocument = "Business document is required";
-        if (!formData.fssai) newErrors.fssai = "FSSAI certificate is required";
-        if (!formData.gst) newErrors.gst = "GST certificate is required";
-        if (!formData.pan) newErrors.pan = "PAN card is required";
-        if (!formData.businessLicense) newErrors.businessLicense = "Business license is required";
-        if (!formData.voidCheque) newErrors.voidCheque = "Void cheque is required";
-        break;
-
-      case 4: // Menu & Hours
-        if (formData.menuItems.length === 0) {
-          newErrors.menuItems = "At least one menu item is required";
-        } else {
-          formData.menuItems.forEach((item, index) => {
-            if (!item.name.trim()) newErrors[`menuItem${index}Name`] = "Item name is required";
-            if (!item.price.trim()) newErrors[`menuItem${index}Price`] = "Price is required";
-            else if (isNaN(parseFloat(item.price))) newErrors[`menuItem${index}Price`] = "Price must be a number";
-            if (!item.image) newErrors[`menuItem${index}Image`] = "Image is required";
-          });
-        }
-        break;
-    }
-    console.log("Validation Errors Found:", newErrors);
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleNext = () => {
-    if (validateStep(step)) {
-      if (step === 4) {
-        setShowPayment(true);
-      } else {
-        setStep(step + 1);
-      }
-    }
-  };
-
-  const handleBack = () => {
-      setStep(step - 1);
-  };
-
-  const handlePaymentSuccess = async (intentId: string) => {
-    setPaymentIntentId(intentId);
-    const submitData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (key === 'menuItems' || key === 'operatingHours') {
-        submitData.append(key, JSON.stringify(value));
-      } else if (value instanceof File) {
-        submitData.append(key, value);
-      } else if (typeof value === 'string') {
-        submitData.append(key, value);
-      }
-    });
-    formData.menuItems.forEach((item, index) => {
-        if (item.image) {
-            submitData.append(`menuItemImage_${index}`, item.image);
-        }
-    });
-    submitData.append("paymentIntentId", intentId);
-    try {
-      const response = await fetch("/api/restaurants/register", {
-        method: "POST",
-        body: submitData,
-      });
-      if (response.ok) {
-        window.location.href = "/registration-success";
-      } else {
-        const errorData = await response.json();
-        setErrors({ submit: errorData.message || "Registration failed on the server." });
-        setShowPayment(false);
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setErrors({ submit: "Registration failed. Please try again." });
-      setShowPayment(false);
-    }
-  };
-
-  const handleCheckout = async () => {
-    try {
-      const res = await fetch('/api/restaurants/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ amount: 5000 }), // $50.00 in cents
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to create checkout session');
-      }
-
-      const { id } = await res.json();
-      
-      if (!id) {
-        throw new Error('No session ID received');
-      }
-
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-      if (!stripe) {
-        throw new Error('Failed to load Stripe');
-      }
-
-      const { error } = await stripe.redirectToCheckout({ sessionId: id });
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Checkout error:', error);
-      setErrors({ submit: 'Payment initialization failed. Please try again.' });
-    }
-  };
-
-  if (showPayment) {
-    return (
-      <>
-        <Navbar />
-        <FormContainer as={motion.div} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          <PaymentSection>
-            <SuccessMessage>
-              Registration form completed successfully!
-            </SuccessMessage>
-            <PaymentDescription>
-              Complete your registration with a one-time registration fee of $50.
-            </PaymentDescription>
-            <Button onClick={handleCheckout}>
-              Proceed to Payment ($50)
-            </Button>
-            {errors.submit && <ErrorText style={{textAlign: 'center', marginTop: '20px'}}>{errors.submit}</ErrorText>}
-          </PaymentSection>
-        </FormContainer>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <Navbar />
-      <FormContainer as={motion.section} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-        <h2>{t('registration.restaurant.title')}</h2>
-        <ProgressBar>
-          {[1, 2, 3, 4].map((num) => (
-            <ProgressStep key={num} $active={step >= num}>
-              {num}
-            </ProgressStep>
-          ))}
-        </ProgressBar>
-
-        <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
-          {step === 1 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>{t('registration.restaurant.steps.ownerInfo')}</SectionTitle>
-              <FormGroup>
-                <label htmlFor="ownerName">{t('registration.restaurant.ownerInfo.ownerName')} *</label>
-                <input id="ownerName" name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.ownerName')} />
-                {errors.ownerName && <ErrorText>{t('registration.restaurant.errors.ownerNameRequired')}</ErrorText>}
-              </FormGroup>
-              <FormRow>
-                <FormGroup>
-                    <label htmlFor="email">{t('registration.restaurant.ownerInfo.email')} *</label>
-                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.email')} />
-                    {errors.email && <ErrorText>{t('registration.restaurant.errors.emailRequired')}</ErrorText>}
-                </FormGroup>
-                <FormGroup>
-                    <label htmlFor="phone">{t('registration.restaurant.ownerInfo.phone')} *</label>
-                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.phone')} />
-                    {errors.phone && <ErrorText>{t('registration.restaurant.errors.phoneRequired')}</ErrorText>}
-                </FormGroup>
-              </FormRow>
-               <FormGroup>
-                <label htmlFor="identificationType">{t('registration.restaurant.ownerInfo.identificationType')} *</label>
-                <select id="identificationType" name="identificationType" value={formData.identificationType} onChange={handleChange}>
-                    {IDENTIFICATION_TYPES.map(type => <option key={type.value} value={type.value}>{t(`registration.restaurant.identificationTypes.${type.value}`)}</option>)}
-                </select>
-               </FormGroup>
-              <SectionTitle style={{marginTop: '3rem'}}>{t('registration.restaurant.businessInfo.title')}</SectionTitle>
-               <FormGroup>
-                <label htmlFor="restaurantName">{t('registration.restaurant.businessInfo.restaurantName')} *</label>
-                <input id="restaurantName" name="restaurantName" value={formData.restaurantName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantName')} />
-                {errors.restaurantName && <ErrorText>{t('registration.restaurant.errors.restaurantNameRequired')}</ErrorText>}
-              </FormGroup>
-               <FormGroup>
-                <label htmlFor="businessAddress">{t('registration.restaurant.businessInfo.businessAddress')} *</label>
-                <input id="businessAddress" name="businessAddress" value={formData.businessAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.businessAddress')} />
-                {errors.businessAddress && <ErrorText>{t('registration.restaurant.errors.businessAddressRequired')}</ErrorText>}
-              </FormGroup>
-              <FormRow>
-                 <FormGroup>
-                    <label htmlFor="city">{t('registration.restaurant.businessInfo.city')} *</label>
-                    <input id="city" name="city" value={formData.city} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.city')} />
-                    {errors.city && <ErrorText>{t('registration.restaurant.errors.cityRequired')}</ErrorText>}
-                </FormGroup>
-                 <FormGroup>
-                    <label htmlFor="province">{t('registration.restaurant.businessInfo.province')} *</label>
-                     <select id="province" name="province" value={formData.province} onChange={handleChange}>
-                        {PROVINCES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-                     </select>
-                </FormGroup>
-                 <FormGroup>
-                    <label htmlFor="postalCode">{t('registration.restaurant.businessInfo.postalCode')} *</label>
-                    <input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.postalCode')} />
-                    {errors.postalCode && <ErrorText>{t('registration.restaurant.errors.postalCodeRequired')}</ErrorText>}
-                </FormGroup>
-              </FormRow>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <SectionTitle>{t('registration.restaurant.bankingInfo.title')}</SectionTitle>
-                <FormRow>
-                    <FormGroup>
-                        <label htmlFor="transitNumber">{t('registration.restaurant.bankingInfo.transitNumber')} (5 {t('registration.restaurant.common.digits')}) *</label>
-                        <input id="transitNumber" name="transitNumber" value={formData.transitNumber} onChange={handleChange} maxLength={5} />
-                        {errors.transitNumber && <ErrorText>{t('registration.restaurant.errors.transitNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                    <FormGroup>
-                        <label htmlFor="institutionNumber">{t('registration.restaurant.bankingInfo.institutionNumber')} (3 {t('registration.restaurant.common.digits')}) *</label>
-                        <input id="institutionNumber" name="institutionNumber" value={formData.institutionNumber} onChange={handleChange} maxLength={3}/>
-                        {errors.institutionNumber && <ErrorText>{t('registration.restaurant.errors.institutionNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                </FormRow>
-                <FormGroup>
-                    <label htmlFor="accountNumber">{t('registration.restaurant.bankingInfo.accountNumber')} (7-12 {t('registration.restaurant.common.digits')}) *</label>
-                    <input id="accountNumber" name="accountNumber" value={formData.accountNumber} onChange={handleChange} maxLength={12}/>
-                    {errors.accountNumber && <ErrorText>{t('registration.restaurant.errors.accountNumberRequired')}</ErrorText>}
-                </FormGroup>
-
-                <SubSectionTitle>{t('registration.restaurant.taxInfo.title')}</SubSectionTitle>
-                <TaxInfo>
-                    <p>{t('registration.restaurant.taxInfo.requiredFor')} <strong>{PROVINCES.find(p => p.value === formData.province)?.label}</strong>:</p>
-                    <ul>
-                        {getRequiredTaxFields(formData.province).map(tax => <li key={tax}>{tax}</li>)}
-                    </ul>
-                </TaxInfo>
-                {getRequiredTaxFields(formData.province).includes("GST") &&
-                    <FormGroup>
-                        <label htmlFor="gstNumber">{t('registration.restaurant.taxInfo.gstNumber')} *</label>
-                        <input id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange}/>
-                        {errors.gstNumber && <ErrorText>{t('registration.restaurant.errors.gstNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                }
-                 {getRequiredTaxFields(formData.province).includes("PST") &&
-                    <FormGroup>
-                        <label htmlFor="pstNumber">{t('registration.restaurant.taxInfo.pstNumber')} *</label>
-                        <input id="pstNumber" name="pstNumber" value={formData.pstNumber} onChange={handleChange}/>
-                        {errors.pstNumber && <ErrorText>{t('registration.restaurant.errors.pstNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                }
-                 {getRequiredTaxFields(formData.province).includes("HST") &&
-                    <FormGroup>
-                        <label htmlFor="hstNumber">{t('registration.restaurant.taxInfo.hstNumber')} *</label>
-                        <input id="hstNumber" name="hstNumber" value={formData.hstNumber} onChange={handleChange}/>
-                        {errors.hstNumber && <ErrorText>{t('registration.restaurant.errors.hstNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                }
-                 {getRequiredTaxFields(formData.province).includes("QST") &&
-                    <FormGroup>
-                        <label htmlFor="qstNumber">{t('registration.restaurant.taxInfo.qstNumber')} *</label>
-                        <input id="qstNumber" name="qstNumber" value={formData.qstNumber} onChange={handleChange}/>
-                        {errors.qstNumber && <ErrorText>{t('registration.restaurant.errors.qstNumberRequired')}</ErrorText>}
-                    </FormGroup>
-                }
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>{t('registration.restaurant.documents.title')}</SectionTitle>
-              <FormRow>
-                <UploadGroup>
-                  <label htmlFor="businessLicense">{t('registration.restaurant.documents.businessLicense')} *</label>
-                  <UploadWrapper>
-                    <UploadCloud/>
-                    <span>{formData.businessLicense?.name || t('registration.restaurant.common.clickToUpload')}</span>
-                    <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                  </UploadWrapper>
-                  {errors.businessLicense && <ErrorText>{t('registration.restaurant.errors.businessLicenseRequired')}</ErrorText>}
-                </UploadGroup>
-                <UploadGroup>
-                  <label htmlFor="voidCheque">{t('registration.restaurant.documents.voidCheque')} *</label>
-                  <UploadWrapper>
-                    <UploadCloud/>
-                    <span>{formData.voidCheque?.name || t('registration.restaurant.common.clickToUpload')}</span>
-                    <input id="voidCheque" name="voidCheque" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
-                  </UploadWrapper>
-                  {errors.voidCheque && <ErrorText>{t('registration.restaurant.errors.voidChequeRequired')}</ErrorText>}
-                </UploadGroup>
-              </FormRow>
-            </motion.div>
-          )}
-
-          {step === 4 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <SectionTitle>{t('registration.restaurant.menu.title')}</SectionTitle>
-              {formData.menuItems.map((item, index) => (
-                <MenuItemCard key={index}>
-                  <FormGroup>
-                    <label htmlFor={`menuItem${index}Name`}>{t('registration.restaurant.menu.itemName')} *</label>
-                    <input
-                      id={`menuItem${index}Name`}
-                      type="text"
-                      value={item.name}
-                      onChange={(e) => handleMenuItemChange(index, 'name', e.target.value)}
-                      placeholder={t('registration.restaurant.placeholders.menuItemName')}
-                    />
-                    {errors[`menuItem${index}Name`] && <ErrorText>{t('registration.restaurant.errors.menuItemNameRequired')}</ErrorText>}
-                  </FormGroup>
-                  <FormRow>
-                    <FormGroup>
-                      <label htmlFor={`menuItem${index}Price`}>{t('registration.restaurant.menu.price')} ($) *</label>
-                      <input
-                        id={`menuItem${index}Price`}
-                        type="text"
-                        value={item.price}
-                        onChange={(e) => handleMenuItemChange(index, 'price', e.target.value)}
-                        placeholder={t('registration.restaurant.placeholders.menuItemPrice')}
-                      />
-                      {errors[`menuItem${index}Price`] && <ErrorText>{t('registration.restaurant.errors.menuItemPriceRequired')}</ErrorText>}
-                    </FormGroup>
-                    <FormGroup>
-                      <label htmlFor={`menuItem${index}Image`}>{t('registration.restaurant.menu.itemImage')} *</label>
-                      <UploadWrapper small>
-                        <UploadCloud size={20} />
-                        <span>{item.image?.name || t('registration.restaurant.common.uploadImage')}</span>
-                        <input
-                          type="file"
-                          id={`menuItem${index}Image`}
-                          accept="image/png, image/jpeg"
-                          onChange={(e) => e.target.files && handleMenuItemChange(index, 'image', e.target.files[0])}
-                        />
-                      </UploadWrapper>
-                      {errors[`menuItem${index}Image`] && <ErrorText>{t('registration.restaurant.errors.menuItemImageRequired')}</ErrorText>}
-                    </FormGroup>
-                  </FormRow>
-                  <FormGroup>
-                    <label htmlFor={`menuItem${index}Desc`}>{t('registration.restaurant.menu.description')}</label>
-                    <textarea
-                      id={`menuItem${index}Desc`}
-                      value={item.description}
-                      onChange={(e) => handleMenuItemChange(index, 'description', e.target.value)}
-                      placeholder={t('registration.restaurant.placeholders.menuItemDescription')}
-                    />
-                  </FormGroup>
-                </MenuItemCard>
-              ))}
-
-              <AddButton type="button" onClick={addMenuItem}>
-                <Plus size={20} /> {t('registration.restaurant.menu.addItem')}
-              </AddButton>
-
-              <SubSectionTitle>{t('registration.restaurant.hours.title')}</SubSectionTitle>
-              {formData.operatingHours.map((hour, index) => (
-                <OperatingHoursRow key={index}>
-                  <DayLabel>{t(`registration.restaurant.hours.days.${hour.day.toLowerCase()}`)}</DayLabel>
-                  <FormGroup>
-                    <input
-                      type="time"
-                      value={hour.openTime}
-                      onChange={(e) => handleHoursChange(index, 'openTime', e.target.value)}
-                      disabled={hour.isClosed}
-                    />
-                  </FormGroup>
-                  <span>{t('registration.restaurant.hours.to')}</span>
-                  <FormGroup>
-                    <input
-                      type="time"
-                      value={hour.closeTime}
-                      onChange={(e) => handleHoursChange(index, 'closeTime', e.target.value)}
-                      disabled={hour.isClosed}
-                    />
-                  </FormGroup>
-                  <CheckboxWrapper>
-                    <input
-                      type="checkbox"
-                      id={`closed-${index}`}
-                      checked={hour.isClosed}
-                      onChange={(e) => handleHoursChange(index, 'isClosed', e.target.checked)}
-                    />
-                    <label htmlFor={`closed-${index}`}>{t('registration.restaurant.hours.closed')}</label>
-                  </CheckboxWrapper>
-                </OperatingHoursRow>
-              ))}
-            </motion.div>
-          )}
-
-          <ButtonContainer>
-            {step > 1 ? (
-              <ActionButton type="button" onClick={handleBack} secondary>
-                {t('registration.restaurant.buttons.back')}
-              </ActionButton>
-            ) : ( <div></div>) }
-            <ActionButton type="submit">
-              {step === 4 ? t('registration.restaurant.buttons.proceedToPayment') : t('registration.restaurant.buttons.nextStep')}
-            </ActionButton>
-          </ButtonContainer>
-        </form>
-      </FormContainer>
-    </>
-  );
-}
 
 // ========================================================================
 // STYLED COMPONENTS (All necessary styles are defined below)
@@ -1083,3 +416,789 @@ const Button = styled.button`
     background-color: #c69535;
   }
 `;
+
+interface MenuItem {
+  name: string;
+  price: string;
+  description: string;
+  image: File | null;
+}
+
+interface OperatingHours {
+  day: string;
+  openTime: string;
+  closeTime: string;
+  isClosed: boolean;
+}
+
+interface FormData {
+  // Owner Information
+  ownerName: string;
+  email: string;
+  phone: string;
+  identificationType: string;
+  ownerAddress: string;
+
+  // Business Information
+  restaurantName: string;
+  businessEmail: string;
+  businessPhone: string;
+  restaurantAddress: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  businessType: string;
+
+  // Banking Information
+  transitNumber: string;
+  institutionNumber: string;
+  accountNumber: string;
+
+  // Tax Information
+  gstNumber: string;
+  hstNumber: string;
+  pstNumber: string;
+  qstNumber: string;
+
+  // Documents
+  businessDocument: File | null;
+  fssai: File | null;
+  gst: File | null;
+  pan: File | null;
+  businessLicense: File | null;
+  voidCheque: File | null;
+  hstDocument: File | null;
+  articleOfIncorporation: File | null;
+  foodHandlingCertificate: File | null;
+
+  // Document URLs and Dates
+  hstDocumentUrl: string;
+  articleOfIncorporationUrl: string;
+  articleOfIncorporationExpiryDate: string;
+  foodHandlingCertificateUrl: string;
+  foodHandlingCertificateExpiryDate: string;
+
+  // Menu & Hours
+  menuItems: MenuItem[];
+  operatingHours: OperatingHours[];
+}
+
+// Payment Form Component
+function PaymentForm({
+  onSuccess,
+}: {
+  onSuccess: (paymentIntentId: string) => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!stripe || !elements) return;
+
+    setProcessing(true);
+    setError(null);
+
+    try {
+      // Create payment intent on the server
+      const response = await fetch("/api/restaurants/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 5000 }), // $50.00 USD
+      });
+
+      const { clientSecret } = await response.json();
+
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement)!,
+        },
+      });
+
+      if (result.error) {
+        setError(result.error.message || "Payment failed");
+      } else {
+        if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+          onSuccess(result.paymentIntent.id);
+        }
+      }
+    } catch (err) {
+      setError("Payment processing failed. Please try again.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <PaymentContainer>
+      <SectionTitle>Complete Your Registration</SectionTitle>
+      <p>A one-time registration fee is required to activate your partner account.</p>
+      <h3>Registration Fee: $65.00 USD</h3>
+      <form onSubmit={handleSubmit}>
+        <CardElementContainer>
+          <CardElement options={{style: {base: {fontSize: '16px'}}}}/>
+        </CardElementContainer>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+        <PayButton type="submit" disabled={!stripe || processing}>
+          {processing ? "Processing..." : "Pay $50.00 and Submit"}
+        </PayButton>
+      </form>
+    </PaymentContainer>
+  );
+}
+
+// Main Registration Component - RENAMED FOR CLARITY
+export default function RestaurantRegistrationPage() {
+  const { t } = useTranslation();
+  const [step, setStep] = useState(1);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<FormData>({
+    ownerName: "",
+    email: "",
+    phone: "",
+    identificationType: "licence",
+    ownerAddress: "",
+    restaurantName: "",
+    businessEmail: "",
+    businessPhone: "",
+    restaurantAddress: "",
+    city: "",
+    province: "ON",
+    postalCode: "",
+    businessType: "solo_proprietor",
+    transitNumber: "",
+    institutionNumber: "",
+    accountNumber: "",
+    gstNumber: "",
+    hstNumber: "",
+    pstNumber: "",
+    qstNumber: "",
+    businessDocument: null,
+    fssai: null,
+    gst: null,
+    pan: null,
+    businessLicense: null,
+    voidCheque: null,
+    hstDocument: null,
+    articleOfIncorporation: null,
+    foodHandlingCertificate: null,
+    hstDocumentUrl: "",
+    articleOfIncorporationUrl: "",
+    articleOfIncorporationExpiryDate: "",
+    foodHandlingCertificateUrl: "",
+    foodHandlingCertificateExpiryDate: "",
+    menuItems: [{ name: "", price: "", description: "", image: null }],
+    operatingHours: WEEKDAYS.map((day) => ({
+      day,
+      openTime: "09:00",
+      closeTime: "22:00",
+      isClosed: false,
+    })),
+  });
+
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const getRequiredTaxFields = (province: string) => {
+    const provinceData = PROVINCES.find((p) => p.value === province);
+    return provinceData?.taxes || [];
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = e.target;
+    if (files && files[0]) {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      if (errors[name]) {
+        setErrors((prev) => ({ ...prev, [name]: "" }));
+      }
+    }
+  };
+
+  const handleMenuItemChange = (
+    index: number,
+    field: keyof MenuItem,
+    value: string | File
+  ) => {
+    const updatedMenuItems = [...formData.menuItems];
+    (updatedMenuItems[index] as any)[field] = value;
+    setFormData((prev) => ({ ...prev, menuItems: updatedMenuItems }));
+  };
+
+  const addMenuItem = () => {
+    setFormData((prev) => ({
+      ...prev,
+      menuItems: [
+        ...prev.menuItems,
+        { name: "", price: "", description: "", image: null },
+      ],
+    }));
+  };
+
+  const removeMenuItem = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      menuItems: prev.menuItems.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleHoursChange = (
+    index: number,
+    field: keyof OperatingHours,
+    value: string | boolean
+  ) => {
+    const updatedHours = [...formData.operatingHours];
+    (updatedHours[index] as any)[field] = value;
+    setFormData((prev) => ({ ...prev, operatingHours: updatedHours }));
+  };
+
+  const validateStep = (stepNumber: number): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    switch (stepNumber) {
+      case 1: // Owner & Business Info
+        if (!formData.ownerName.trim()) newErrors.ownerName = "Owner name is required";
+        if (!formData.email.trim()) newErrors.email = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+          newErrors.email = "Invalid email format";
+        if (!formData.phone.trim()) newErrors.phone = "Phone is required";
+        else if (!/^\+?1?\d{10,14}$/.test(formData.phone.replace(/[\s-()]/g, "")))
+          newErrors.phone = "Invalid phone format";
+        if (!formData.ownerAddress.trim()) newErrors.ownerAddress = "Owner address is required";
+        if (!formData.businessType.trim()) newErrors.businessType = "Business type is required";
+        if (!formData.businessEmail.trim()) newErrors.businessEmail = "Business email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.businessEmail))
+          newErrors.businessEmail = "Invalid business email format";
+        if (!formData.businessPhone.trim()) newErrors.businessPhone = "Business phone is required";
+        else if (!/^\+?1?\d{10,14}$/.test(formData.businessPhone.replace(/[\s-()]/g, "")))
+          newErrors.businessPhone = "Invalid business phone format";
+        if (!formData.restaurantName.trim()) newErrors.restaurantName = "Restaurant name is required";
+        if (!formData.restaurantAddress.trim()) newErrors.restaurantAddress = "Restaurant address is required";
+        if (!formData.city.trim()) newErrors.city = "City is required";
+        if (!formData.postalCode.trim()) newErrors.postalCode = "Postal code is required";
+        break;
+
+      case 2: // Banking & Tax Info
+        if (!formData.transitNumber.trim()) newErrors.transitNumber = "Transit number is required";
+        else if (!/^\d{5}$/.test(formData.transitNumber))
+          newErrors.transitNumber = "Transit number must be 5 digits";
+
+        if (!formData.institutionNumber.trim()) newErrors.institutionNumber = "Institution number is required";
+        else if (!/^\d{3}$/.test(formData.institutionNumber))
+          newErrors.institutionNumber = "Institution number must be 3 digits";
+
+        if (!formData.accountNumber.trim()) newErrors.accountNumber = "Account number is required";
+        else if (!/^\d{7,12}$/.test(formData.accountNumber))
+          newErrors.accountNumber = "Account number must be 7-12 digits";
+
+        const requiredTaxes = getRequiredTaxFields(formData.province);
+        if (requiredTaxes.includes("GST") && !formData.gstNumber.trim())
+          newErrors.gstNumber = "GST number is required for your province";
+        if (requiredTaxes.includes("HST") && !formData.hstNumber.trim())
+          newErrors.hstNumber = "HST number is required for your province";
+        if (requiredTaxes.includes("PST") && !formData.pstNumber.trim())
+          newErrors.pstNumber = "PST number is required for your province";
+        if (requiredTaxes.includes("QST") && !formData.qstNumber.trim())
+          newErrors.qstNumber = "QST number is required for your province";
+        break;
+
+      case 3: // Documents
+        if (!formData.businessDocument) newErrors.businessDocument = "Business document is required";
+        if (!formData.fssai) newErrors.fssai = "FSSAI certificate is required";
+        if (!formData.gst) newErrors.gst = "GST certificate is required";
+        if (!formData.pan) newErrors.pan = "PAN card is required";
+        if (!formData.businessLicense) newErrors.businessLicense = "Business license is required";
+        if (!formData.voidCheque) newErrors.voidCheque = "Void cheque is required";
+        if (!formData.hstDocument) newErrors.hstDocument = "HST document is required";
+        if (!formData.articleOfIncorporation) newErrors.articleOfIncorporation = "Article of incorporation is required";
+        if (!formData.foodHandlingCertificate) newErrors.foodHandlingCertificate = "Food handling certificate is required";
+        if (!formData.articleOfIncorporationExpiryDate) newErrors.articleOfIncorporationExpiryDate = "Article of incorporation expiry date is required";
+        if (!formData.foodHandlingCertificateExpiryDate) newErrors.foodHandlingCertificateExpiryDate = "Food handling certificate expiry date is required";
+        break;
+
+      case 4: // Menu & Hours
+        if (formData.menuItems.length === 0) {
+          newErrors.menuItems = "At least one menu item is required";
+        } else {
+          formData.menuItems.forEach((item, index) => {
+            if (!item.name.trim()) newErrors[`menuItem${index}Name`] = "Item name is required";
+            if (!item.price.trim()) newErrors[`menuItem${index}Price`] = "Price is required";
+            else if (isNaN(parseFloat(item.price))) newErrors[`menuItem${index}Price`] = "Price must be a number";
+            if (!item.image) newErrors[`menuItem${index}Image`] = "Image is required";
+          });
+        }
+        break;
+    }
+    console.log("Validation Errors Found:", newErrors);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleNext = () => {
+    if (validateStep(step)) {
+      if (step === 4) {
+        setShowPayment(true);
+      } else {
+        setStep(step + 1);
+      }
+    }
+  };
+
+  const handleBack = () => {
+      setStep(step - 1);
+  };
+
+  const handlePaymentSuccess = async (intentId: string) => {
+    setPaymentIntentId(intentId);
+    const submitData = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === 'menuItems' || key === 'operatingHours') {
+        submitData.append(key, JSON.stringify(value));
+      } else if (value instanceof File) {
+        submitData.append(key, value);
+      } else if (typeof value === 'string') {
+        submitData.append(key, value);
+      }
+    });
+    formData.menuItems.forEach((item, index) => {
+        if (item.image) {
+            submitData.append(`menuItemImage_${index}`, item.image);
+        }
+    });
+    submitData.append("paymentIntentId", intentId);
+    try {
+      const response = await fetch("/api/restaurants/register", {
+        method: "POST",
+        body: submitData,
+      });
+      if (response.ok) {
+        window.location.href = "/registration-success";
+      } else {
+        const errorData = await response.json();
+        setErrors({ submit: errorData.message || "Registration failed on the server." });
+        setShowPayment(false);
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrors({ submit: "Registration failed. Please try again." });
+      setShowPayment(false);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      const res = await fetch('/api/restaurants/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: 5000 }), // $50.00 in cents
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to create checkout session');
+      }
+
+      const { id } = await res.json();
+      
+      if (!id) {
+        throw new Error('No session ID received');
+      }
+
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+      if (!stripe) {
+        throw new Error('Failed to load Stripe');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId: id });
+      if (error) {
+        throw error;
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setErrors({ submit: 'Payment initialization failed. Please try again.' });
+    }
+  };
+
+  if (showPayment) {
+    return (
+      <>
+        <Navbar />
+        <FormContainer as={motion.div} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+          <PaymentSection>
+            <SuccessMessage>
+              Registration form completed successfully!
+            </SuccessMessage>
+            <PaymentDescription>
+              Complete your registration with a one-time registration fee of $50.
+            </PaymentDescription>
+            <Button onClick={handleCheckout}>
+              Proceed to Payment ($50)
+            </Button>
+            {errors.submit && <ErrorText style={{textAlign: 'center', marginTop: '20px'}}>{errors.submit}</ErrorText>}
+          </PaymentSection>
+        </FormContainer>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Navbar />
+      <FormContainer as={motion.section} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+        <h2>{t('registration.restaurant.title')}</h2>
+        <ProgressBar>
+          {[1, 2, 3, 4].map((num) => (
+            <ProgressStep key={num} $active={step >= num}>
+              {num}
+            </ProgressStep>
+          ))}
+        </ProgressBar>
+
+        <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+          {step === 1 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <SectionTitle>{t('registration.restaurant.steps.ownerInfo')}</SectionTitle>
+              <FormGroup>
+                <label htmlFor="ownerName">{t('registration.restaurant.ownerInfo.ownerName')} *</label>
+                <input id="ownerName" name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.ownerName')} />
+                {errors.ownerName && <ErrorText>{t('registration.restaurant.errors.ownerNameRequired')}</ErrorText>}
+              </FormGroup>
+              <FormRow>
+                <FormGroup>
+                    <label htmlFor="email">{t('registration.restaurant.ownerInfo.email')} *</label>
+                    <input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.email')} />
+                    {errors.email && <ErrorText>{t('registration.restaurant.errors.emailRequired')}</ErrorText>}
+                </FormGroup>
+                <FormGroup>
+                    <label htmlFor="phone">{t('registration.restaurant.ownerInfo.phone')} *</label>
+                    <input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.phone')} />
+                    {errors.phone && <ErrorText>{t('registration.restaurant.errors.phoneRequired')}</ErrorText>}
+                </FormGroup>
+              </FormRow>
+               <FormGroup>
+                <label htmlFor="identificationType">{t('registration.restaurant.ownerInfo.identificationType')} *</label>
+                <select id="identificationType" name="identificationType" value={formData.identificationType} onChange={handleChange}>
+                    {IDENTIFICATION_TYPES.map(type => <option key={type.value} value={type.value}>{t(`registration.restaurant.identificationTypes.${type.value}`)}</option>)}
+                </select>
+               </FormGroup>
+               <FormGroup>
+                <label htmlFor="ownerAddress">{t('registration.restaurant.ownerInfo.ownerAddress')} *</label>
+                <textarea id="ownerAddress" name="ownerAddress" value={formData.ownerAddress} onChange={handleChange} placeholder="Enter owner's full address" />
+                {errors.ownerAddress && <ErrorText>Owner address is required</ErrorText>}
+               </FormGroup>
+              <SectionTitle style={{marginTop: '3rem'}}>{t('registration.restaurant.businessInfo.title')}</SectionTitle>
+               <FormGroup>
+                <label htmlFor="businessType">{t('registration.restaurant.businessInfo.businessType')} *</label>
+                <select id="businessType" name="businessType" value={formData.businessType} onChange={handleChange}>
+                    {BUSINESS_TYPES.map(type => <option key={type.value} value={type.value}>{t(`registration.restaurant.businessTypes.${type.value}`)}</option>)}
+                </select>
+               </FormGroup>
+               <FormGroup>
+                <label htmlFor="restaurantName">{t('registration.restaurant.businessInfo.restaurantName')} *</label>
+                <input id="restaurantName" name="restaurantName" value={formData.restaurantName} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantName')} />
+                {errors.restaurantName && <ErrorText>{t('registration.restaurant.errors.restaurantNameRequired')}</ErrorText>}
+              </FormGroup>
+              <FormRow>
+                <FormGroup>
+                    <label htmlFor="businessEmail">{t('registration.restaurant.businessInfo.businessEmail')} *</label>
+                    <input id="businessEmail" name="businessEmail" type="email" value={formData.businessEmail} onChange={handleChange} placeholder="Enter business email address" />
+                    {errors.businessEmail && <ErrorText>Business email is required</ErrorText>}
+                </FormGroup>
+                <FormGroup>
+                    <label htmlFor="businessPhone">{t('registration.restaurant.businessInfo.businessPhone')} *</label>
+                    <input id="businessPhone" name="businessPhone" type="tel" value={formData.businessPhone} onChange={handleChange} placeholder="Enter business phone number" />
+                    {errors.businessPhone && <ErrorText>Business phone is required</ErrorText>}
+                </FormGroup>
+              </FormRow>
+               <FormGroup>
+                <label htmlFor="restaurantAddress">{t('registration.restaurant.businessInfo.restaurantAddress')} *</label>
+                <input id="restaurantAddress" name="restaurantAddress" value={formData.restaurantAddress} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.restaurantAddress')} />
+                {errors.restaurantAddress && <ErrorText>{t('registration.restaurant.errors.restaurantAddressRequired')}</ErrorText>}
+              </FormGroup>
+              <FormRow>
+                 <FormGroup>
+                    <label htmlFor="city">{t('registration.restaurant.businessInfo.city')} *</label>
+                    <input id="city" name="city" value={formData.city} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.city')} />
+                    {errors.city && <ErrorText>{t('registration.restaurant.errors.cityRequired')}</ErrorText>}
+                </FormGroup>
+                 <FormGroup>
+                    <label htmlFor="province">{t('registration.restaurant.businessInfo.province')} *</label>
+                     <select id="province" name="province" value={formData.province} onChange={handleChange}>
+                        {PROVINCES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                     </select>
+                </FormGroup>
+                 <FormGroup>
+                    <label htmlFor="postalCode">{t('registration.restaurant.businessInfo.postalCode')} *</label>
+                    <input id="postalCode" name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder={t('registration.restaurant.placeholders.postalCode')} />
+                    {errors.postalCode && <ErrorText>{t('registration.restaurant.errors.postalCodeRequired')}</ErrorText>}
+                </FormGroup>
+              </FormRow>
+            </motion.div>
+          )}
+
+          {step === 2 && (
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                <SectionTitle>{t('registration.restaurant.bankingInfo.title')}</SectionTitle>
+                <FormRow>
+                    <FormGroup>
+                        <label htmlFor="transitNumber">{t('registration.restaurant.bankingInfo.transitNumber')} (5 {t('registration.restaurant.common.digits')}) *</label>
+                        <input id="transitNumber" name="transitNumber" value={formData.transitNumber} onChange={handleChange} maxLength={5} />
+                        {errors.transitNumber && <ErrorText>{t('registration.restaurant.errors.transitNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                    <FormGroup>
+                        <label htmlFor="institutionNumber">{t('registration.restaurant.bankingInfo.institutionNumber')} (3 {t('registration.restaurant.common.digits')}) *</label>
+                        <input id="institutionNumber" name="institutionNumber" value={formData.institutionNumber} onChange={handleChange} maxLength={3}/>
+                        {errors.institutionNumber && <ErrorText>{t('registration.restaurant.errors.institutionNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                </FormRow>
+                <FormGroup>
+                    <label htmlFor="accountNumber">{t('registration.restaurant.bankingInfo.accountNumber')} (7-12 {t('registration.restaurant.common.digits')}) *</label>
+                    <input id="accountNumber" name="accountNumber" value={formData.accountNumber} onChange={handleChange} maxLength={12}/>
+                    {errors.accountNumber && <ErrorText>{t('registration.restaurant.errors.accountNumberRequired')}</ErrorText>}
+                </FormGroup>
+
+                <SubSectionTitle>{t('registration.restaurant.taxInfo.title')}</SubSectionTitle>
+                <TaxInfo>
+                    <p>{t('registration.restaurant.taxInfo.requiredFor')} <strong>{PROVINCES.find(p => p.value === formData.province)?.label}</strong>:</p>
+                    <ul>
+                        {getRequiredTaxFields(formData.province).map(tax => <li key={tax}>{tax}</li>)}
+                    </ul>
+                </TaxInfo>
+                {getRequiredTaxFields(formData.province).includes("GST") &&
+                    <FormGroup>
+                        <label htmlFor="gstNumber">{t('registration.restaurant.taxInfo.gstNumber')} *</label>
+                        <input id="gstNumber" name="gstNumber" value={formData.gstNumber} onChange={handleChange}/>
+                        {errors.gstNumber && <ErrorText>{t('registration.restaurant.errors.gstNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                }
+                 {getRequiredTaxFields(formData.province).includes("PST") &&
+                    <FormGroup>
+                        <label htmlFor="pstNumber">{t('registration.restaurant.taxInfo.pstNumber')} *</label>
+                        <input id="pstNumber" name="pstNumber" value={formData.pstNumber} onChange={handleChange}/>
+                        {errors.pstNumber && <ErrorText>{t('registration.restaurant.errors.pstNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                }
+                 {getRequiredTaxFields(formData.province).includes("HST") &&
+                    <FormGroup>
+                        <label htmlFor="hstNumber">{t('registration.restaurant.taxInfo.hstNumber')} *</label>
+                        <input id="hstNumber" name="hstNumber" value={formData.hstNumber} onChange={handleChange}/>
+                        {errors.hstNumber && <ErrorText>{t('registration.restaurant.errors.hstNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                }
+                 {getRequiredTaxFields(formData.province).includes("QST") &&
+                    <FormGroup>
+                        <label htmlFor="qstNumber">{t('registration.restaurant.taxInfo.qstNumber')} *</label>
+                        <input id="qstNumber" name="qstNumber" value={formData.qstNumber} onChange={handleChange}/>
+                        {errors.qstNumber && <ErrorText>{t('registration.restaurant.errors.qstNumberRequired')}</ErrorText>}
+                    </FormGroup>
+                }
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <SectionTitle>{t('registration.restaurant.documents.title')}</SectionTitle>
+              <FormRow>
+                <UploadGroup>
+                  <label htmlFor="businessLicense">{t('registration.restaurant.documents.businessLicense')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.businessLicense?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="businessLicense" name="businessLicense" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.businessLicense && <ErrorText>{t('registration.restaurant.errors.businessLicenseRequired')}</ErrorText>}
+                </UploadGroup>
+                <UploadGroup>
+                  <label htmlFor="voidCheque">{t('registration.restaurant.documents.voidCheque')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.voidCheque?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="voidCheque" name="voidCheque" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.voidCheque && <ErrorText>{t('registration.restaurant.errors.voidChequeRequired')}</ErrorText>}
+                </UploadGroup>
+              </FormRow>
+              <FormRow>
+                <UploadGroup>
+                  <label htmlFor="hstDocument">{t('registration.restaurant.documents.hstDocument')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.hstDocument?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="hstDocument" name="hstDocument" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.hstDocument && <ErrorText>HST document is required</ErrorText>}
+                </UploadGroup>
+                <UploadGroup>
+                  <label htmlFor="articleOfIncorporation">{t('registration.restaurant.documents.articleOfIncorporation')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.articleOfIncorporation?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="articleOfIncorporation" name="articleOfIncorporation" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.articleOfIncorporation && <ErrorText>Article of incorporation is required</ErrorText>}
+                </UploadGroup>
+              </FormRow>
+              <FormRow>
+                <UploadGroup>
+                  <label htmlFor="foodHandlingCertificate">{t('registration.restaurant.documents.foodHandlingCertificate')} *</label>
+                  <UploadWrapper>
+                    <UploadCloud/>
+                    <span>{formData.foodHandlingCertificate?.name || t('registration.restaurant.common.clickToUpload')}</span>
+                    <input id="foodHandlingCertificate" name="foodHandlingCertificate" type="file" onChange={handleFileChange} accept="application/pdf,image/*"/>
+                  </UploadWrapper>
+                  {errors.foodHandlingCertificate && <ErrorText>Food handling certificate is required</ErrorText>}
+                </UploadGroup>
+                <UploadGroup>
+                  <label htmlFor="articleOfIncorporationExpiryDate">{t('registration.restaurant.documents.articleOfIncorporationExpiryDate')} *</label>
+                  <input 
+                    id="articleOfIncorporationExpiryDate" 
+                    name="articleOfIncorporationExpiryDate" 
+                    type="date" 
+                    value={formData.articleOfIncorporationExpiryDate} 
+                    onChange={handleChange}
+                  />
+                  {errors.articleOfIncorporationExpiryDate && <ErrorText>Expiry date is required</ErrorText>}
+                </UploadGroup>
+              </FormRow>
+              <FormRow>
+                <UploadGroup>
+                  <label htmlFor="foodHandlingCertificateExpiryDate">{t('registration.restaurant.documents.foodHandlingCertificateExpiryDate')} *</label>
+                  <input 
+                    id="foodHandlingCertificateExpiryDate" 
+                    name="foodHandlingCertificateExpiryDate" 
+                    type="date" 
+                    value={formData.foodHandlingCertificateExpiryDate} 
+                    onChange={handleChange}
+                  />
+                  {errors.foodHandlingCertificateExpiryDate && <ErrorText>Expiry date is required</ErrorText>}
+                </UploadGroup>
+                <div></div>
+              </FormRow>
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <SectionTitle>{t('registration.restaurant.menu.title')}</SectionTitle>
+              {formData.menuItems.map((item, index) => (
+                <MenuItemCard key={index}>
+                  <FormGroup>
+                    <label htmlFor={`menuItem${index}Name`}>{t('registration.restaurant.menu.itemName')} *</label>
+                    <input
+                      id={`menuItem${index}Name`}
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleMenuItemChange(index, 'name', e.target.value)}
+                      placeholder={t('registration.restaurant.placeholders.menuItemName')}
+                    />
+                    {errors[`menuItem${index}Name`] && <ErrorText>{t('registration.restaurant.errors.menuItemNameRequired')}</ErrorText>}
+                  </FormGroup>
+                  <FormRow>
+                    <FormGroup>
+                      <label htmlFor={`menuItem${index}Price`}>{t('registration.restaurant.menu.price')} ($) *</label>
+                      <input
+                        id={`menuItem${index}Price`}
+                        type="text"
+                        value={item.price}
+                        onChange={(e) => handleMenuItemChange(index, 'price', e.target.value)}
+                        placeholder={t('registration.restaurant.placeholders.menuItemPrice')}
+                      />
+                      {errors[`menuItem${index}Price`] && <ErrorText>{t('registration.restaurant.errors.menuItemPriceRequired')}</ErrorText>}
+                    </FormGroup>
+                    <FormGroup>
+                      <label htmlFor={`menuItem${index}Image`}>{t('registration.restaurant.menu.itemImage')} *</label>
+                      <UploadWrapper small>
+                        <UploadCloud size={20} />
+                        <span>{item.image?.name || t('registration.restaurant.common.uploadImage')}</span>
+                        <input
+                          type="file"
+                          id={`menuItem${index}Image`}
+                          accept="image/png, image/jpeg"
+                          onChange={(e) => e.target.files && handleMenuItemChange(index, 'image', e.target.files[0])}
+                        />
+                      </UploadWrapper>
+                      {errors[`menuItem${index}Image`] && <ErrorText>{t('registration.restaurant.errors.menuItemImageRequired')}</ErrorText>}
+                    </FormGroup>
+                  </FormRow>
+                  <FormGroup>
+                    <label htmlFor={`menuItem${index}Desc`}>{t('registration.restaurant.menu.description')}</label>
+                    <textarea
+                      id={`menuItem${index}Desc`}
+                      value={item.description}
+                      onChange={(e) => handleMenuItemChange(index, 'description', e.target.value)}
+                      placeholder={t('registration.restaurant.placeholders.menuItemDescription')}
+                    />
+                  </FormGroup>
+                </MenuItemCard>
+              ))}
+
+              <AddButton type="button" onClick={addMenuItem}>
+                <Plus size={20} /> {t('registration.restaurant.menu.addItem')}
+              </AddButton>
+
+              <SubSectionTitle>{t('registration.restaurant.hours.title')}</SubSectionTitle>
+              {formData.operatingHours.map((hour, index) => (
+                <OperatingHoursRow key={index}>
+                  <DayLabel>{t(`registration.restaurant.hours.days.${hour.day.toLowerCase()}`)}</DayLabel>
+                  <FormGroup>
+                    <input
+                      type="time"
+                      value={hour.openTime}
+                      onChange={(e) => handleHoursChange(index, 'openTime', e.target.value)}
+                      disabled={hour.isClosed}
+                    />
+                  </FormGroup>
+                  <span>{t('registration.restaurant.hours.to')}</span>
+                  <FormGroup>
+                    <input
+                      type="time"
+                      value={hour.closeTime}
+                      onChange={(e) => handleHoursChange(index, 'closeTime', e.target.value)}
+                      disabled={hour.isClosed}
+                    />
+                  </FormGroup>
+                  <CheckboxWrapper>
+                    <input
+                      type="checkbox"
+                      id={`closed-${index}`}
+                      checked={hour.isClosed}
+                      onChange={(e) => handleHoursChange(index, 'isClosed', e.target.checked)}
+                    />
+                    <label htmlFor={`closed-${index}`}>{t('registration.restaurant.hours.closed')}</label>
+                  </CheckboxWrapper>
+                </OperatingHoursRow>
+              ))}
+            </motion.div>
+          )}
+
+          <ButtonContainer>
+            {step > 1 ? (
+              <ActionButton type="button" onClick={handleBack} secondary>
+                {t('registration.restaurant.buttons.back')}
+              </ActionButton>
+            ) : ( <div></div>) }
+            <ActionButton type="submit">
+              {step === 4 ? t('registration.restaurant.buttons.proceedToPayment') : t('registration.restaurant.buttons.nextStep')}
+            </ActionButton>
+          </ButtonContainer>
+        </form>
+      </FormContainer>
+    </>
+  );
+}

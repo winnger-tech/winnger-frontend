@@ -68,16 +68,13 @@ const Navbar = () => {
 
   const handleDashboard = () => {
     if (user?.type === 'restaurant') {
-      if (user.isRegistrationComplete) {
-        router.push('/restaurant-dashboard');
-      } else {
-        router.push('/restaurant-dashboard-staged');
-      }
+      router.push('/restaurant-registration');
     } else if (user?.type === 'driver') {
-      if (user.isRegistrationComplete) {
-        router.push('/driver-dashboard');
+      // Check if driver has started registration, redirect to appropriate stage
+      if (user.registrationStage > 1) {
+        router.push(`/driver-registration-staged/stage/${user.registrationStage}`);
       } else {
-        router.push('/driver-dashboard-staged');
+        router.push('/driver-registration-staged/stage/1');
       }
     }
     setUserMenuOpen(false);

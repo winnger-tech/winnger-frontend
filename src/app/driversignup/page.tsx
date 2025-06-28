@@ -29,12 +29,13 @@ export default function DriverSignupPage() {
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
-      // Navigate immediately without delay
-      if (user.isRegistrationComplete) {
-        router.push('/driver-dashboard');
-      } else {
-        router.push('/driver-dashboard-staged');
-      }
+      
+      // Redirect after short delay to show the success toast
+      setTimeout(() => {
+        // After signup, direct user to stage 2 (personal details) since stage 1 (basic registration) is complete
+        console.log('✅ Registration successful, redirecting to stage 2');
+        router.push('/driver-registration-staged/stage/2');
+      }, 1500);
     }
   }, [isAuthenticated, user, router]);
 

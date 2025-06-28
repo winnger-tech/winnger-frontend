@@ -22,23 +22,50 @@ export default function DriverLoginPage() {
     password: ''
   });
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [stageMessage, setStageMessage] = useState<string | null>(null);
   const [registrationStage, setRegistrationStage] = useState<number | null>(null);
-  const totalStages = 5;
+  const totalStages = 4;
+
+  // Check for redirect parameter
+  const [redirectPath, setRedirectPath] = useState<string>('/driver-registration');
+  
+  // Get redirect from URL on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get('redirect');
+      if (redirect) {
+        setRedirectPath(redirect);
+        console.log('📍 Found redirect parameter:', redirect);
+      }
+    }
+  }, []);
 
   // Redirect to appropriate dashboard or stage after successful login
   useEffect(() => {
     if (isAuthenticated && user) {
       setShowSuccessToast(true);
       setRegistrationStage(user.registrationStage);
-      setStageMessage(user.stageMessage);
-      if (user.isRegistrationComplete) {
-        router.push('/driver-dashboard');
-      } else if (user.registrationStage) {
-        router.push(`/driver-registration-staged/stage/${user.registrationStage}`);
-      }
+      
+      // Redirect after short delay to show the success toast
+      setTimeout(() => {
+        if (redirectPath && redirectPath !== '/driver-registration') {
+          console.log(`🔄 Redirecting to: ${redirectPath}`);
+          router.push(redirectPath);
+        } else if (user.registrationStage > 1) {
+          // If user has started registration, redirect to their current stage
+          console.log(`🔄 Redirecting to stage ${user.registrationStage}`);
+          router.push(`/driver-registration-staged/stage/${user.registrationStage}`);
+        } else if (user.registrationStage === 1) {
+          // If user is at stage 1 (basic registration complete), redirect to stage 2
+          console.log(`🔄 Basic registration complete, redirecting to stage 2`);
+          router.push(`/driver-registration-staged/stage/2`);
+        } else {
+          // Default redirect to driver registration
+          router.push('/driver-registration');
+        }
+      }, 1500);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, redirectPath]);
 
   // Clear error when component unmounts
   useEffect(() => {
@@ -83,6 +110,7 @@ export default function DriverLoginPage() {
         <ContentWrapper>
           <FormSection as={motion.div} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
             <FormHeader>
+
               <Title>{t('driverLogin.title')}</Title>
               <Subtitle>{t('driverLogin.subtitle')}</Subtitle>
               {stageMessage && (
@@ -95,6 +123,7 @@ export default function DriverLoginPage() {
                   Stage {registrationStage} of {totalStages}
                 </div>
               )}
+
             </FormHeader>
 
             <Form onSubmit={handleSubmit}>

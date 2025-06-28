@@ -10,14 +10,14 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { Toast } from '../Toast';
 
 // Import stage components
-import Stage1BasicInfo from './stages/Stage1BasicInfo';
 import Stage1RestaurantInfo from './stages/Stage1RestaurantInfo';
 import Stage2RestaurantDetails from './stages/Stage2RestaurantDetails';
-import Stage2DriverDetails from './stages/Stage2DriverDetails';
+import Stage2PersonalDetails from './stages/Stage2PersonalDetails';
 import Stage3VehicleInfo from './stages/Stage3VehicleInfo';
 import Stage3RestaurantDocuments from './stages/Stage3RestaurantDocuments';
 import Stage4DocumentUpload from './stages/Stage4DocumentUpload';
-import Stage5BackgroundCheck from './stages/Stage5BackgroundCheck';
+import Stage4BackgroundCheck from './stages/Stage4BackgroundCheck';
+import Stage5ProfileReview from './stages/Stage5ProfileReview';
 
 interface StageContainerProps {
   userType: 'driver' | 'restaurant';
@@ -174,24 +174,74 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       setShowSaveToast(true);
       // Fetch latest profile to get new registrationStage and requiredFields
       await fetchRequiredFields();
-      // Only navigate if no errors
-      const nextStage = currentStage + 1;
-      if (nextStage <= state.progress.totalStages) {
-        setTimeout(() => {
-          router.push(`/${userType}-registration-staged/stage/${nextStage}`);
-        }, 1000);
-      } else {
-        setTimeout(() => {
-          router.push(`/${userType}-dashboard-staged`);
-        }, 1000);
+      
+      // Get the latest profile data to determine the correct next stage
+      try {
+        const profileResponse = await StageService.getProfile();
+        console.log('📊 Profile response after submit:', profileResponse);
+        
+        if (profileResponse?.data?.driver?.registrationStage) {
+          const nextRegistrationStage = profileResponse.data.driver.registrationStage;
+          console.log('🔀 Next registration stage from API:', nextRegistrationStage);
+          
+          // Navigate to next stage
+          if (nextRegistrationStage <= 5) {
+            console.log(`🔄 Navigating to next stage: ${nextRegistrationStage}`);
+            router.push(`/driver-registration-staged/stage/${nextRegistrationStage}`);
+          } else {
+            console.log('✅ Registration complete, redirecting to dashboard');
+            router.push('/driver-registration-staged');
+          }
+        } else {
+          // Fallback to old logic if API doesn't return registration stage
+          const nextStage = currentStage + 1;
+          const maxStages = state.progress.totalStages || state.totalStages || 5;
+          
+          console.log('🔀 Fallback navigation after submit:', {
+            currentStage,
+            nextStage,
+            maxStages,
+            willNavigate: nextStage <= maxStages
+          });
+          
+          if (nextStage <= maxStages) {
+            setTimeout(() => {
+              console.log(`🔀 Navigating to stage ${nextStage} (fallback)`);
+              router.push(`/${userType}-registration-staged/stage/${nextStage}`);
+            }, 1000);
+          } else {
+            setTimeout(() => {
+              if (userType === 'driver') {
+                router.push('/driver-registration-staged/success');
+              } else {
+                router.push('/restaurant-registration-staged/success');
+              }
+            }, 1000);
+          }
+        }
+      } catch (profileError) {
+        console.error('❌ Failed to get profile data after submit:', profileError);
+        // Fallback to old logic
+        const nextStage = currentStage + 1;
+        const maxStages = state.progress.totalStages || state.totalStages || 5;
+        
+        if (nextStage <= maxStages) {
+          setTimeout(() => {
+            router.push(`/${userType}-registration-staged/stage/${nextStage}`);
+          }, 1000);
+        } else {
+          setTimeout(() => {
+            if (userType === 'driver') {
+              router.push('/driver-registration-staged/success');
+            } else {
+              router.push('/restaurant-registration-staged/success');
+            }
+          }, 1000);
+        }
       }
-    } catch (error: any) {
-      if (error.errors) {
-        setValidationErrors(error.errors);
-      } else {
-        setError(error.message || 'Failed to save stage data');
-      }
-      // Do NOT navigate if there are errors
+    } catch (error) {
+      console.error('❌ Submit failed:', error);
+      setError('Failed to save stage data. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -206,12 +256,104 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     }
   };
 
-  const handleSkip = () => {
-    const nextStage = currentStage + 1;
-    if (nextStage <= state.progress.totalStages) {
-      router.push(`/${userType}-registration-staged/stage/${nextStage}`);
-    } else {
-      router.push(`/${userType}-dashboard-staged`);
+  const handleSkip = async () => {
+    console.log('🔄 Skip button clicked for stage:', currentStage);
+    setSaving(true);
+    setError(null);
+    
+    try {
+      console.log('💾 Saving current stage data before skip:', stageData);
+      
+      // For skip, we want to save whatever data we have, even if incomplete
+      // We'll add a flag to indicate this is a skip operation
+      const skipData = {
+        ...stageData,
+        _skipOperation: true,
+        _timestamp: new Date().toISOString()
+      };
+      
+      // Save current stage data even if incomplete
+      await actions.updateStageData(currentStage, skipData);
+      
+      console.log('✅ Stage data saved successfully');
+      
+      // Get the latest profile data to determine the correct next stage
+      try {
+        const profileResponse = await StageService.getProfile();
+        console.log('📊 Profile response after skip:', profileResponse);
+        
+        if (profileResponse?.data?.driver?.registrationStage) {
+          const nextRegistrationStage = profileResponse.data.driver.registrationStage;
+          console.log('🔀 Next registration stage from API:', nextRegistrationStage);
+          
+          // Navigate to next stage
+          if (nextRegistrationStage <= 5) {
+            console.log(`🔄 Skip: Navigating to next stage: ${nextRegistrationStage}`);
+            router.push(`/driver-registration-staged/stage/${nextRegistrationStage}`);
+          } else {
+            console.log('✅ Skip: Registration complete, redirecting to dashboard');
+            router.push('/driver-registration-staged');
+          }
+        } else {
+          // Fallback to old logic if API doesn't return registration stage
+          const nextStage = currentStage + 1;
+          const maxStages = state.progress.totalStages || state.totalStages || 5;
+          
+          console.log('🔀 Fallback navigation details:', {
+            currentStage,
+            nextStage,
+            maxStages,
+            userType,
+            willNavigate: nextStage <= maxStages
+          });
+          
+          if (nextStage <= maxStages) {
+            console.log(`🔀 Navigating to stage ${nextStage} (fallback)`);
+            try {
+              router.push(`/${userType}-registration-staged/stage/${nextStage}`);
+            } catch (navError) {
+              console.error('❌ Router navigation failed, trying window.location:', navError);
+              window.location.href = `/${userType}-registration-staged/stage/${nextStage}`;
+            }
+          } else {
+            console.log('🏁 Final stage reached, navigating to success page');
+            try {
+              if (userType === 'driver') {
+                router.push('/driver-registration-staged/success');
+              } else {
+                router.push('/restaurant-registration-staged/success');
+              }
+            } catch (navError) {
+              console.error('❌ Router navigation failed, trying window.location:', navError);
+              if (userType === 'driver') {
+                window.location.href = '/driver-registration-staged/success';
+              } else {
+                window.location.href = '/restaurant-registration-staged/success';
+              }
+            }
+          }
+        }
+      } catch (profileError) {
+        console.error('❌ Failed to get profile data:', profileError);
+        // Fallback to old logic
+        const nextStage = currentStage + 1;
+        const maxStages = state.progress.totalStages || state.totalStages || 5;
+        
+        if (nextStage <= maxStages) {
+          router.push(`/${userType}-registration-staged/stage/${nextStage}`);
+        } else {
+          if (userType === 'driver') {
+            router.push('/driver-registration-staged/success');
+          } else {
+            router.push('/restaurant-registration-staged/success');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Skip failed:', error);
+      setError('Failed to skip stage. Please try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -245,8 +387,9 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
             />
           );
         } else {
+          // Stage 1 is now Personal Information
           return (
-            <Stage1BasicInfo 
+            <Stage2PersonalDetails 
               data={stageData}
               onChange={handleFormChange}
               onSubmit={handleSubmit}
@@ -266,10 +409,15 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
             />
           );
         } else {
+          // Stage 2 is now Vehicle Information
           return (
-            <Stage2DriverDetails 
-              onNext={handleNext}
-              onPrevious={handlePrevious}
+            <Stage3VehicleInfo 
+              data={stageData}
+              onChange={handleFormChange}
+              onSubmit={handleSubmit}
+              loading={saving}
+              errors={validationErrors}
+              userType={userType}
             />
           );
         }
@@ -277,25 +425,21 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
         if (userType === 'restaurant') {
           return <Stage3RestaurantDocuments />;
         } else {
-          return (
-            <Stage3VehicleInfo 
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-            />
-          );
+          // Stage 3 is now Document Upload
+          return <Stage4DocumentUpload />;
         }
       case 4:
         if (userType === 'driver') {
-          return <Stage4DocumentUpload />;
+          // Stage 4 is now Banking & Consent
+          return <Stage4BackgroundCheck />;
         }
         return <div>Stage 4 - Not available for restaurants</div>;
       case 5:
         if (userType === 'driver') {
-          return <Stage5BackgroundCheck />;
+          // Stage 5 is Profile Review (after payment completion)
+          return <Stage5ProfileReview />;
         }
         return <div>Stage 5 - Not available for restaurants</div>;
-      case 5:
-        return <div>Stage 5 - {userType === 'restaurant' ? 'Payment & Pricing' : 'Banking'} (Coming Soon)</div>;
       default:
         return <div>Stage not found</div>;
     }
@@ -303,97 +447,71 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 
   if (loading) {
     return (
-      <Container>
-        <LoadingWrapper>
-          <LoadingSpinner size="large" />
-          <LoadingText>Loading stage data...</LoadingText>
-        </LoadingWrapper>
-      </Container>
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
     );
   }
 
   return (
-    <>
-      <Toast
-        message="Stage saved successfully!"
-        type="success"
-        isVisible={showSaveToast}
-        onClose={() => setShowSaveToast(false)}
-      />
-      
-      <Container>
-        <StageHeader
-          as={motion.div}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <BackButton onClick={handleBack}>
-            ← Back
-          </BackButton>
+    <div className="min-h-screen bg-gray-900">
+      {/* Navigation Header */}
+      <div className="bg-gray-800 border-b border-gray-700 p-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleBack}
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-xl font-semibold text-white">
+                {userType === 'driver' ? 'Driver Registration' : 'Restaurant Registration'}
+              </h1>
+              <p className="text-sm text-gray-400">
+                Step {currentStage} of {state.progress?.totalStages || 5}
+              </p>
+            </div>
+          </div>
           
-          <StageInfo>
-            <StageTitle>
-              Stage {currentStage}: {state.stages[currentStage]?.title}
-            </StageTitle>
-            <StageDescription>
-              {state.stages[currentStage]?.description}
-            </StageDescription>
-          </StageInfo>
+          <div className="flex items-center space-x-2">
+            {currentStage < (state.progress?.totalStages || 5) && (
+              <button
+                onClick={handleSkip}
+                disabled={saving}
+                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors disabled:opacity-50"
+              >
+                Skip
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
 
-          <StageProgress>
-            {currentStage} of {state.progress.totalStages}
-          </StageProgress>
-        </StageHeader>
-
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
         {error && (
-          <ErrorMessage
-            as={motion.div}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {error}
-            <RetryButton onClick={loadStageData}>
-              Retry
-            </RetryButton>
-          </ErrorMessage>
+          <div className="mb-6 bg-red-900 border border-red-600 rounded-lg p-4">
+            <p className="text-red-300">{error}</p>
+          </div>
         )}
 
-        <StageContent
-          as={motion.div}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          {renderStageComponent()}
-        </StageContent>
+        {renderStageComponent()}
+      </div>
 
-        <StageNavigation
-          as={motion.div}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <NavButton onClick={handleBack} variant="secondary">
-            Previous
-          </NavButton>
-          
-          <NavButton onClick={handleSkip} variant="outline">
-            Skip for Now
-          </NavButton>
-        </StageNavigation>
-
-        {state.autoSaving && (
-          <AutoSaveIndicator
-            as={motion.div}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            💾 Auto-saving...
-          </AutoSaveIndicator>
-        )}
-      </Container>
-    </>
+      {/* Toast Notification */}
+      {showSaveToast && (
+        <Toast
+          message="Stage data saved successfully!"
+          type="success"
+          isVisible={showSaveToast}
+          onClose={() => setShowSaveToast(false)}
+        />
+      )}
+    </div>
   );
 }
 
@@ -534,16 +652,27 @@ const StageNavigation = styled.div`
 
 const NavButton = styled.button<{
   variant: 'primary' | 'secondary' | 'outline';
+  disabled?: boolean;
 }>`
   padding: 1rem 2rem;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   transition: all 0.3s ease;
+  opacity: ${props => props.disabled ? 0.6 : 1};
   
   ${props => {
+    if (props.disabled) {
+      return `
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+        transform: none !important;
+        box-shadow: none !important;
+      `;
+    }
+    
     switch (props.variant) {
       case 'primary':
         return `

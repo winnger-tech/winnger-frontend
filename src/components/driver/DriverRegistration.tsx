@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, CSSProperties } from 'react';
+import React, { useState, CSSProperties, useEffect } from 'react';
 import { UploadCloud, Plus, Trash2 } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useTranslation } from '@/utils/i18n';
+import { getDrivingAbstractDateValidation, getDrivingAbstractDateConstraints } from '@/utils/validation';
 
 // Type definitions
 interface FormInputProps {
@@ -15,6 +16,8 @@ interface FormInputProps {
   placeholder?: string;
   maxLength?: number;
   required?: boolean;
+  min?: string;
+  max?: string;
 }
 
 interface FormSelectProps {
@@ -103,7 +106,6 @@ interface DriverData {
     vehicleRegistration: File | null;
     vehicleInsurance: File | null;
     drivingAbstract: File | null;
-    criminalBackgroundCheck: File | null;
     workEligibility: File | null;
     sinCard: File | null;
   };
@@ -111,6 +113,7 @@ interface DriverData {
 
 interface DriverRegistrationProps {
   onSubmit: (data: DriverData) => void;
+  prefilledData?: { email: string; password: string } | null;
 }
 
 interface ValidationErrors {
@@ -152,7 +155,7 @@ const workEligibilityOptions = [
 ];
 
 // Form Input Component
-const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, type = 'text', placeholder, maxLength, required = false }) => {
+const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, type = 'text', placeholder, maxLength, required = false, min, max }) => {
   const { t } = useTranslation();
   return (
     <div style={formGroupStyle}>
@@ -167,6 +170,8 @@ const FormInput: React.FC<FormInputProps> = ({ label, value, onChange, error, ty
           ...inputStyle,
           borderColor: error ? '#e74c3c' : '#bdc3c7'
         }}
+        min={min}
+        max={max}
       />
       {error && <p style={errorTextStyle}>{error}</p>}
     </div>
@@ -398,7 +403,7 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({ label, checked, onChange, e
 );
 
 // Main Driver Registration Component
-const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => {
+const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit, prefilledData }) => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
@@ -407,8 +412,8 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
   
   const [formData, setFormData] = useState<DriverData>({
     // Personal Information
-    email: '',
-    password: '',
+    email: prefilledData?.email || '',
+    password: prefilledData?.password || '',
     firstName: '',
     middleName: '',
     lastName: '',
@@ -457,18 +462,38 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
       vehicleRegistration: null,
       vehicleInsurance: null,
       drivingAbstract: null,
-      criminalBackgroundCheck: null,
       workEligibility: null,
       sinCard: null,
     }
   });
+
+  // Update form data when prefilledData changes
+  useEffect(() => {
+    if (prefilledData) {
+      setFormData(prev => ({
+        ...prev,
+        email: prefilledData.email || prev.email,
+        password: prefilledData.password || prev.password,
+      }));
+    }
+  }, [prefilledData]);
 
   const handleChange = (field: keyof DriverData, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+    
+    // Clear previous error for this field
     setErrors((prev) => ({ ...prev, [field]: '' }));
+    
+    // Real-time validation for driving abstract date
+    if (field === 'drivingAbstractDate' && value) {
+      const validation = getDrivingAbstractDateValidation(value);
+      if (!validation.isValid && validation.error) {
+        setErrors((prev) => ({ ...prev, [field]: t(validation.error as string) }));
+      }
+    }
   };
 
   const handleBankingChange = (field: keyof DriverData['bankingInfo'], value: string) => {
@@ -594,10 +619,9 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
        
         if (!formData.drivingAbstractDate?.trim()) newErrors.drivingAbstractDate = t('driverRegistration.errors.drivingAbstractDateRequired');
         else {
-          const threeMonthsAgo = new Date();
-          threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-          if (new Date(formData.drivingAbstractDate) < threeMonthsAgo) {
-            newErrors.drivingAbstractDate = t('driverRegistration.errors.drivingAbstractDateRecency');
+          const validation = getDrivingAbstractDateValidation(formData.drivingAbstractDate);
+          if (!validation.isValid && validation.error) {
+            newErrors.drivingAbstractDate = t(validation.error as string);
           }
         }
         if (!formData.workEligibilityType?.trim()) newErrors.workEligibilityType = t('driverRegistration.errors.workEligibilityTypeRequired');
@@ -607,7 +631,6 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
         if (!formData.files.driversLicenseFront) newErrors.driversLicenseFront = t('driverRegistration.errors.driversLicenseFrontRequired');
         if (!formData.files.driversLicenseBack) newErrors.driversLicenseBack = t('driverRegistration.errors.driversLicenseBackRequired');
         if (!formData.files.drivingAbstract) newErrors.drivingAbstract = t('driverRegistration.errors.drivingAbstractRequired');
-        if (!formData.files.criminalBackgroundCheck) newErrors.criminalBackgroundCheck = t('driverRegistration.errors.criminalBackgroundCheckRequired');
         if (!formData.files.workEligibility) newErrors.workEligibility = t('driverRegistration.errors.workEligibilityRequired');
         break;
 
@@ -1009,8 +1032,13 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
                 value={formData.drivingAbstractDate} 
                 onChange={(val) => handleChange('drivingAbstractDate', val)}
                 error={errors.drivingAbstractDate}
+                min={getDrivingAbstractDateConstraints().minDate}
+                max={getDrivingAbstractDateConstraints().maxDate}
                 required
               />
+              <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem', fontStyle: 'italic' }}>
+                Must be from the last 3 months and cannot be in the future
+              </div>
             </div>
             
             <FormFileUpload 
@@ -1022,14 +1050,6 @@ const DriverRegistration: React.FC<DriverRegistrationProps> = ({ onSubmit }) => 
             />
             
             <h4 style={subSectionTitleStyle}>{t('driverRegistration.sections.backgroundWorkEligibility')}</h4>
-            <FormFileUpload 
-              label={t('driverRegistration.labels.criminalBackgroundCheck')}
-              onChange={(file) => handleFileChange('criminalBackgroundCheck', file)}
-              error={errors.criminalBackgroundCheck}
-              fileName={formData.files.criminalBackgroundCheck?.name}
-              required
-            />
-            
             <div style={formRowStyle}>
               <FormFileUpload 
                 label={t('driverRegistration.labels.workEligibility')}
