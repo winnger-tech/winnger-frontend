@@ -8,13 +8,14 @@ import Navbar from '../component/Navbar';
 import { useTranslation } from '../../utils/i18n';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { loginRestaurant, clearError } from '../../store/slices/authSlice';
-import { Toast } from '../../components/Toast';
+import { useToast } from '../../context/ToastContext';
 import Link from 'next/link';
 
 export default function RestaurantLoginPage() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const { isLoading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
   
   const [formData, setFormData] = useState({
@@ -22,22 +23,29 @@ export default function RestaurantLoginPage() {
     password: ''
   });
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [registrationStage, setRegistrationStage] = useState<number | null>(null);
   const totalStages = 4;
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
-      setShowSuccessToast(true);
+      showSuccess('Login successful! Redirecting...');
       
       // Redirect after short delay to show the success toast
       setTimeout(() => {
         // Always redirect to restaurant dashboard staged
-        router.push('/restaurant-dashboard-staged');
+          router.push('/restaurant-dashboard-staged');
       }, 1500);
     }
-  }, [isAuthenticated, user, router]);
+  }, [isAuthenticated, user, router, showSuccess]);
+
+  // Show error toast when error occurs
+  useEffect(() => {
+    if (error) {
+      showError(error);
+      dispatch(clearError());
+    }
+  }, [error, showError, dispatch]);
 
   // Clear Redux error when component unmounts
   useEffect(() => {
@@ -58,10 +66,6 @@ export default function RestaurantLoginPage() {
         ...prev,
         [name]: ''
       }));
-    }
-    // Clear Redux error
-    if (error) {
-      dispatch(clearError());
     }
   };
 
@@ -104,12 +108,6 @@ export default function RestaurantLoginPage() {
   return (
     <>
       <Navbar />
-      <Toast 
-        message="Login successful! Redirecting..."
-        type="success"
-        isVisible={showSuccessToast}
-        onClose={() => setShowSuccessToast(false)}
-      />
       <Container>
         <ContentWrapper>
           <FormSection
@@ -153,9 +151,6 @@ export default function RestaurantLoginPage() {
                 />
                 {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
               </InputGroup>
-
-              {/* Show Redux error */}
-              {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
 
               <ForgotPassword href="/forgot-password">
                 Forgot your password?

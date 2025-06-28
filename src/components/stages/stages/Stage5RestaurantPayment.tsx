@@ -25,8 +25,9 @@ interface FormData {
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-const PaymentForm = ({ onPaymentSuccess, isProcessing }: { 
+const PaymentForm = ({ onPaymentSuccess, onPaymentError, isProcessing }: { 
   onPaymentSuccess: (paymentData: any) => void;
+  onPaymentError: (error: string) => void;
   isProcessing: boolean;
 }) => {
   const stripe = useStripe();
@@ -37,29 +38,60 @@ const PaymentForm = ({ onPaymentSuccess, isProcessing }: {
     event.preventDefault();
 
     if (!stripe || !elements) {
+      onPaymentError('Stripe is not loaded. Please refresh the page and try again.');
       return;
     }
 
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) {
+      onPaymentError('Payment form is not ready. Please try again.');
       return;
     }
 
     try {
+      // Get the token from localStorage
+      const token = localStorage.getItem('winngr_auth_token');
+      if (!token) {
+        onPaymentError('Authentication token not found. Please log in again.');
+        return;
+      }
+
+      console.log('🔑 Creating payment intent with token:', token.substring(0, 20) + '...');
+
       // Create payment intent first
       const createIntentResponse = await fetch('/api/restaurants/create-payment-intent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         }
       });
 
+      console.log('📡 Payment intent response status:', createIntentResponse.status);
+
       if (!createIntentResponse.ok) {
-        throw new Error('Failed to create payment intent');
+        const errorData = await createIntentResponse.json();
+        console.error('❌ Payment intent error:', errorData);
+        onPaymentError(errorData.message || `Failed to create payment intent (${createIntentResponse.status})`);
+        return;
       }
 
-      const { clientSecret, paymentIntentId } = await createIntentResponse.json();
+      const responseData = await createIntentResponse.json();
+      console.log('✅ Payment intent created:', responseData);
+
+      if (!responseData.success) {
+        onPaymentError(responseData.message || 'Payment intent creation failed');
+        return;
+      }
+
+      const { clientSecret, paymentIntentId } = responseData;
+
+      if (!clientSecret || !paymentIntentId) {
+        onPaymentError('Invalid payment intent response from server');
+        return;
+      }
+
+      console.log('💳 Confirming payment with Stripe...');
 
       // Confirm the payment
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
@@ -72,19 +104,24 @@ const PaymentForm = ({ onPaymentSuccess, isProcessing }: {
       });
 
       if (error) {
-        throw new Error(error.message);
+        console.error('❌ Stripe payment error:', error);
+        onPaymentError(error.message);
+        return;
       }
 
       if (paymentIntent.status === 'succeeded') {
+        console.log('✅ Payment succeeded:', paymentIntent);
         onPaymentSuccess({
           paymentIntentId: paymentIntentId,
           stripePaymentMethodId: paymentIntent.payment_method as string,
           paymentCompleted: true
         });
+      } else {
+        onPaymentError(`Payment status: ${paymentIntent.status}`);
       }
     } catch (error) {
-      console.error('Payment failed:', error);
-      throw error;
+      console.error('❌ Payment failed:', error);
+      onPaymentError(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
@@ -165,15 +202,38 @@ export default function Stage5RestaurantPayment({
     setPaymentError('');
     
     try {
-      const newFormData = { ...formData, ...paymentData };
+      // Only include the necessary payment fields, explicitly exclude any status fields
+      const cleanPaymentData = {
+        paymentIntentId: paymentData.paymentIntentId,
+        stripePaymentMethodId: paymentData.stripePaymentMethodId,
+        paymentCompleted: paymentData.paymentCompleted,
+        // Explicitly exclude any status fields to avoid enum conflicts
+        // The backend should handle status updates automatically
+      };
+      
+      console.log('💳 Saving payment data:', cleanPaymentData);
+      
+      const newFormData = { ...formData, ...cleanPaymentData };
       setFormData(newFormData);
       onChange(newFormData);
       
       // Save the payment data
       await onSave(newFormData);
+      
+      console.log('✅ Payment data saved successfully');
     } catch (error) {
-      console.error('Failed to save payment data:', error);
-      setPaymentError('Payment was successful but failed to save. Please contact support.');
+      console.error('❌ Failed to save payment data:', error);
+      
+      // Handle specific enum error for restaurant status
+      if (error instanceof Error && error.message.includes('invalid input value for enum enum_restaurants_status')) {
+        console.error('🔧 Enum error detected - backend trying to set invalid status');
+        setPaymentError('Payment was successful but there was an issue updating your status. Please contact support to resolve this.');
+      } else if (error instanceof Error && error.message.includes('pending_approval')) {
+        console.error('🔧 Backend trying to set invalid status: pending_approval');
+        setPaymentError('Payment was successful but there was an issue with the status update. Please contact support.');
+      } else {
+        setPaymentError('Payment was successful but failed to save. Please contact support.');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -244,6 +304,7 @@ export default function Stage5RestaurantPayment({
         <Elements stripe={stripePromise}>
           <PaymentForm 
             onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
             isProcessing={isProcessing}
           />
         </Elements>

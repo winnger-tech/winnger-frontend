@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import { FaCheck, FaCreditCard, FaShieldAlt, FaRocket } from 'react-icons/fa';
+import { FaCheck } from 'react-icons/fa';
 import { useTranslation } from '../../../utils/i18n';
 import { useDashboard } from '../../../context/DashboardContext';
 
@@ -20,39 +20,25 @@ interface FormData {
   additionalNotes: string;
 }
 
-const plans = [
-  {
-    id: 'basic',
-    title: 'Restaurant Basic',
-    price: '$45',
-    description: 'One-time registration fee',
-    features: [
-      'Restaurant listing on Winnger platform',
-      'Basic order management system',
-      'Customer support',
-      'Payment processing setup',
-      'Background verification included',
-      '24-48 hour approval process'
-    ],
-    popular: false
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.3,
+      delayChildren: 0.2,
+    },
   },
-  {
-    id: 'premium',
-    title: 'Restaurant Premium',
-    price: '$75',
-    description: 'Enhanced features package',
-    features: [
-      'Everything in Basic plan',
-      'Priority listing placement',
-      'Advanced analytics dashboard',
-      'Marketing tools access',
-      'Dedicated account manager',
-      'Faster approval (12-24 hours)',
-      'Custom branding options'
-    ],
-    popular: true
-  }
-];
+};
+
+const itemFadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.25, 0.8, 0.25, 1] },
+  },
+};
 
 export default function Stage4RestaurantReview({ 
   data, 
@@ -142,55 +128,56 @@ export default function Stage4RestaurantReview({
     return formData.agreedToTerms && formData.confirmationChecked;
   };
 
+  const planKeys = ['lite', 'pro', 'proPlus'];
+
+  const plans = planKeys.map((key) => ({
+    title: t(`plans.${key}.title`),
+    price: t(`plans.${key}.price`),
+    description: t(`plans.${key}.description`),
+    features: t(`plans.${key}.features`) as string[],
+  }));
+
   return (
     <StageContainer>
       <StageHeader>
-        <StageTitle>Review & Confirmation</StageTitle>
+        <StageTitle>Choose Your Plan</StageTitle>
         <StageDescription>
-          Review your information and confirm your registration details
+          Select the plan that best fits your restaurant's needs and complete your registration
         </StageDescription>
       </StageHeader>
 
-      <PlansSection>
-        <SectionTitle>Registration Plans</SectionTitle>
-        <PlansContainer>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={itemFadeUp}>
+          <Heading>{t('plans.heading')}</Heading>
+        </motion.div>
+        <motion.div variants={itemFadeUp}>
+          <Subheading>{t('plans.subheading')}</Subheading>
+        </motion.div>
+
+        <CardsWrapper>
           {plans.map((plan, index) => (
-            <PlanCard
-              key={plan.id}
-              $selected={plan.id === 'basic'}
-              $popular={plan.popular}
-              $readOnly={isReadOnly}
-              as={motion.div}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              {plan.popular && <PopularBadge>Most Popular</PopularBadge>}
-              
-              <PlanHeader>
-                <PlanTitle>{plan.title}</PlanTitle>
-                <PlanPrice>{plan.price}</PlanPrice>
-                <PlanDescription>{plan.description}</PlanDescription>
-              </PlanHeader>
-
-              <PlanFeatures>
-                {plan.features.map((feature, i) => (
-                  <Feature key={i}>
-                    <FeatureIcon>
-                      <FaCheck />
-                    </FeatureIcon>
-                    <FeatureText>{feature}</FeatureText>
-                  </Feature>
-                ))}
-              </PlanFeatures>
-
-              <SelectButton $selected={plan.id === 'basic'}>
-                {plan.id === 'basic' ? 'Selected' : 'Select Plan'}
-              </SelectButton>
-            </PlanCard>
+            <Card key={index} $highlight={index === 1} as={motion.div} variants={itemFadeUp}>
+              <CardContent>
+                <Title>{plan.title}</Title>
+                <Price>{plan.price}</Price>
+                <Description>{plan.description}</Description>
+                <FeatureList>
+                  {plan.features.map((feature, i) => (
+                    <Feature key={i}>
+                      <FaCheck className="icon" />
+                      {feature}
+                    </Feature>
+                  ))}
+                </FeatureList>
+              </CardContent>
+            </Card>
           ))}
-        </PlansContainer>
-      </PlansSection>
+        </CardsWrapper>
+      </motion.div>
 
       <ConfirmationSection>
         <SectionTitle>Confirmation</SectionTitle>
@@ -296,8 +283,89 @@ const StageDescription = styled.p`
   line-height: 1.5;
 `;
 
-const PlansSection = styled.div`
-  margin-bottom: 2rem;
+const Heading = styled.h2`
+  font-size: 36px;
+  font-weight: 800;
+  color: #1f1f1f;
+  margin-bottom: 12px;
+`;
+
+const Subheading = styled.p`
+  font-size: 16px;
+  color: #6b7280;
+  margin-bottom: 48px;
+`;
+
+const CardsWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+`;
+
+const Card = styled.div<{ $highlight?: boolean }>`
+  background: #d8a73e;
+  border: 3px solid ${({ $highlight }) => ($highlight ? "#b98d2f" : "#e0bb5c")};
+  box-shadow: ${({ $highlight }) =>
+    $highlight
+      ? "0 10px 25px rgba(0,0,0,0.2)"
+      : "0 6px 16px rgba(0,0,0,0.1)"};
+  border-radius: 20px;
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+  }
+`;
+
+const CardContent = styled.div`
+  padding: 28px;
+`;
+
+const Title = styled.h3`
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+`;
+
+const Price = styled.p`
+  font-size: 18px;
+  color: #fefefe;
+  margin: 8px 0 14px;
+`;
+
+const Description = styled.p`
+  font-size: 15px;
+  color: #ffffffd1;
+  margin-bottom: 20px;
+`;
+
+const FeatureList = styled.ul`
+  list-style: none;
+  padding-left: 0;
+`;
+
+const Feature = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffffee;
+  font-size: 15px;
+  margin-bottom: 10px;
+
+  .icon {
+    color: #ffffff;
+    background: #3c3c3c;
+    border-radius: 50%;
+    padding: 3px;
+    font-size: 12px;
+  }
 `;
 
 const ConfirmationSection = styled.div`
@@ -311,106 +379,6 @@ const SectionTitle = styled.h3`
   font-weight: 600;
   border-bottom: 2px solid #ffc32b;
   padding-bottom: 0.5rem;
-`;
-
-const PlansContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const PlanCard = styled.div<{ $selected?: boolean; $popular?: boolean; $readOnly?: boolean }>`
-  background: ${props => props.$selected ? '#f0fdf4' : '#ffffff'};
-  border: 2px solid ${props => {
-    if (props.$selected) return '#10b981';
-    if (props.$popular) return '#ffc32b';
-    return '#e5e7eb';
-  }};
-  border-radius: 12px;
-  padding: 1.5rem;
-  position: relative;
-  cursor: ${props => props.$readOnly ? 'default' : 'pointer'};
-  transition: all 0.3s ease;
-  
-  &:hover {
-    transform: ${props => props.$readOnly ? 'none' : 'translateY(-2px)'};
-    box-shadow: ${props => props.$readOnly ? 'none' : '0 8px 25px rgba(0, 0, 0, 0.1)'};
-  }
-`;
-
-const PopularBadge = styled.div`
-  position: absolute;
-  top: -10px;
-  right: 20px;
-  background: #ffc32b;
-  color: #403E2D;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-`;
-
-const PlanHeader = styled.div`
-  text-align: center;
-  margin-bottom: 1rem;
-`;
-
-const PlanTitle = styled.h4`
-  font-size: 1.25rem;
-  color: #403E2D;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-`;
-
-const PlanPrice = styled.div`
-  font-size: 1.5rem;
-  color: #10b981;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-`;
-
-const PlanDescription = styled.p`
-  color: #666;
-  font-size: 0.875rem;
-`;
-
-const PlanFeatures = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin-bottom: 1.5rem;
-`;
-
-const Feature = styled.li`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  color: #403E2D;
-  font-size: 0.875rem;
-`;
-
-const FeatureIcon = styled.div`
-  color: #10b981;
-  font-size: 0.75rem;
-`;
-
-const FeatureText = styled.span`
-  flex: 1;
-`;
-
-const SelectButton = styled.div<{ $selected?: boolean }>`
-  text-align: center;
-  padding: 0.75rem;
-  background: ${props => props.$selected ? '#10b981' : '#f3f4f6'};
-  color: ${props => props.$selected ? '#ffffff' : '#403E2D'};
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.875rem;
 `;
 
 const ConfirmationItem = styled.div`

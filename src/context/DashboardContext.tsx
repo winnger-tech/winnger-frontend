@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import StageService from '../services/stageService';
 
 // Enhanced dashboard state to match the API guide
@@ -124,12 +124,21 @@ const DashboardContext = createContext<{
 // Provider component
 export function DashboardProvider({ 
   children, 
-  userType 
+  userType,
+  initialData 
 }: { 
   children: React.ReactNode;
   userType: 'driver' | 'restaurant';
+  initialData?: any;
 }) {
-  const fallbackStages = userType === 'driver' ? DRIVER_STAGES : RESTAURANT_STAGES;
+  const fallbackStages = useMemo(() => 
+    userType === 'driver' ? DRIVER_STAGES : RESTAURANT_STAGES, 
+    [userType]
+  );
+  
+  // Use ref to access latest initialData without causing re-renders
+  const initialDataRef = useRef(initialData);
+  initialDataRef.current = initialData;
   
   const [state, setState] = useState<DashboardState>({
     currentStage: 1,
@@ -162,93 +171,175 @@ export function DashboardProvider({
       // Set user type in StageService
       StageService.setUserType(type);
       
-      // Get real dashboard data from API
-      const response = await StageService.getDashboard();
+      let response;
+      
+      // If initialData is provided, use it instead of making API call
+      if (initialDataRef.current) {
+        console.log('📊 Using provided initial data:', initialDataRef.current);
+        response = { data: initialDataRef.current };
+      } else {
+        // Get real dashboard data from API
+        response = await StageService.getDashboard();
+      }
       
       clearTimeout(loadingTimeout); // Clear timeout on success
       console.log('📊 Dashboard response:', response);
+      console.log('🔗 API URL used:', StageService.getCurrentApiUrl());
 
       // Process stages and calculate completion status
       const processedStages = { ...fallbackStages };
-      const userData = response.userData || response.data || {};
       
-      // Update stages based on user data
+      // Handle different response structures
+      let userData: any = {};
+      let isRegistrationComplete = false;
+      let currentStep = 1;
+      let completedSteps: number[] = [];
+      let status = 'pending';
+      
+      if (response.data) {
+        // Direct data structure from /restaurants/progress
+        userData = response.data;
+        isRegistrationComplete = response.data.isRegistrationComplete || false;
+        currentStep = response.data.currentStep || 1;
+        completedSteps = response.data.completedSteps || [];
+        status = response.data.status || 'pending';
+      } else if (response.userData) {
+        // Legacy structure
+        userData = response.userData;
+        isRegistrationComplete = response.isRegistrationComplete || false;
+        currentStep = response.currentStep || 1;
+        completedSteps = response.completedSteps || [];
+        status = response.status || 'pending';
+      } else {
+        // Fallback structure
+        userData = response;
+        isRegistrationComplete = response.isRegistrationComplete || false;
+        currentStep = response.currentStep || 1;
+        completedSteps = response.completedSteps || [];
+        status = response.status || 'pending';
+      }
+      
+      console.log('📊 Processing registration data:', {
+        isRegistrationComplete,
+        currentStep,
+        completedSteps,
+        status,
+        userData
+      });
+      
+      // Update stages based on user data and API response
       Object.keys(processedStages).forEach(stageNum => {
         const stageData = userData[`stage${stageNum}`] || {};
         const stageFields = processedStages[stageNum].fields;
+        const stageNumber = parseInt(stageNum);
         
-        // Check if stage is completed based on required fields
-        const isCompleted = stageFields.every(field => {
-          if (field === 'bankingInfo') {
-            return stageData.bankingInfo && 
-                   stageData.bankingInfo.transitNumber && 
-                   stageData.bankingInfo.institutionNumber && 
-                   stageData.bankingInfo.accountNumber;
-          }
-          // Handle document URL fields
-          if (field.endsWith('Url') || field === 'articleofIncorporation') {
+        // Check if stage is completed based on API response or field validation
+        let isCompleted = false;
+        
+        if (isRegistrationComplete) {
+          // If registration is complete, all stages are completed
+          isCompleted = true;
+        } else if (completedSteps.includes(stageNumber)) {
+          // If stage is in completedSteps array, mark as completed
+          isCompleted = true;
+        } else {
+          // Fallback to field validation
+          isCompleted = stageFields.every(field => {
+            if (field === 'bankingInfo') {
+              return stageData.bankingInfo && 
+                     stageData.bankingInfo.transitNumber && 
+                     stageData.bankingInfo.institutionNumber && 
+                     stageData.bankingInfo.accountNumber;
+            }
+            // Handle document URL fields
+            if (field.endsWith('Url') || field === 'articleofIncorporation') {
+              return stageData[field] && stageData[field] !== '';
+            }
+            // Handle date fields
+            if (field.endsWith('ExpiryDate')) {
+              return stageData[field] && stageData[field] !== '';
+            }
+            // Handle stage 4 fields (Review & Confirmation)
+            if (field === 'agreedToTerms') {
+              return stageData[field] === true;
+            }
+            if (field === 'confirmationChecked') {
+              return stageData[field] === true;
+            }
+            if (field === 'additionalNotes') {
+              // Additional notes is optional, so always return true
+              return true;
+            }
+            // Handle stage 5 fields (Payment Processing)
+            if (field === 'paymentIntentId') {
+              return stageData[field] && stageData[field] !== '';
+            }
+            if (field === 'stripePaymentMethodId') {
+              return stageData[field] && stageData[field] !== '';
+            }
+            if (field === 'paymentCompleted') {
+              return stageData[field] === true;
+            }
+            // Handle legacy stage 4 fields (for backward compatibility)
+            if (field === 'selectedPlan') {
+              return stageData[field] && stageData[field] !== '';
+            }
             return stageData[field] && stageData[field] !== '';
-          }
-          // Handle date fields
-          if (field.endsWith('ExpiryDate')) {
-            return stageData[field] && stageData[field] !== '';
-          }
-          // Handle stage 4 fields (Review & Confirmation)
-          if (field === 'agreedToTerms') {
-            return stageData[field] === true;
-          }
-          if (field === 'confirmationChecked') {
-            return stageData[field] === true;
-          }
-          if (field === 'additionalNotes') {
-            // Additional notes is optional, so always return true
-            return true;
-          }
-          // Handle stage 5 fields (Payment Processing)
-          if (field === 'paymentIntentId') {
-            return stageData[field] && stageData[field] !== '';
-          }
-          if (field === 'stripePaymentMethodId') {
-            return stageData[field] && stageData[field] !== '';
-          }
-          if (field === 'paymentCompleted') {
-            return stageData[field] === true;
-          }
-          // Handle legacy stage 4 fields (for backward compatibility)
-          if (field === 'selectedPlan') {
-            return stageData[field] && stageData[field] !== '';
-          }
-          return stageData[field] && stageData[field] !== '';
-        });
+          });
+        }
         
         processedStages[stageNum] = {
           ...processedStages[stageNum],
           completed: isCompleted,
-          isCurrentStage: parseInt(stageNum) === (response.currentStage || 1)
+          isCurrentStage: stageNumber === currentStep
         };
+        
+        console.log(`📋 Stage ${stageNum}:`, {
+          title: processedStages[stageNum].title,
+          completed: isCompleted,
+          isCurrentStage: stageNumber === currentStep,
+          stageData: stageData
+        });
       });
 
       // Calculate progress
       const totalStages = Object.keys(processedStages).length;
       const completedStages = Object.values(processedStages).filter(stage => stage.completed).length;
-      const currentStage = response.currentStage || 1;
       const percentage = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+
+      console.log('📊 Progress calculation:', {
+        totalStages,
+        completedStages,
+        currentStep,
+        percentage,
+        stageCompletionStatus: Object.entries(processedStages).map(([num, stage]) => ({
+          stage: num,
+          title: stage.title,
+          completed: stage.completed
+        }))
+      });
 
       // Update state with real data
       setState(prev => {
         const newState = {
           ...prev,
           loading: false,
-          currentStage: currentStage,
+          currentStage: currentStep,
           totalStages: totalStages,
           stages: processedStages,
           progress: {
             totalStages: totalStages,
             completedStages: completedStages,
-            currentStage: currentStage,
+            currentStage: currentStep,
             percentage: percentage
           },
-          userData: userData
+          userData: {
+            ...userData,
+            isRegistrationComplete,
+            currentStep,
+            completedSteps,
+            status
+          }
         };
         
         console.log('✅ Dashboard state updated:', {
@@ -521,13 +612,13 @@ export function DashboardProvider({
     }
   }, [userType]);
 
-  const actions: DashboardActions = {
+  const actions: DashboardActions = useMemo(() => ({
     initializeDashboard,
     navigateToStage,
     updateStageData,
     autoSave,
     getStageData
-  };
+  }), [initializeDashboard, navigateToStage, updateStageData, autoSave, getStageData]);
 
   return (
     <DashboardContext.Provider value={{ state, actions }}>

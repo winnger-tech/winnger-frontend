@@ -103,9 +103,11 @@ export default function StageCard({
       </FieldsList>
 
       <CardFooter>
-        <ActionButton $isCompleted={isCompleted} $isCurrent={isCurrent}>
-          {isCompleted ? 'Review' : isCurrent ? 'Continue' : 'Start'}
-        </ActionButton>
+        {!isCompleted && (
+          <ActionButton $isCompleted={isCompleted} $isCurrent={isCurrent}>
+            {isCurrent ? 'Continue' : 'Start'}
+          </ActionButton>
+        )}
       </CardFooter>
     </Card>
   );

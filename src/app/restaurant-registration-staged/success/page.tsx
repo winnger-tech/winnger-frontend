@@ -70,8 +70,8 @@ export default function RestaurantRegistrationSuccessPage() {
             </SuccessDescription>
             
             <ActionButtons>
-              <PrimaryButton onClick={() => router.push('/restaurant-dashboard')}>
-                Go to Dashboard
+              <PrimaryButton onClick={() => router.push('/restaurantlogin')}>
+                Go to Login
               </PrimaryButton>
               <SecondaryButton onClick={handleCheckout} disabled={isLoading}>
                 {isLoading ? 'Processing...' : 'Complete Payment'}

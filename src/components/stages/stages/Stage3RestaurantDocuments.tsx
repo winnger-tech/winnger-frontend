@@ -98,7 +98,7 @@ export default function Stage3RestaurantDocuments({
 
   const handleFileUpload = async (fieldName: string, file: File) => {
     setUploadingFiles(prev => ({ ...prev, [fieldName]: true }));
-    
+
     try {
       // Upload file to S3
       const result = await uploadFileToS3(file, 'restaurant-documents');
@@ -184,7 +184,7 @@ export default function Stage3RestaurantDocuments({
               onRemove={() => handleFileRemove('drivingLicenseUrl')}
             />
           </FormGroup>
-
+          
           <FormGroup>
             <FileUploadWithLoader
               label="Void Cheque"

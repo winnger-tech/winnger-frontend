@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import Navbar from '../../../component/Navbar';
 import { useTranslation } from '../../../../utils/i18n';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/context/ToastContext';
+import { handleApiError, handleApiSuccess } from '@/utils/apiErrorHandler';
 import StageContainer from '@/components/stages/StageContainer';
 import { DashboardProvider } from '@/context/DashboardContext';
 import ProgressBar from '@/components/common/LoadingSpinner';
@@ -15,6 +17,7 @@ export default function RestaurantStageDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { isAuthenticated, user } = useAuth();
+  const { showError, showSuccess } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [registrationComplete, setRegistrationComplete] = useState(false);
   const [restaurantData, setRestaurantData] = useState<any>(null);
@@ -26,6 +29,7 @@ export default function RestaurantStageDetailPage() {
     try {
       const token = localStorage.getItem('winngr_auth_token');
       if (!token) {
+        handleApiError({ response: { status: 401 } }, showError, 'Authentication required. Please log in again.');
         router.push('/restaurantlogin');
         return;
       }
@@ -46,6 +50,7 @@ export default function RestaurantStageDetailPage() {
         if (data.data.isRegistrationComplete) {
           setRegistrationComplete(true);
           setRestaurantData(data.data.restaurant);
+          handleApiSuccess('Registration completed successfully!', showSuccess);
         }
         
         // Validate that the requested stage is valid
@@ -61,15 +66,21 @@ export default function RestaurantStageDetailPage() {
         // If trying to access a stage ahead of current progress, redirect to current stage
         if (requestedStage > maxAllowedStage && maxAllowedStage < 3) {
           console.log(`⚠️ Redirecting to step ${maxAllowedStage} - cannot skip steps`);
+          handleApiError({ message: 'Cannot skip stages. Please complete the current stage first.' }, showError);
           router.push(`/restaurant-registration-staged/stage/${maxAllowedStage}`);
         } else if (requestedStage < maxAllowedStage && maxAllowedStage > 1) {
           // If trying to access a stage behind current progress, redirect to current stage
           console.log(`⚠️ Redirecting to step ${maxAllowedStage} - cannot go back to completed steps`);
+          handleApiError({ message: 'Cannot go back to completed stages.' }, showError);
           router.push(`/restaurant-registration-staged/stage/${maxAllowedStage}`);
         }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        handleApiError({ response: { data: errorData } }, showError, 'Failed to load registration progress');
       }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
+      handleApiError(error, showError, 'Network error. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -80,9 +91,10 @@ export default function RestaurantStageDetailPage() {
       fetchDashboardData();
     } else {
       setIsLoading(false);
+      handleApiError({ response: { status: 401 } }, showError, 'Please log in to continue with registration');
       router.push('/restaurantlogin');
     }
-  }, [isAuthenticated, router, currentStage]);
+  }, [isAuthenticated, router, currentStage, showError, showSuccess]);
 
   if (isLoading) {
     return (

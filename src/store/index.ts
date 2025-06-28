@@ -6,22 +6,22 @@ export const makeStore = () => {
     console.log('🔧 Creating Redux store...');
     
     const store = configureStore({
-      reducer: {
-        auth: authReducer,
-      },
-      middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-          serializableCheck: {
-            ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
-            ignoredActionsPaths: ['meta.arg', 'payload.timestamp'],
-            ignoredPaths: ['items.dates'],
-          },
-          immutableCheck: {
-            warnAfter: 128,
-          },
-        }),
-      devTools: process.env.NODE_ENV !== 'production',
-    });
+    reducer: {
+      auth: authReducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+          ignoredActionsPaths: ['meta.arg', 'payload.timestamp'],
+          ignoredPaths: ['items.dates'],
+        },
+        immutableCheck: {
+          warnAfter: 128,
+        },
+      }),
+    devTools: process.env.NODE_ENV !== 'production',
+  });
     
     console.log('✅ Redux store created successfully');
     return store;

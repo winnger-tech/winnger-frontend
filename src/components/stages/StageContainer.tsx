@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useDashboard } from '../../context/DashboardContext';
+import { useToast } from '../../context/ToastContext';
+import { handleApiError, handleApiSuccess } from '../../utils/apiErrorHandler';
 import StageService from '../../services/stageService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { Toast } from '../Toast';
@@ -32,6 +34,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
   const router = useRouter();
   const params = useParams();
   const { state, actions } = useDashboard();
+  const { showSuccess, showError, showInfo } = useToast();
   
   const [stageData, setStageData] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -64,11 +67,13 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     autoSaveTimeoutRef.current = setTimeout(async () => {
       try {
         await actions.autoSave(currentStage, data);
+        showInfo('Progress saved automatically');
       } catch (error) {
         console.warn('Auto-save failed:', error);
+        handleApiError(error, showError, 'Failed to save progress automatically');
       }
     }, 2000); // Auto-save after 2 seconds of inactivity
-  }, [currentStage, actions]);
+  }, [currentStage, actions, showInfo, showError]);
 
   // Fetch requiredFields from backend profile
   const fetchRequiredFields = useCallback(async () => {
@@ -79,10 +84,12 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       } else {
         setRequiredFields([]);
       }
-    } catch {
+    } catch (error) {
+      console.error('Failed to fetch required fields:', error);
+      handleApiError(error, showError, 'Failed to load form requirements');
       setRequiredFields([]);
     }
-  }, []);
+  }, [showError]);
 
   // Fetch requiredFields on mount and when currentStage changes
   useEffect(() => {
@@ -125,6 +132,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
       setStageData(response.data.data || {});
     } catch (error) {
       console.warn('⚠️ Stage data load failed, using fallback:', error);
+      handleApiError(error, showError, 'Failed to load stage data. Using saved progress.');
       
       // If server fails, try to get draft data
       try {
@@ -145,7 +153,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
     } finally {
       setLoading(false);
     }
-  }, [currentStage, userType]);
+  }, [currentStage, userType, showError]);
 
   useEffect(() => {
     loadStageData();
@@ -175,7 +183,7 @@ export default function StageContainer({ userType, stageId }: StageContainerProp
 
     try {
       await actions.updateStageData(currentStage, data);
-      setShowSaveToast(true);
+      handleApiSuccess('Stage completed successfully!', showSuccess);
       // Fetch latest profile to get new registrationStage and requiredFields
       await fetchRequiredFields();
       

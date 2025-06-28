@@ -43,6 +43,7 @@ export default function RestaurantDashboardStagedPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Dashboard data received:', data);
+        console.log('Setting dashboard data:', data.data);
         setDashboardData(data.data);
         setError(null);
       } else {
@@ -105,7 +106,7 @@ export default function RestaurantDashboardStagedPage() {
   }
 
   return (
-    <DashboardProvider userType="restaurant">
+    <DashboardProvider userType="restaurant" initialData={dashboardData}>
       <Navbar />
       <PageContainer>
         <ContentWrapper>
@@ -114,7 +115,10 @@ export default function RestaurantDashboardStagedPage() {
             Complete your restaurant registration to start accepting orders
           </PageDescription>
           
-          <Dashboard userType="restaurant" />
+          <Dashboard 
+            userType="restaurant" 
+            initialData={dashboardData} 
+          />
         </ContentWrapper>
       </PageContainer>
     </DashboardProvider>
