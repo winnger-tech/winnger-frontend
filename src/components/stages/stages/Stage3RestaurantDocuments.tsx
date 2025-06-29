@@ -73,12 +73,73 @@ export default function Stage3RestaurantDocuments({
       case 'articleofIncorporation':
         return !value ? 'Article of incorporation is required' : '';
       case 'articleofIncorporationExpiryDate':
-        if (!value) return 'Article of incorporation expiry date is required';
-        if (new Date(value) <= new Date()) return 'Expiry date must be in the future';
+        if (!value) {
+          return 'Article of incorporation expiry date is required';
+        }
+        
+        const articleDate = new Date(value);
+        const today = new Date();
+        const maxDate = new Date();
+        maxDate.setFullYear(today.getFullYear() + 50); // Max 50 years in future
+        
+        // Reset time to compare only dates
+        today.setHours(0, 0, 0, 0);
+        articleDate.setHours(0, 0, 0, 0);
+        
+        if (isNaN(articleDate.getTime())) {
+          return 'Please enter a valid date';
+        }
+        
+        if (articleDate <= today) {
+          return 'Article of incorporation expiry date must be in the future';
+        }
+        
+        if (articleDate > maxDate) {
+          return 'Expiry date cannot be more than 50 years in the future';
+        }
+        
+        // Warning for dates less than 30 days from today
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        if (articleDate <= thirtyDaysFromNow) {
+          return 'Warning: Document expires within 30 days. Please ensure renewal is planned';
+        }
+        
         return '';
+        
       case 'foodSafetyCertificateExpiryDate':
-        if (!value) return 'Food safety certificate expiry date is required';
-        if (new Date(value) <= new Date()) return 'Expiry date must be in the future';
+        if (!value) {
+          return 'Food safety certificate expiry date is required';
+        }
+        
+        const certDate = new Date(value);
+        const currentDate = new Date();
+        const maxCertDate = new Date();
+        maxCertDate.setFullYear(currentDate.getFullYear() + 10); // Max 10 years in future for certificates
+        
+        // Reset time to compare only dates
+        currentDate.setHours(0, 0, 0, 0);
+        certDate.setHours(0, 0, 0, 0);
+        
+        if (isNaN(certDate.getTime())) {
+          return 'Please enter a valid date';
+        }
+        
+        if (certDate <= currentDate) {
+          return 'Food safety certificate expiry date must be in the future';
+        }
+        
+        if (certDate > maxCertDate) {
+          return 'Certificate expiry date cannot be more than 10 years in the future';
+        }
+        
+        // Warning for dates less than 60 days from today (certificates typically need more lead time)
+        const sixtyDaysFromNow = new Date();
+        sixtyDaysFromNow.setDate(currentDate.getDate() + 60);
+        if (certDate <= sixtyDaysFromNow) {
+          return 'Warning: Certificate expires within 60 days. Please renew to maintain compliance';
+        }
+        
         return '';
       default:
         return '';
@@ -139,7 +200,13 @@ export default function Stage3RestaurantDocuments({
     });
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    // Form is valid if there are no errors or only warning messages
+    const hasOnlyWarnings = Object.values(newErrors).every(error => 
+      !error || error.startsWith('Warning:')
+    );
+    
+    return hasOnlyWarnings;
   };
 
   const handleSave = async () => {
@@ -155,8 +222,29 @@ export default function Stage3RestaurantDocuments({
   };
 
   const isFormValid = () => {
-    return Object.values(formData).every(value => value && value.trim() !== '') &&
-           Object.keys(errors).length === 0;
+    // Check if all required fields have values and no validation errors exist
+    const requiredFields = [
+      'drivingLicenseUrl',
+      'voidChequeUrl', 
+      'HSTdocumentUrl',
+      'foodHandlingCertificateUrl',
+      'articleofIncorporation',
+      'articleofIncorporationExpiryDate',
+      'foodSafetyCertificateExpiryDate'
+    ];
+    
+    // Check if all required fields are filled
+    const allFieldsFilled = requiredFields.every(field => {
+      const value = formData[field as keyof FormData];
+      return value && value.trim() !== '';
+    });
+    
+    // Check if there are no validation errors (or only warning messages)
+    const hasOnlyWarnings = Object.values(errors).every(error => 
+      !error || error.startsWith('Warning:')
+    );
+    
+    return allFieldsFilled && hasOnlyWarnings;
   };
 
   return (
@@ -255,9 +343,11 @@ export default function Stage3RestaurantDocuments({
               onChange={handleInputChange}
               readOnly={isReadOnly}
               hasError={!!errors.articleofIncorporationExpiryDate}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Tomorrow
+              max={new Date(new Date().setFullYear(new Date().getFullYear() + 50)).toISOString().split('T')[0]} // 50 years from now
             />
             {errors.articleofIncorporationExpiryDate && <ErrorMessage>{errors.articleofIncorporationExpiryDate}</ErrorMessage>}
+            <HelpText>Please enter the expiry date as shown on your incorporation document</HelpText>
           </FormGroup>
 
           <FormGroup>
@@ -272,9 +362,11 @@ export default function Stage3RestaurantDocuments({
               onChange={handleInputChange}
               readOnly={isReadOnly}
               hasError={!!errors.foodSafetyCertificateExpiryDate}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]} // Tomorrow
+              max={new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0]} // 10 years from now
             />
             {errors.foodSafetyCertificateExpiryDate && <ErrorMessage>{errors.foodSafetyCertificateExpiryDate}</ErrorMessage>}
+            <HelpText>Enter the expiry date from your food safety/handling certificate</HelpText>
           </FormGroup>
         </FormRow>
 
@@ -375,7 +467,9 @@ const Required = styled.span`
   font-weight: 600;
 `;
 
-const Input = styled.input<{ hasError?: boolean; readOnly?: boolean }>`
+const Input = styled.input.withConfig({
+  shouldForwardProp: (prop) => !['hasError'].includes(prop),
+})<{ hasError?: boolean; readOnly?: boolean }>`
   padding: 0.75rem 1rem;
   border: 1px solid ${props => props.hasError ? '#e74c3c' : '#ddd'};
   border-radius: 8px;
@@ -400,6 +494,13 @@ const ErrorMessage = styled.span`
   color: #e74c3c;
   font-size: 0.75rem;
   margin-top: 0.25rem;
+`;
+
+const HelpText = styled.span`
+  color: #666;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-style: italic;
 `;
 
 const SaveButtonContainer = styled.div`
