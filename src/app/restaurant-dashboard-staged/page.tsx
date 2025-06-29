@@ -6,6 +6,8 @@ import styled from 'styled-components';
 import Navbar from '../component/Navbar';
 import { useTranslation } from '../../utils/i18n';
 import { useAuth } from '@/hooks/useAuth';
+import { useAppDispatch } from '@/store/hooks';
+import { logout } from '@/store/slices/authSlice';
 import ProgressBar from '@/components/common/LoadingSpinner';
 import { DashboardProvider } from '@/context/DashboardContext';
 import Dashboard from '@/components/dashboard/Dashboard';
@@ -13,6 +15,7 @@ import Dashboard from '@/components/dashboard/Dashboard';
 export default function RestaurantDashboardStagedPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<any>(null);
