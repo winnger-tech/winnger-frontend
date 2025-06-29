@@ -26,6 +26,71 @@ export default function Stage1BasicInfo({
   userType 
 }: Stage1Props) {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
+  // Profile photo upload handler
+  const handleProfilePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      setValidationErrors(prev => ({
+        ...prev,
+        profilePhotoUrl: 'Please upload a JPG or PNG image file.'
+      }));
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setValidationErrors(prev => ({
+        ...prev,
+        profilePhotoUrl: 'File size too large. Maximum file size is 10MB.'
+      }));
+      return;
+    }
+
+    setUploadingPhoto(true);
+    setValidationErrors(prev => ({ ...prev, profilePhotoUrl: '' }));
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/drivers/upload?type=profile', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const result = await response.json();
+      
+      // Update the data with the S3 URL
+      onChange({ 
+        ...data, 
+        profilePhotoUrl: result.url 
+      });
+
+      console.log('Profile photo uploaded successfully:', result);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setValidationErrors(prev => ({
+        ...prev,
+        profilePhotoUrl: error instanceof Error ? error.message : 'Upload failed. Please try again.'
+      }));
+    } finally {
+      setUploadingPhoto(false);
+      // Reset the file input
+      event.target.value = '';
+    }
+  };
 
   // Phone number formatting function
   const formatPhoneNumber = (value: string) => {
@@ -380,17 +445,44 @@ export default function Stage1BasicInfo({
                 </InputGroup>
 
                 <InputGroup>
-                  <Label>Profile Photo URL</Label>
-                  <Input
-                    type="url"
-                    name="profilePhotoUrl"
-                    value={data.profilePhotoUrl || ''}
-                    onChange={handleInputChange}
-                    placeholder="https://example.com/photo.jpg (optional)"
-                    style={{
-                      borderColor: validationErrors.profilePhotoUrl ? '#ff4757' : '#e1e1e1'
-                    }}
-                  />
+                  <Label>Profile Photo</Label>
+                  <ProfilePhotoUpload>
+                    {data.profilePhotoUrl && (
+                      <ProfilePhotoPreview>
+                        <img src={data.profilePhotoUrl} alt="Profile Preview" />
+                        <RemovePhotoButton
+                          type="button"
+                          onClick={() => {
+                            onChange({ ...data, profilePhotoUrl: '' });
+                          }}
+                        >
+                          ×
+                        </RemovePhotoButton>
+                      </ProfilePhotoPreview>
+                    )}
+                    <FileUploadContainer>
+                      <FileInput
+                        type="file"
+                        accept="image/jpeg,image/jpg,image/png"
+                        onChange={handleProfilePhotoUpload}
+                        id="profilePhoto"
+                      />
+                      <FileUploadLabel htmlFor="profilePhoto">
+                        {uploadingPhoto ? (
+                          <UploadingText>
+                            <span>Uploading...</span>
+                            <LoadingSpinner />
+                          </UploadingText>
+                        ) : (
+                          <>
+                            <UploadIcon>📷</UploadIcon>
+                            <span>{data.profilePhotoUrl ? 'Change Photo' : 'Upload Photo'}</span>
+                            <span style={{ fontSize: '12px', color: '#666' }}>(Optional)</span>
+                          </>
+                        )}
+                      </FileUploadLabel>
+                    </FileUploadContainer>
+                  </ProfilePhotoUpload>
                   {validationErrors.profilePhotoUrl && (
                     <ErrorText>{validationErrors.profilePhotoUrl}</ErrorText>
                   )}
@@ -603,4 +695,104 @@ const ErrorText = styled.span`
   margin-top: 0.5rem;
   display: block;
   font-weight: 500;
+`;
+
+// Profile Photo Upload Styled Components
+const ProfilePhotoUpload = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ProfilePhotoPreview = styled.div`
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ffc32b;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+const RemovePhotoButton = styled.button`
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 30px;
+  height: 30px;
+  background: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #ff3742;
+    transform: scale(1.1);
+  }
+`;
+
+const FileUploadContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const FileInput = styled.input`
+  display: none;
+`;
+
+const FileUploadLabel = styled.label`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border: 2px dashed #e1e1e1;
+  border-radius: 12px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  max-width: 200px;
+  
+  &:hover {
+    border-color: #ffc32b;
+    background: rgba(255, 195, 43, 0.05);
+  }
+`;
+
+const UploadIcon = styled.span`
+  font-size: 2rem;
+`;
+
+const UploadingText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+`;
+
+const LoadingSpinner = styled.div`
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e1e1e1;
+  border-top: 2px solid #ffc32b;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 `;
