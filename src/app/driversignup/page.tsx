@@ -33,19 +33,8 @@ export default function DriverSignupPage() {
     }
   }, [error, showError, dispatch]);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      showSuccess('Registration successful! Redirecting...');
-      
-      // Redirect after short delay to show the success toast
-      setTimeout(() => {
-        // After signup, direct user to stage 2 (personal details) since stage 1 (basic registration) is complete
-        console.log('✅ Registration successful, redirecting to stage 2');
-        router.push('/driver-registration-staged/stage/2');
-      }, 1500);
-    }
-  }, [isAuthenticated, user, router, showSuccess]);
+  // Handle successful registration
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -62,8 +51,14 @@ export default function DriverSignupPage() {
       const result = await dispatch(registerDriver(formData));
       
       if (registerDriver.fulfilled.match(result)) {
-        // Success - navigation will be handled by useEffect
-        console.log('Registration successful');
+        // Show success message and redirect to login
+        setRegistrationSuccess(true);
+        showSuccess('Registration successful! You can now log in.');
+        
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push('/driverlogin');
+        }, 2000);
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -86,73 +81,83 @@ export default function DriverSignupPage() {
               <Subtitle>{t('driverSignup.subtitle')}</Subtitle>
             </FormHeader>
 
-            <Form onSubmit={handleSubmit}>
-              <InputRow>
+            {registrationSuccess ? (
+              <SuccessMessage>
+                <SuccessIcon>✅</SuccessIcon>
+                <SuccessTitle>Registration Successful!</SuccessTitle>
+                <SuccessText>
+                  Your account has been created successfully. You will be redirected to the login page shortly.
+                </SuccessText>
+              </SuccessMessage>
+            ) : (
+              <Form onSubmit={handleSubmit}>
+                <InputRow>
+                  <InputGroup>
+                    <Label>
+                      {t('driverSignup.form.firstName')}
+                    </Label>
+                    <Input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      placeholder={t('driverSignup.form.firstNamePlaceholder')}
+                    />
+                  </InputGroup>
+
+                  <InputGroup>
+                    <Label>
+                      {t('driverSignup.form.lastName')}
+                    </Label>
+                    <Input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      placeholder={t('driverSignup.form.lastNamePlaceholder')}
+                    />
+                  </InputGroup>
+                </InputRow>
+
                 <InputGroup>
                   <Label>
-                    {t('driverSignup.form.firstName')}
+                    {t('driverSignup.form.email')}
                   </Label>
                   <Input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
+                    type="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleInputChange}
-                    placeholder={t('driverSignup.form.firstNamePlaceholder')}
+                    placeholder={t('driverSignup.form.emailPlaceholder')}
                   />
                 </InputGroup>
 
                 <InputGroup>
                   <Label>
-                    {t('driverSignup.form.lastName')}
+                    {t('driverSignup.form.password')}
                   </Label>
                   <Input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
+                    type="password"
+                    name="password"
+                    value={formData.password}
                     onChange={handleInputChange}
-                    placeholder={t('driverSignup.form.lastNamePlaceholder')}
+                    placeholder={t('driverSignup.form.passwordPlaceholder')}
                   />
                 </InputGroup>
-              </InputRow>
 
-              <InputGroup>
-                <Label>
-                  {t('driverSignup.form.email')}
-                </Label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder={t('driverSignup.form.emailPlaceholder')}
-                />
-              </InputGroup>
-
-              <InputGroup>
-                <Label>
-                  {t('driverSignup.form.password')}
-                </Label>
-                <Input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder={t('driverSignup.form.passwordPlaceholder')}
-                />
-              </InputGroup>
-
-              <SubmitButton 
-                type="submit" 
-                disabled={isLoading}
-                $loading={isLoading}
-              >
-                {isLoading ? t('driverSignup.form.submittingButton') : t('driverSignup.form.submitButton')}
-              </SubmitButton>
-            </Form>
+                <SubmitButton 
+                  type="submit" 
+                  disabled={isLoading}
+                  $loading={isLoading}
+                >
+                  {isLoading ? t('driverSignup.form.submittingButton') : t('driverSignup.form.submitButton')}
+                </SubmitButton>
+              </Form>
+            )}
 
             <LoginPrompt>
               {t('driverSignup.form.loginPrompt')}{' '}
-  <LoginLink href="/driverlogin">{t('driverSignup.form.loginLink')}</LoginLink>
+              <LoginLink href="/driverlogin">{t('driverSignup.form.loginLink')}</LoginLink>
             </LoginPrompt>
           </FormSection>
 
@@ -380,4 +385,28 @@ const BenefitText = styled.span`
   color: white;
   font-size: 1.1rem;
   font-weight: 500;
+`;
+
+const SuccessMessage = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const SuccessIcon = styled.div`
+  font-size: 2rem;
+  color: #4caf50;
+  margin-bottom: 0.5rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #403E2D;
+  margin-bottom: 0.5rem;
+`;
+
+const SuccessText = styled.p`
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
 `;

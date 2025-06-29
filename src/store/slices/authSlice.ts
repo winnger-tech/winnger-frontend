@@ -201,20 +201,14 @@ export const registerRestaurant = createAsyncThunk(
         return rejectWithValue(extractErrorMessage(result));
       }
 
-      const user: User = { ...result.data.restaurant, type: 'restaurant' as const };
-      const tokenData: TokenData = {
-        token: result.data.token,
-        refreshToken: undefined,
-        expiresIn: undefined,
-      };
-
-      console.log('✅ Restaurant registration successful, user:', user);
-      storeTokenData(tokenData, user);
-
+      console.log('✅ Restaurant registration successful, not storing token');
+      // Don't store token or user data - just return success
       return {
-        user,
-        token: tokenData.token,
-        refreshToken: tokenData.refreshToken,
+        success: true,
+        message: 'Registration successful! You can now log in.',
+        user: null,
+        token: null,
+        refreshToken: null,
         tokenExpiry: null,
       };
     } catch (error) {
@@ -292,20 +286,14 @@ export const registerDriver = createAsyncThunk(
         return rejectWithValue(extractErrorMessage(result));
       }
 
-      const user: User = { ...result.data.driver, type: 'driver' as const };
-      const tokenData: TokenData = {
-        token: result.data.token,
-        refreshToken: undefined,
-        expiresIn: undefined,
-      };
-
-      console.log('✅ Driver registration successful, user:', user);
-      storeTokenData(tokenData, user);
-
+      console.log('✅ Driver registration successful, not storing token');
+      // Don't store token or user data - just return success
       return {
-        user,
-        token: tokenData.token,
-        refreshToken: tokenData.refreshToken,
+        success: true,
+        message: 'Registration successful! You can now log in.',
+        user: null,
+        token: null,
+        refreshToken: null,
         tokenExpiry: null,
       };
     } catch (error) {
@@ -472,11 +460,12 @@ const authSlice = createSlice({
       })
       .addCase(registerRestaurant.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken || null;
-        state.tokenExpiry = action.payload.tokenExpiry;
-        state.isAuthenticated = true;
+        // Don't set authentication state - just show success message
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.tokenExpiry = null;
+        state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(registerRestaurant.rejected, (state, action) => {
@@ -510,11 +499,12 @@ const authSlice = createSlice({
       })
       .addCase(registerDriver.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.refreshToken = action.payload.refreshToken || null;
-        state.tokenExpiry = action.payload.tokenExpiry;
-        state.isAuthenticated = true;
+        // Don't set authentication state - just show success message
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.tokenExpiry = null;
+        state.isAuthenticated = false;
         state.error = null;
       })
       .addCase(registerDriver.rejected, (state, action) => {

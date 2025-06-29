@@ -33,19 +33,8 @@ export default function RestaurantSignupPage() {
     }
   }, [error, showError, dispatch]);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      showSuccess('Registration successful! Redirecting to login...');
-      // Add a longer delay to ensure authentication state is properly set
-      setTimeout(() => {
-        console.log('🔄 Redirecting to restaurant login after signup');
-        console.log('👤 User data:', user);
-        console.log('🔑 Auth state:', { isAuthenticated, userType: user?.type });
-        router.push('/restaurantlogin');
-      }, 3000); // 3 second delay to ensure auth state is properly set
-    }
-  }, [isAuthenticated, user, router, showSuccess]);
+  // Handle successful registration
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -100,8 +89,14 @@ export default function RestaurantSignupPage() {
       const result = await dispatch(registerRestaurant(formData));
       
       if (registerRestaurant.fulfilled.match(result)) {
-        // Success - navigation will be handled by useEffect
-        console.log('Registration successful');
+        // Show success message and redirect to login
+        setRegistrationSuccess(true);
+        showSuccess('Registration successful! You can now log in.');
+        
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          router.push('/restaurantlogin');
+        }, 2000);
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -124,63 +119,73 @@ export default function RestaurantSignupPage() {
               <Subtitle>{t('restaurantSignup.subtitle')}</Subtitle>
             </FormHeader>
 
-            <Form onSubmit={handleSubmit}>
-              <InputGroup>
-                <Label>
-                  Owner Name <Required>*</Required>
-                </Label>
-                <Input
-                  type="text"
-                  name="ownerName"
-                  value={formData.ownerName}
-                  onChange={handleInputChange}
-                  $hasError={!!validationErrors.ownerName}
-                  placeholder="Enter your full name"
-                />
-                {validationErrors.ownerName && <ErrorText>{validationErrors.ownerName}</ErrorText>}
-              </InputGroup>
+            {registrationSuccess ? (
+              <SuccessMessage>
+                <SuccessIcon>✅</SuccessIcon>
+                <SuccessTitle>Registration Successful!</SuccessTitle>
+                <SuccessText>
+                  Your restaurant account has been created successfully. You will be redirected to the login page shortly.
+                </SuccessText>
+              </SuccessMessage>
+            ) : (
+              <Form onSubmit={handleSubmit}>
+                <InputGroup>
+                  <Label>
+                    Owner Name <Required>*</Required>
+                  </Label>
+                  <Input
+                    type="text"
+                    name="ownerName"
+                    value={formData.ownerName}
+                    onChange={handleInputChange}
+                    $hasError={!!validationErrors.ownerName}
+                    placeholder="Enter your full name"
+                  />
+                  {validationErrors.ownerName && <ErrorText>{validationErrors.ownerName}</ErrorText>}
+                </InputGroup>
 
-              <InputGroup>
-                <Label>
-                  Email Address <Required>*</Required>
-                </Label>
-                <Input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  $hasError={!!validationErrors.email}
-                  placeholder="Enter your email address"
-                />
-                {validationErrors.email && <ErrorText>{validationErrors.email}</ErrorText>}
-              </InputGroup>
+                <InputGroup>
+                  <Label>
+                    Email Address <Required>*</Required>
+                  </Label>
+                  <Input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    $hasError={!!validationErrors.email}
+                    placeholder="Enter your email address"
+                  />
+                  {validationErrors.email && <ErrorText>{validationErrors.email}</ErrorText>}
+                </InputGroup>
 
-              <InputGroup>
-                <Label>
-                  Password <Required>*</Required>
-                </Label>
-                <Input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  $hasError={!!validationErrors.password}
-                  placeholder="Enter your password (min 8 characters)"
-                />
-                {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
-              </InputGroup>
+                <InputGroup>
+                  <Label>
+                    Password <Required>*</Required>
+                  </Label>
+                  <Input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    $hasError={!!validationErrors.password}
+                    placeholder="Enter your password (min 8 characters)"
+                  />
+                  {validationErrors.password && <ErrorText>{validationErrors.password}</ErrorText>}
+                </InputGroup>
 
-              {/* Show Redux error */}
-              {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
+                {/* Show Redux error */}
+                {error && <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>{error}</ErrorText>}
 
-              <SubmitButton 
-                type="submit" 
-                disabled={isLoading}
-                $loading={isLoading}
-              >
-                {isLoading ? 'Creating Account...' : 'Create Account'}
-              </SubmitButton>
-            </Form>
+                <SubmitButton 
+                  type="submit" 
+                  disabled={isLoading}
+                  $loading={isLoading}
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                </SubmitButton>
+              </Form>
+            )}
 
             <LoginPrompt>
               Already have an account? <LoginLink href="/restaurantlogin">Sign In</LoginLink>
@@ -411,4 +416,27 @@ const BenefitText = styled.span`
   color: white;
   font-size: 1.1rem;
   font-weight: 500;
+`;
+
+const SuccessMessage = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const SuccessIcon = styled.div`
+  font-size: 2rem;
+  color: #2ecc71;
+  margin-bottom: 0.5rem;
+`;
+
+const SuccessTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #403E2D;
+  margin-bottom: 0.5rem;
+`;
+
+const SuccessText = styled.p`
+  font-size: 1.1rem;
+  color: #666;
 `;
